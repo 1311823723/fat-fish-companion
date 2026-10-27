@@ -1,0 +1,10 @@
+{
+  "mode": "local",
+  "port": 3102,
+  "upstream": "http://127.0.0.1:3100",
+  "botQQ": "",
+  "modelBaseURL": "http://127.0.0.1:8788/v1",
+  "model": "",
+  "apiKeyEnv": "ROOM_API_KEY",
+  "proxyConfigModule": ""
+}

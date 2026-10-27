@@ -1,0 +1,6 @@
+大肥鱼 / DeepSeek 鲸鱼娘（二创，非官方）
+角色原设计：上善无形；DeepSeek女仆二创：ZipZipPipe。
+动画素材：tndmgzo7/blue-fat-fish-desktop-pet，CC BY-NC-SA 4.0，禁止商业使用，署名、相同方式共享。
+来源：https://github.com/tndmgzo7/blue-fat-fish-desktop-pet
+本小屋仅对原图集所选动作重新打包为WebP，未重绘角色，保留原始帧像素。
+许可：https://creativecommons.org/licenses/by-nc-sa/4.0/
