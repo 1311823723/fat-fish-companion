@@ -1,3 +1,4 @@
+import { drawTravelPhoto } from "./photo-router.mjs";
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -6,10 +7,13 @@ import { WebSocketServer } from "ws";
 import { Store } from "./core/store.mjs";
 import { config, ROOT } from "./config.mjs";
 import { Weather } from "./weather.mjs";
-import { drawScene, safeDrawingFailure } from "./drawing.mjs";
+import { safeDrawingFailure } from "./drawing.mjs";
 export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   fs.mkdirSync(path.join(ROOT, "state"), { recursive: true });
   store ??= new Store(path.resolve(ROOT, c.database || "state/world.db"));
+  store.drawingFallback =
+    (c.drawing?.provider || "gpt") === "gpt" &&
+    c.drawing?.fallbackProvider === "doubao";
   const sessions = new Map(),
     limits = new Map();
   const allowed = new Set(c.allowedOrigins || []);
@@ -493,13 +497,14 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         .raw()
         .travel.pending.find((t) => t.id === job.payload.tripId);
       if (!t) throw Error("旅程不存在");
-      await drawScene(
+      await drawTravelPhoto(
         t.photoScene,
         {
           ...c.drawing,
           referenceFile: path.resolve(ROOT, c.drawing.referenceFile),
         },
         path.join(ROOT, "state/photos"),
+        store,
       );
       store.transact({
         type: "photo_ready",

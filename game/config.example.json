@@ -16,7 +16,8 @@
     "enabled": false,
     "baseUrl": "http://127.0.0.1:3080/plugins/dsh-doubao-image-free/api/",
     "provider": "gpt",
-    "referenceFile": "public/assets/reference-v1.png"
+    "referenceFile": "public/assets/reference-v1.png",
+    "fallbackProvider": "doubao"
   },
   "weather": {
     "city": "示例城市",

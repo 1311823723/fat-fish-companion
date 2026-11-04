@@ -364,7 +364,19 @@ noteButton.onclick = () => {
 };
 $("album").onclick = () => {
   open("旅行相册");
-  if (world?.drawing?.waiting)
+  if (world?.drawing?.verificationRequired)
+    body.append(
+      element(
+        "p",
+        "GPT额度等待恢复，豆包需要完成网页验证。照片记录已保留。",
+        "subtle",
+      ),
+    );
+  else if (world?.drawing?.fallbackProvider === "doubao")
+    body.append(
+      element("p", "GPT额度等待恢复，这段时间由豆包补拍照片。", "subtle"),
+    );
+  else if (world?.drawing?.waiting)
     body.append(
       element(
         "p",

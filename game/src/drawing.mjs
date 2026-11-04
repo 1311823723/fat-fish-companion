@@ -46,6 +46,12 @@ export async function drawScene(
   ).json();
   if (!r.ok || !r.attachment) {
     const raw = String(r.message || r.reason || "");
+    if (/710022004|人机校验|网页验证/.test(raw)) {
+      const error = new Error("豆包需要在网页完成人机验证");
+      error.code = "DRAWING_VERIFICATION";
+      error.provider = provider;
+      throw error;
+    }
     const reason = /quota|rate.limit|额度|限额/i.test(raw)
       ? "服务限额"
       : /未从响应中解析到图片|no.image/i.test(raw)
@@ -56,6 +62,7 @@ export async function drawScene(
     const error = new Error("图片生成失败：" + reason);
     if (r.errorCode === "image-quota" || reason === "服务限额") {
       error.code = "DRAWING_QUOTA";
+      error.provider = provider;
       error.retryAfterMs = Number.isFinite(r.retryAfterMs)
         ? Math.min(48 * 3600000 + 300000, Math.max(60000, r.retryAfterMs))
         : 24 * 3600000;
@@ -84,16 +91,23 @@ export function safeDrawingFailure(error) {
   const quota = error?.code === "DRAWING_QUOTA";
   const message = String(error?.message || "");
   return {
+    provider: error?.provider || "gpt",
+    verificationRequired: error?.code === "DRAWING_VERIFICATION",
     rateLimited: quota,
     retryAfterMs: quota ? error.retryAfterMs : 2 * 3600000,
-    reason: quota
-      ? "GPT生图额度已用完，等待重置"
-      : /绘图服务未返回图片/.test(message)
-        ? "绘图服务未返回图片"
-        : /需要重新登录/.test(message)
-          ? "需要重新登录"
-          : /Timeout|timed out|abort/i.test(message)
-            ? "绘图请求超时"
-            : "绘图服务暂不可用",
+    reason:
+      error?.code === "DRAWING_VERIFICATION"
+        ? "豆包需要网页验证"
+        : quota
+          ? error?.provider === "doubao"
+            ? "豆包生图额度暂不可用"
+            : "GPT生图额度已用完，等待重置"
+          : /绘图服务未返回图片/.test(message)
+            ? "绘图服务未返回图片"
+            : /需要重新登录/.test(message)
+              ? "需要重新登录"
+              : /Timeout|timed out|abort/i.test(message)
+                ? "绘图请求超时"
+                : "绘图服务暂不可用",
   };
 }

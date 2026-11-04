@@ -131,18 +131,63 @@ export class Store extends EventEmitter {
       .prepare("UPDATE outbox SET status=?,result=? WHERE id=?")
       .run(status, String(result).slice(0, 300), id);
   }
+  pauseDrawingProvider(provider, retryAfterMs, verificationRequired = false) {
+    const key =
+      provider === "doubao" ? "drawingFallbackCooldown" : "drawingCooldown";
+    const delay = Math.min(
+      48 * 3600000 + 300000,
+      Math.max(
+        60000,
+        Number.isFinite(retryAfterMs) ? retryAfterMs : 24 * 3600000,
+      ),
+    );
+    this.db
+      .prepare(
+        "INSERT INTO meta(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+      )
+      .run(
+        key,
+        JSON.stringify({ retryAt: this.clock() + delay, verificationRequired }),
+      );
+  }
   drawingState() {
-    const row = this.db
-      .prepare("SELECT value FROM meta WHERE key='drawingCooldown'")
-      .get();
-    const saved = row ? JSON.parse(row.value) : null;
-    return saved?.retryAt > this.clock()
-      ? {
-          waiting: true,
-          retryAt: saved.retryAt,
-          reason: "GPT生图额度已用完，等待重置",
-        }
-      : { waiting: false };
+    const read = (key) => {
+      const row = this.db
+        .prepare("SELECT value FROM meta WHERE key=?")
+        .get(key);
+      return row ? JSON.parse(row.value) : null;
+    };
+    const gpt = read("drawingCooldown"),
+      backup = read("drawingFallbackCooldown");
+    const limited = gpt?.retryAt > this.clock(),
+      blocked = backup?.verificationRequired || backup?.retryAt > this.clock();
+    if (!limited) return { waiting: false };
+    if (this.drawingFallback && !blocked)
+      return {
+        waiting: false,
+        gptLimited: true,
+        gptRetryAt: gpt.retryAt,
+        fallbackProvider: "doubao",
+        reason: "GPT额度等待恢复，使用豆包保底",
+      };
+    return {
+      waiting: true,
+      gptLimited: true,
+      gptRetryAt: gpt.retryAt,
+      retryAt: Math.min(
+        gpt.retryAt,
+        backup?.verificationRequired
+          ? gpt.retryAt
+          : backup?.retryAt || gpt.retryAt,
+      ),
+      verificationRequired: !!(
+        this.drawingFallback && backup?.verificationRequired
+      ),
+      reason:
+        this.drawingFallback && backup?.verificationRequired
+          ? "GPT额度等待恢复，豆包需要网页验证"
+          : "GPT生图额度已用完，等待重置",
+    };
   }
   retryPhoto(
     id,
@@ -150,9 +195,11 @@ export class Store extends EventEmitter {
       reason = "绘图任务未完成",
       retryAfterMs = 2 * 3600000,
       rateLimited = false,
+      provider = "gpt",
+      verificationRequired = false,
     } = {},
   ) {
-    const due =
+    let due =
       this.clock() +
       Math.min(
         48 * 3600000 + 300000,
@@ -161,19 +208,20 @@ export class Store extends EventEmitter {
           Number.isFinite(retryAfterMs) ? retryAfterMs : 2 * 3600000,
         ),
       );
+    if (provider === "doubao" && this.drawingState().gptLimited)
+      due = Math.min(
+        this.drawingState().gptRetryAt,
+        verificationRequired ? this.drawingState().gptRetryAt : due,
+      );
     this.db.exec("BEGIN IMMEDIATE");
     try {
       this.db
         .prepare(
           "UPDATE outbox SET status=CASE WHEN ? OR attempts<3 THEN 'pending' ELSE 'abandoned' END,due=?,result=? WHERE id=? AND kind='photo'",
         )
-        .run(rateLimited ? 1 : 0, due, reason, id);
-      if (rateLimited)
-        this.db
-          .prepare(
-            "INSERT INTO meta(key,value) VALUES('drawingCooldown',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-          )
-          .run(JSON.stringify({ retryAt: due }));
+        .run(rateLimited || verificationRequired ? 1 : 0, due, reason, id);
+      if (rateLimited || verificationRequired)
+        this.pauseDrawingProvider(provider, retryAfterMs, verificationRequired);
       this.db.exec("COMMIT");
     } catch (error) {
       this.db.exec("ROLLBACK");
