@@ -8,8 +8,8 @@ export class Room extends Phaser.Scene {
   sky!: Phaser.GameObjects.Graphics;
   curtain!: Phaser.GameObjects.Graphics;
   dark!: Phaser.GameObjects.Rectangle;
-  glow!: Phaser.GameObjects.Ellipse;
-  fridgeGlow!: Phaser.GameObjects.Ellipse;
+  glow!: Phaser.GameObjects.Image;
+  fridgeGlow!: Phaser.GameObjects.Image;
   door!: Phaser.GameObjects.Image;
   foods!: Phaser.GameObjects.Group;
   note!: Phaser.GameObjects.Text;
@@ -59,12 +59,26 @@ export class Room extends Phaser.Scene {
       .sprite(300, 710, "idle")
       .setOrigin(0.5, 244 / 256)
       .setScale(0.82);
-    this.dark = this.add.rectangle(0, 0, 600, 800, 0x142438, 0).setOrigin(0);
+    this.dark = this.add
+      .rectangle(0, 0, 600, 800, 0x142438, 1)
+      .setOrigin(0)
+      .setAlpha(0);
+    const lightTexture = this.textures.createCanvas("soft-light-v1", 256, 256)!;
+    const context = lightTexture.context,
+      gradient = context.createRadialGradient(128, 128, 8, 128, 128, 128);
+    gradient.addColorStop(0, "rgba(255,245,190,.4)");
+    gradient.addColorStop(0.45, "rgba(255,245,190,.18)");
+    gradient.addColorStop(1, "rgba(255,245,190,0)");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 256, 256);
+    lightTexture.refresh();
     this.glow = this.add
-      .ellipse(300, 420, 190, 190, 0xffdda3, 0.12)
+      .image(300, 400, "soft-light-v1")
+      .setDisplaySize(190, 200)
       .setVisible(false);
     this.fridgeGlow = this.add
-      .ellipse(490, 498, 120, 230, 0xfff2bb, 0.18)
+      .image(490, 435, "soft-light-v1")
+      .setDisplaySize(150, 270)
       .setVisible(false);
     this.note = this.add
       .text(240, 568, "", {
@@ -127,9 +141,11 @@ export class Room extends Phaser.Scene {
         ? 0xa1adb9
         : h >= 17
           ? 0xe0b48e
-          : weather === "clear"
-            ? 0xb9d7d5
-            : 0xaabdc0;
+          : h < 11
+            ? 0xc7d8cc
+            : weather === "clear"
+              ? 0xb9d7d5
+              : 0xaabdc0;
     g.fillStyle(color);
     g.fillRoundedRect(223, 37, 148, 197, { tl: 74, tr: 74, bl: 0, br: 0 });
     g.fillStyle(night ? 0xeae7c9 : 0xffedb9);
@@ -137,8 +153,8 @@ export class Room extends Phaser.Scene {
       g.fillCircle(267, 91, 13);
       for (let i = 0; i < 7; i++)
         g.fillCircle(245 + i * 16, 60 + (i % 3) * 20, 1);
-    } else if (!night && ["clear", "cloudy"].includes(weather))
-      g.fillCircle(325, 126, 20);
+    } else if (!night && h >= 7 && ["clear", "cloudy"].includes(weather))
+      g.fillCircle(h < 11 ? 265 : 325, h < 11 || h >= 17 ? 178 : 110, 20);
     g.fillStyle(night ? 0x49635c : 0x9cb39b);
     g.fillEllipse(270, 210, 96, 58);
     g.fillEllipse(335, 204, 75, 60);
@@ -305,6 +321,10 @@ export class Room extends Phaser.Scene {
     } else if (a.name === "rest") {
       tx = 300;
       ty = 690;
+    } else if (
+      ["smile", "sleepy", "sad", "angry"].includes(w.mood.expression)
+    ) {
+      name = "expr_" + w.mood.expression;
     }
     const factor = 1 - Math.exp(-Math.min(delta, 100) / 190);
     this.x += (tx - this.x) * factor;

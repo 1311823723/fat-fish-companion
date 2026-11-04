@@ -32,7 +32,19 @@ export function installGameCore(room, { root }) {
     "syncTravel",
     "handle",
   ])
-    original[name] = room[name].bind(room);
+    original[name] =
+      typeof room[name] === "function"
+        ? room[name].bind(room)
+        : () => undefined;
+  room.personalRecent ??= (qq) =>
+    (room.data.histories["qq:" + String(qq)] || [])
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .slice(-12)
+      .map((m) => ({
+        role: m.role,
+        text: String(m.text || "").slice(0, 300),
+        at: m.at,
+      }));
   async function call(route, body = {}) {
     const r = await fetch(settings.url + "/internal/" + route, {
       method: "POST",
@@ -51,6 +63,40 @@ export function installGameCore(room, { root }) {
     if (inflight) return inflight;
     inflight = (async () => {
       cache = await call("snapshot");
+      const rawMood = String(room.roomState?.().self?.mood || "").trim();
+      if (rawMood) {
+        const sourceHash = crypto
+          .createHash("sha256")
+          .update(rawMood)
+          .digest("hex");
+        if (cache.world.mood.sourceHash !== sourceHash) {
+          try {
+            const m = original.mood();
+            const weather = room.weather?.state?.() || cache.public.weather,
+              offset =
+                room.weather && weather.available
+                  ? weather.kind === "clear"
+                    ? 2
+                    : ["rain", "snow", "thunder"].includes(weather.kind)
+                      ? -1
+                      : 0
+                  : 0;
+            await call("command", {
+              type: "mood",
+              requestId: "mood:" + crypto.randomUUID(),
+              args: {
+                mood: {
+                  label: m.label,
+                  value: Math.max(0, Math.min(100, m.value - offset)),
+                  expression: m.expression || "neutral",
+                  sourceHash,
+                },
+              },
+            });
+            cache = await call("snapshot");
+          } catch {}
+        }
+      }
       room.data.kitchen = {
         ...(room.data.kitchen || {}),
         stock: cache.world.stock,
@@ -111,7 +157,11 @@ export function installGameCore(room, { root }) {
     } catch {
       return original.mood();
     }
-    return { ...p.mood, energy: p.energy, expression: "neutral" };
+    return {
+      ...p.mood,
+      energy: p.energy,
+      expression: p.mood.expression || "neutral",
+    };
   };
   room.feedingSummary = () => {
     try {
@@ -145,9 +195,11 @@ export function installGameCore(room, { root }) {
           activity: p.activity.name,
           hunger: p.hunger,
           energy: p.energy,
+          mood: p.mood,
           weather: p.weather,
           intent: w.travel.current?.intent,
           photoEvent: w.travel.current?.photoScene,
+          photoStatus: w.travel.current?.photo?.status,
           latestReturn: w.travel.lastReturnedAt,
           recentTrips: [...w.travel.history, ...w.travel.pending]
             .slice(-3)
@@ -156,10 +208,11 @@ export function installGameCore(room, { root }) {
               intent: t.intent,
               returnedAt: t.returnedAt,
               photoEvent: t.photoScene,
+              photoStatus: t.photo?.status || (t.photoId ? "ready" : "unknown"),
             })),
           souvenirs: p.souvenirs.slice(-3),
         }) +
-        "。状态优先于旧聊天；已回家不要说还在路上。出门由自己的意愿决定，没有真实邀请就不要说被人丢去或安排过去。精力低也应正常回应私聊和艾特。"
+        "。状态优先于旧聊天；已回家不要说还在路上。出门由自己的意愿决定，没有真实邀请就不要说被人丢去或安排过去。精力低也应正常回应私聊和艾特。拍照事件不代表照片已发送，发没发只按已确认的发送记录判断。"
       );
     } catch {
       return "【小屋状态暂不可用】不能推测正在出游或回家，正常回应聊天。";

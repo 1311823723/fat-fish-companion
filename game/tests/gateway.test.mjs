@@ -1,3 +1,4 @@
+import { removeTestDirectory } from "./helpers.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -76,6 +77,6 @@ test("public gateway validates relay, proxies state and upgrades websocket", asy
     await new Promise((r) => gateway.close(r));
     await new Promise((r) => core.close(r));
     store.close();
-    fs.rmSync(dir, { recursive: true, force: true });
+    removeTestDirectory(dir);
   }
 });

@@ -1,3 +1,4 @@
+import { removeTestDirectory } from "./helpers.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -26,5 +27,5 @@ test("restart preserves request id and does not retry uncertain QQ outbox", () =
   s.snapshot();
   assert.ok(s.raw().hunger >= 55.99);
   s.close();
-  fs.rmSync(dir, { recursive: true, force: true });
+  removeTestDirectory(dir);
 });

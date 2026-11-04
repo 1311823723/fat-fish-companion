@@ -4,7 +4,7 @@
 
 1. 备份旧桥接文件和存档，停止旧生活调度器前核对正在处理的会话。
 2. 用 `node scripts/stage-bridge.mjs <旧项目> <独立暂存目录>` 生成补丁。它对源码锚点严格检查，旧版结构不同就停止，禁止整包覆盖。
-3. 检查暂存的 `bridge.js`、`room-public-server.mjs` 及两个 adapter 模块。补丁仅在存在启用的 `state/game-core-link.json` 时接管；禁用后使用旧实现。
+3. 检查暂存的 `bridge.js`、`room-public-server.mjs` 及三个适配模块。脚本支持仓库发布的基础桥接，以及含旅行功能的旧版桥接；没有旅行函数也能接入新核心。补丁仅在存在启用的 `state/game-core-link.json` 时接管；禁用后使用旧实现。已接入过的版本按升级流程更新模块，禁止重复插入。
 4. 链接文件结构：`enabled`、本机 `url`、与核心 `adapterSecret` 相同的 `secret`、`photoDirectory`、独立 `relaySecret` 和 `publicOrigins`。实际密钥通过本机配置生成，不在文档里提供。
 5. 核心配置 `bridge.enabled=true`。旧网关继续负责原有签名 cookie、QQ 验证、聊天和主人日记。新界面使用同源接口，因此 QQ 和网页仍按同一人号读取记忆。
 6. 先启动核心并验证 `/health`，会话空闲时启用补丁并重启桥接和网关。核对两端库存、位置、生活版本一致；保留旧 `/room-legacy` 画面作为回滚入口。

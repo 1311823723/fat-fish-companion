@@ -1,3 +1,4 @@
+import { removeTestDirectory } from "./helpers.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -66,6 +67,6 @@ test("bridge adapter shares authoritative state, suppresses legacy writers, rout
     adapter.stop();
     await new Promise((r) => server.close(r));
     store.close();
-    fs.rmSync(dir, { recursive: true, force: true });
+    removeTestDirectory(dir);
   }
 });

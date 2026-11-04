@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { freezeScene } from "./scene.mjs";
+import { departureNote } from "./note.mjs";
+import { displayCaption } from "./caption.mjs";
 export const MENU = [
   ["tomato", "番茄炒蛋", 30],
   ["wings", "可乐鸡翅", 30],
@@ -156,9 +158,22 @@ export function settle(w, now, events) {
         next,
       );
     }
-    if (!trip && w.hunger < 35) {
+    if (
+      !trip &&
+      !sleep &&
+      !(w.activity.manual && w.activity.until > cursor) &&
+      w.hunger < 35
+    ) {
       const food = MENU.find(([id, , gain]) => gain >= 10 && w.stock[id] > 0);
-      if (food) consume(w, food[0], events, next, true);
+      if (food) {
+        consume(w, food[0], events, next, true);
+        w.activity = {
+          name: "eat",
+          startedAt: next,
+          until: next + 18000,
+          automatic: true,
+        };
+      }
     }
     if (trip && next >= trip.returnAt) arrive(w, events, trip.returnAt);
     cursor = next;
@@ -172,10 +187,21 @@ export function settle(w, now, events) {
   } else if (w.activity.until <= now) {
     const h = new Date(now + 28800000).getUTCHours();
     const sleep = h >= 23 || h < 7 || w.energy < 20;
+    const stretch =
+      !sleep && w.energy >= 45 && Math.floor(now / 300000) % 4 === 1;
+    const wet =
+      w.weather.available &&
+      ["rain", "snow", "thunder"].includes(w.weather.kind);
     w.activity = {
-      name: sleep ? "sleep" : w.energy < 45 ? "rest" : "idle",
+      name: sleep
+        ? "sleep"
+        : w.energy < 45 || (stretch && wet)
+          ? "rest"
+          : stretch
+            ? "walk"
+            : "idle",
       startedAt: now,
-      until: now + (sleep ? 30 : 5) * 60000,
+      until: now + (sleep ? 30 : stretch && !wet ? 0.5 : 5) * 60000,
     };
   }
 }
@@ -241,7 +267,15 @@ export function apply(w, command, actor, now, events) {
     w.activity = {
       name: args.name === "wake" ? "idle" : args.name,
       startedAt: now,
-      until: now + (args.name === "sleep" ? 30 * 60000 : 30000),
+      until:
+        args.name === "sleep" &&
+        (new Date(now + 28800000).getUTCHours() >= 19 ||
+          new Date(now + 28800000).getUTCHours() < 7)
+          ? Date.parse(
+              new Date(now + 28800000).toISOString().slice(0, 10) +
+                "T07:00:00+08:00",
+            ) + (new Date(now + 28800000).getUTCHours() >= 19 ? 86400000 : 0)
+          : now + (args.name === "sleep" ? 30 * 60000 : 30000),
       manual: true,
     };
     event(events, "activity_started", { name: args.name }, now);
@@ -310,7 +344,7 @@ export function apply(w, command, actor, now, events) {
         : { id: "none", label: "没有带饭" },
       departedAt: now,
       returnAt: now + duration,
-      note: "我去" + place.label + "转转，晚点回来",
+      note: "",
       photo: { status: "pending", attempts: 0 },
       share: {},
       souvenir:
@@ -338,6 +372,10 @@ export function apply(w, command, actor, now, events) {
       const [sid, label] = choices[Math.floor(Math.random() * choices.length)];
       trip.souvenir = { id: sid, label };
     }
+    trip.note = departureNote(trip, w.travel.recentNotes || []);
+    w.travel.recentNotes = [...(w.travel.recentNotes || []), trip.note].slice(
+      -20,
+    );
     w.travel.current = trip;
     w.location = place.label;
     event(events, "departed", { tripId: id, intent: trip.intent }, now);
@@ -357,6 +395,26 @@ export function apply(w, command, actor, now, events) {
   } else if (type === "weather") {
     if (!actor.system) throw Error("内部操作");
     w.weather = args.weather;
+  } else if (type === "mood") {
+    if (!actor.system) throw Error("内部操作");
+    const m = args.mood;
+    if (
+      !m ||
+      !["平常", "轻松", "有些困", "有点低落", "有点烦"].includes(m.label) ||
+      !Number.isFinite(m.value) ||
+      m.value < 0 ||
+      m.value > 100 ||
+      !["neutral", "smile", "sleepy", "sad", "angry"].includes(m.expression) ||
+      !/^[a-f0-9]{64}$/.test(m.sourceHash)
+    )
+      throw Error("心情格式无效");
+    w.mood = {
+      label: m.label,
+      value: m.value,
+      expression: m.expression,
+      sourceHash: m.sourceHash,
+    };
+    event(events, "mood_changed", { label: m.label, value: m.value }, now);
   } else if (type === "photo_ready") {
     if (!actor.system) throw Error("内部操作");
     const t = w.travel.pending.find((x) => x.id === args.tripId);
@@ -402,9 +460,9 @@ export function publicWorld(w, now) {
     hunger: Math.round(w.hunger),
     energy: Math.round(w.energy),
     mood: {
-      ...w.mood,
+      label: w.mood.label,
       energy: Math.round(w.energy),
-      expression: "neutral",
+      expression: w.mood.expression || "neutral",
       value: clamp(
         w.mood.value +
           (w.weather.available
@@ -426,14 +484,14 @@ export function publicWorld(w, now) {
       photoId,
       place,
       capturedAt,
-      caption,
+      caption: displayCaption(caption, place),
     })),
     travel: {
       photos: w.photos.map(({ photoId, place, capturedAt, caption }) => ({
         photoId,
         place,
         capturedAt,
-        caption,
+        caption: displayCaption(caption, place),
       })),
       phase: trip ? "away" : "home",
       destination: trip?.place.label,

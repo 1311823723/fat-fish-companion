@@ -1,3 +1,4 @@
+import { publicWorld } from "../src/core/world.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { convert } from "../scripts/migrate.mjs";
@@ -20,7 +21,10 @@ test("legacy import preserves counts, history remains in original, no stock trun
       pending: [],
     },
   };
+  old.travel.history[0].caption = "想象中的旅行，AI生成插画";
   const { world, counts } = convert(old);
+  assert.match(world.photos[0].caption, /想象/);
+  assert.ok(!publicWorld(world, Date.now()).photos[0].caption.includes("想象"));
   assert.equal(counts.inventory, 9);
   assert.equal(counts.photos, 1);
   assert.equal(counts.identities, 1);
