@@ -513,6 +513,7 @@ dialog header {
 }
 /* A fixed paper size: text is paginated inside it, never used to size the book. */
 #panel.diary-mode {
+  max-width: none;
   width: min(640px, calc(100vw - 24px), calc(88dvh * 0.8));
   height: min(800px, 88dvh, calc((100vw - 24px) * 1.25));
   max-height: none;
