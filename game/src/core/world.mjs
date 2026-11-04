@@ -423,12 +423,22 @@ export function apply(w, command, actor, now, events) {
     if (!w.photos.some((x) => x.photoId === t.id))
       w.photos.push({
         photoId: t.id,
+        assetVersion: args.assetVersion || "original",
         place: t.place.label,
         capturedAt: t.photoScene.capturedAt,
         caption: args.caption,
         scene: t.photoScene,
       });
     event(events, "photo_ready", { tripId: t.id }, now);
+  } else if (type === "photo_processed") {
+    if (!actor.system) throw Error("内部操作");
+    if (!/^[a-f0-9]{16}$/.test(args.assetVersion || ""))
+      throw Error("图片版本无效");
+    const photo = w.photos.find((x) => x.photoId === args.photoId);
+    if (photo && photo.assetVersion !== args.assetVersion) {
+      photo.assetVersion = args.assetVersion;
+      event(events, "photo_processed", { photoId: args.photoId }, now);
+    }
   } else if (type === "trip_archive") {
     if (!actor.system) throw Error("内部操作");
     const i = w.travel.pending.findIndex((x) => x.id === args.tripId);
@@ -480,19 +490,25 @@ export function publicWorld(w, now) {
     weather: w.weather,
     backpack: w.backpack,
     souvenirs: w.souvenirs,
-    photos: w.photos.map(({ photoId, place, capturedAt, caption }) => ({
-      photoId,
-      place,
-      capturedAt,
-      caption: displayCaption(caption, place),
-    })),
-    travel: {
-      photos: w.photos.map(({ photoId, place, capturedAt, caption }) => ({
+    photos: w.photos.map(
+      ({ photoId, place, capturedAt, caption, assetVersion }) => ({
         photoId,
+        assetVersion: assetVersion || "original",
         place,
         capturedAt,
         caption: displayCaption(caption, place),
-      })),
+      }),
+    ),
+    travel: {
+      photos: w.photos.map(
+        ({ photoId, place, capturedAt, caption, assetVersion }) => ({
+          photoId,
+          assetVersion: assetVersion || "original",
+          place,
+          capturedAt,
+          caption: displayCaption(caption, place),
+        }),
+      ),
       phase: trip ? "away" : "home",
       destination: trip?.place.label,
       note: trip?.note,

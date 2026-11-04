@@ -401,14 +401,22 @@ $("album").onclick = () => {
   for (const p of [...world.photos].reverse()) {
     const b = element("button"),
       img = element("img");
-    img.src = "/room-photo/" + p.photoId + "/thumb";
+    img.src =
+      "/room-photo/" +
+      p.photoId +
+      "/thumb?v=" +
+      encodeURIComponent(p.assetVersion || "original");
     img.alt = p.place;
     img.loading = "lazy";
     b.append(img, element("small", p.place));
     b.onclick = () => {
       open(p.place);
       const large = element("img", "", "photo-large");
-      large.src = "/room-photo/" + p.photoId;
+      large.src =
+        "/room-photo/" +
+        p.photoId +
+        "?v=" +
+        encodeURIComponent(p.assetVersion || "original");
       large.alt = p.place;
       body.append(
         large,

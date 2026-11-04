@@ -506,11 +506,21 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         path.join(ROOT, "state/photos"),
         store,
       );
+      let assetVersion;
+      try {
+        assetVersion = JSON.parse(
+          fs.readFileSync(
+            path.join(ROOT, "state/photos", t.id + ".meta.json"),
+            "utf8",
+          ),
+        ).assetVersion;
+      } catch {}
       store.transact({
         type: "photo_ready",
         requestId: "photo-ready:" + t.id,
         args: {
           tripId: t.id,
+          assetVersion,
           caption:
             "我在" +
             t.place.label +

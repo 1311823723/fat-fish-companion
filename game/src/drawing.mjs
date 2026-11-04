@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import path from "node:path";
+import { providerPhotoPrompt, saveTravelImage } from "./photo-presentation.mjs";
 import { imagePrompt } from "./core/scene.mjs";
 export async function drawScene(
   scene,
@@ -39,7 +39,7 @@ export async function drawScene(
         mode: "edit",
         ratio: "1:1",
         references: [ref.attachment],
-        prompt: imagePrompt(scene),
+        prompt: providerPhotoPrompt(imagePrompt(scene), provider),
       },
       240000,
     )
@@ -75,15 +75,7 @@ export async function drawScene(
     throw Error("图片大小异常");
   const id = scene.id.split(":")[0];
   if (!/^[0-9a-f-]{36}$/.test(id)) throw Error("图片编号错误");
-  await fs.mkdir(directory, { recursive: true });
-  const target = path.join(directory, id + ".img");
-  await fs.writeFile(target + ".tmp", buf);
-  await fs.rename(target + ".tmp", target);
-  const sharp = (await import("sharp")).default;
-  await sharp(buf)
-    .resize(480, 480, { fit: "inside" })
-    .webp({ quality: 80 })
-    .toFile(path.join(directory, id + ".thumb.webp"));
+  await saveTravelImage(buf, id, provider, directory);
   return id;
 }
 
