@@ -24,14 +24,14 @@ Cloudflare 速度或可达性不合格时继续用原隧道。不要为迁移网
 
 ## 独立 Pages 入口（网址不包含账号子域名）
 
-Pages 使用独立的项目名，例如 `fatfish-cottage.pages.dev`，不需要更改账号共用的 workers.dev 子域名，也不会更改同账号其他项目的地址。需要 Cloudflare Pages 部署权限。
+Pages 使用独立的项目名，例如 `fatfish-cottage.pages.dev`（部署其他实例时请改成自己独有的项目名），不需要更改账号共用的 workers.dev 子域名，也不会更改同账号其他项目的地址。需要 Cloudflare Pages 部署权限。
 
 ```powershell
 npm run build:pages
 npx wrangler pages project create fatfish-cottage --production-branch main
 npx wrangler pages secret put ROOM_ORIGIN --project-name fatfish-cottage
 npx wrangler pages secret put ROOM_RELAY_SECRET --project-name fatfish-cottage
-npx wrangler pages deploy state/pages-build --project-name fatfish-cottage --branch main --config deploy/pages/wrangler.jsonc
+npx wrangler --cwd deploy/pages pages deploy ../../state/pages-build --project-name fatfish-cottage --branch main
 ```
 
 `ROOM_ORIGIN` 指向部署者自己的固定公网小屋网关，`ROOM_RELAY_SECRET` 与本机网关独立转发凭据一致；不要将凭据写进代码或文档。将实际的 Pages HTTPS 来源加入本机 `state/game-core-link.json` 的 `publicOrigins` 与游戏配置的 `allowedOrigins`。新网址按原方式重新进入、验证 QQ，原有日记和人物记忆保留。
