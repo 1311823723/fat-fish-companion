@@ -1,0 +1,32 @@
+{
+  "name": "fatfish-game",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5174",
+    "core": "node src/server.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/compress.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "setup": "node scripts/setup.mjs",
+    "migrate": "node scripts/migrate.mjs",
+    "backup": "node scripts/backup.mjs",
+    "release": "node scripts/export.mjs"
+  },
+  "dependencies": {
+    "phaser": "4.2.1",
+    "sharp": "0.35.5",
+    "ws": "8.22.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "prettier": "3.9.10",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "wrangler": "4.157.0"
+  }
+}

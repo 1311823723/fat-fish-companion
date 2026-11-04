@@ -1,3 +1,5 @@
+新版独立生活游戏请先读 [game/DEPLOYMENT_AGENT.md](game/DEPLOYMENT_AGENT.md)。以下为旧版桥接安装流程；不要同时启动两套生活写入。
+
 # 给DSH：安装手机小屋
 
 先读README.md、RULES.md和docs/ROOM-DEPLOY.md。这是集成在当前QQ Bridge中的扩展，不是独立静态网页。用户只给仓库地址时，检查系统、Node版本、已有DSH、QQ Bridge、SnowLuma、模型接口，再执行安装。

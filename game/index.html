@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f4efe4" />
+    <title>大肥鱼的小屋</title>
+  </head>
+  <body>
+    <main id="app">
+      <header>
+        <div>
+          <h1>大肥鱼的小屋</h1>
+          <p id="place">在家 · 等她伸个懒腰</p>
+        </div>
+        <button id="settings" aria-label="小屋设置">设置</button>
+      </header>
+      <section id="game" aria-label="互动小屋">
+        <p class="loading">打开小屋…</p>
+      </section>
+      <div class="room-info">
+        <span id="clock"></span><span id="weather"></span
+        ><span id="connection" role="status">连接中</span>
+      </div>
+      <nav class="actions" aria-label="生活互动">
+        <button data-activity="walk">走一走</button
+        ><button data-activity="sleep">睡觉</button
+        ><button data-activity="wake">叫醒</button
+        ><button id="feed">放食物</button><button id="tea">喝奶茶</button>
+      </nav>
+      <section class="needs" aria-label="生活状态">
+        <label
+          >饱食 <meter id="hunger" max="100"></meter
+          ><span id="hungerValue"></span></label
+        ><label
+          >精力 <meter id="energy" max="100"></meter
+          ><span id="energyValue"></span></label
+        ><label
+          >心情 <meter id="mood" max="100"></meter><span id="moodValue"></span
+        ></label>
+      </section>
+      <nav class="tools">
+        <button id="curtain">窗帘</button><button id="light">灯光</button
+        ><button id="fridge">冰箱</button><button id="diary">日记</button
+        ><button id="album">相册</button><button id="backpack">背包</button
+        ><button id="souvenirs">收藏</button>
+      </nav>
+      <p id="notice" role="status"></p>
+      <section class="chat">
+        <div class="chat-heading">
+          <h2>和她说说话</h2>
+          <button id="identity">做客</button>
+        </div>
+        <div id="chatLog" aria-live="polite"></div>
+        <form id="chatForm">
+          <input
+            id="chatInput"
+            maxlength="500"
+            placeholder="回来啦？"
+            aria-label="聊天内容"
+          /><button id="chatSend">发送</button>
+        </form>
+      </section>
+      <footer>
+        <a href="/assets/CREDITS.txt" target="_blank" rel="noopener"
+          >素材署名</a
+        >
+      </footer>
+    </main>
+    <dialog id="panel">
+      <header>
+        <h2 id="panelTitle"></h2>
+        <button id="closePanel" aria-label="关闭">关闭</button>
+      </header>
+      <div id="panelBody"></div>
+    </dialog>
+    <script type="module" src="/src/client/main.ts"></script>
+  </body>
+</html>

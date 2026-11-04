@@ -1,0 +1,10 @@
+node_modules/
+dist/
+state/
+config.local.json
+.dev.vars
+.wrangler/
+release/
+*.db*
+*.log
+playwright-*
