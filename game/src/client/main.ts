@@ -497,7 +497,7 @@ async function identityPanel() {
   guest.onclick = async () => {
     guest.disabled = true;
     try {
-      const r = await api("enter", {});
+      const r = await api("enter", { qq: "" });
       if (g !== generation) return;
       identity = r.identity;
       joined = true;
