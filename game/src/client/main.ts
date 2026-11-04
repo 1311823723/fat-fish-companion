@@ -1,6 +1,12 @@
 import Phaser from "phaser";
 import { Room, World } from "./room";
 import "./style.css";
+const newRequestId = () =>
+  typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : Array.from(crypto.getRandomValues(new Uint8Array(16)), (v) =>
+        v.toString(16).padStart(2, "0"),
+      ).join("");
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 let world: World = null,
@@ -110,7 +116,7 @@ async function command(type: string, args: any, button?: HTMLButtonElement) {
   }
   const payload = JSON.stringify({ type, args }),
     old = button && pending.get(button);
-  const id = old?.payload === payload ? old.id : crypto.randomUUID();
+  const id = old?.payload === payload ? old.id : newRequestId();
   if (button) {
     pending.set(button, { id, payload });
     button.disabled = true;
@@ -504,7 +510,7 @@ $<HTMLFormElement>("chatForm").onsubmit = async (e) => {
   if (!text) return;
   const b = $<HTMLButtonElement>("chatSend");
   b.disabled = true;
-  const id = chatPending?.text === text ? chatPending.id : crypto.randomUUID();
+  const id = chatPending?.text === text ? chatPending.id : newRequestId();
   if (!chatPending || chatPending.id !== id) bubble("user", text);
   chatPending = { text, id };
   try {
