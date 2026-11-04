@@ -15,7 +15,8 @@ let world: World = null,
   syncing = false,
   ws: WebSocket | null = null,
   reconnect: ReturnType<typeof setTimeout>,
-  generation = 0;
+  generation = 0,
+  entryPrompted = false;
 const panel = $<HTMLDialogElement>("panel"),
   body = $("panelBody"),
   notice = (text: string) => {
@@ -84,7 +85,7 @@ function render(w: World) {
   $("identity").textContent = identity.verified
     ? "已验证QQ"
     : joined
-      ? "访客"
+      ? "访客 · 验证QQ"
       : "做客";
   $("curtain").setAttribute(
     "aria-pressed",
@@ -97,6 +98,10 @@ async function sync() {
   syncing = true;
   try {
     render(await api("state"));
+    if (world && !entryPrompted) {
+      entryPrompted = true;
+      if (!world.entered) void identityPanel();
+    }
     $("connection").textContent = ws?.readyState === 1 ? "已同步" : "定时同步";
   } catch {
     $("connection").textContent = "连接中断 · 正在重连";
@@ -201,7 +206,13 @@ function connect() {
 }
 connect();
 void sync().then(() => {
-  if (world?.entered) void history();
+  if (world?.entered) {
+    joined = true;
+    void history().then(() => render(world));
+  } else if (world && !entryPrompted) {
+    entryPrompted = true;
+    void identityPanel();
+  }
 });
 setInterval(() => {
   if (!document.hidden) void sync();
@@ -344,9 +355,12 @@ noteButton.hidden = true;
 document.body.append(noteButton);
 noteButton.onclick = () => {
   open("桌上的便条");
-  body.append(
-    element("p", world?.travel.note || "她已经回家啦。", "diary-page"),
+  const paper = element("article", "", "travel-note-paper");
+  paper.append(
+    element("p", world?.travel.note || "她已经回家啦。", "travel-note-body"),
+    element("div", "— 大肥鱼", "travel-note-sign"),
   );
+  body.append(paper);
 };
 $("album").onclick = () => {
   open("旅行相册");
@@ -413,74 +427,156 @@ $("diary").onclick = async () => {
     if (g === generation) body.textContent = (e as Error).message;
   }
 };
+async function copyVerification(text: string) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+  } catch {}
+  const area = element("textarea");
+  area.value = text;
+  area.className = "copy-fallback";
+  body.append(area);
+  area.focus();
+  area.select();
+  const copied = document.execCommand("copy");
+  area.remove();
+  if (!copied) throw Error("请长按验证语句复制");
+}
 async function identityPanel() {
-  open("进屋坐坐");
-  const input = element("input");
+  const g = open(identity.verified ? "已关联QQ" : "进屋坐坐");
+  if (identity.verified) {
+    body.append(element("p", "QQ记忆已关联。", "subtle"));
+    const out = element("button", "退出当前身份");
+    out.onclick = async () => {
+      try {
+        await api("logout");
+        identity = {};
+        joined = false;
+        $("chatLog").replaceChildren();
+        await sync();
+        void identityPanel();
+      } catch (e) {
+        notice((e as Error).message);
+      }
+    };
+    body.append(out);
+    return;
+  }
+  const choices = element("div", "", "entry-choices"),
+    verify = element("button", "QQ验证", "entry-primary"),
+    guest = element("button", "访客进入");
+  choices.append(verify, guest);
+  body.append(
+    element("p", "验证QQ，接上你们之前的聊天。也可以先来做客。", "subtle"),
+    choices,
+  );
+  const form = element("form", "", "verify-form"),
+    input = element("input");
+  form.hidden = true;
   input.inputMode = "numeric";
-  input.placeholder = "你的 QQ 号";
+  input.autocomplete = "off";
+  input.placeholder = "输入你的 QQ 号";
   input.setAttribute("aria-label", "你的QQ号");
-  const enter = element("button", "进入"),
-    guest = element("button", "直接做客");
+  input.pattern = "[1-9][0-9]{4,11}";
+  input.required = true;
+  const enter = element("button", "获取验证语句");
+  enter.type = "submit";
+  form.append(input, enter);
   const status = element("p", "", "subtle");
-  enter.onclick = async () => {
-    enter.disabled = true;
+  status.setAttribute("role", "status");
+  const instructions = element("div", "", "verification-result");
+  instructions.hidden = true;
+  body.append(form, instructions, status);
+  verify.onclick = () => {
+    form.hidden = false;
+    verify.setAttribute("aria-pressed", "true");
+    input.focus();
+  };
+  guest.onclick = async () => {
+    guest.disabled = true;
     try {
-      const r = await api("enter", { qq: input.value.trim() });
+      const r = await api("enter", {});
+      if (g !== generation) return;
       identity = r.identity;
       joined = true;
       panel.close();
       await sync();
       await history();
+      render(world);
     } catch (e) {
-      status.textContent = (e as Error).message;
+      if (g === generation) status.textContent = (e as Error).message;
+    } finally {
+      guest.disabled = false;
+    }
+  };
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    enter.disabled = true;
+    status.textContent = "正在准备验证…";
+    try {
+      const r = await api("enter", { qq: input.value.trim() });
+      if (g !== generation) return;
+      identity = r.identity;
+      joined = true;
+      const challenge = await api("challenge");
+      if (g !== generation) return;
+      instructions.replaceChildren();
+      instructions.hidden = false;
+      const masked = String(challenge.botQQ || "").replace(
+        /^(\d{3})\d+(\d{3})$/,
+        "$1****$2",
+      );
+      const command = element("pre", challenge.command, "verification-command");
+      const copy = element("button", "一键复制验证语句"),
+        check = element("button", "我已发送，检查验证");
+      copy.type = check.type = "button";
+      copy.onclick = async () => {
+        try {
+          await copyVerification(challenge.command);
+          copy.textContent = "已复制";
+        } catch (e) {
+          status.textContent = (e as Error).message;
+        }
+      };
+      check.onclick = async () => {
+        check.disabled = true;
+        try {
+          const result = await api("identity");
+          if (g !== generation) return;
+          identity = result.identity;
+          if (identity.verified) {
+            panel.close();
+            await sync();
+            await history();
+            render(world);
+            notice("QQ记忆已关联。");
+          } else status.textContent = "还没有收到验证消息，请发送后再检查。";
+        } catch (e) {
+          if (g === generation) status.textContent = (e as Error).message;
+        } finally {
+          check.disabled = false;
+        }
+      };
+      instructions.append(
+        element(
+          "p",
+          "私聊大肥鱼" +
+            (masked ? "（" + masked + "）" : "") +
+            "，发送下面这句话：",
+        ),
+        command,
+        copy,
+        check,
+      );
+      status.textContent = "验证成功后，才会关联这个QQ号的记忆。";
+    } catch (e) {
+      if (g === generation) status.textContent = (e as Error).message;
     } finally {
       enter.disabled = false;
     }
   };
-  guest.onclick = () => {
-    input.value = "";
-    enter.click();
-  };
-  body.append(input, enter, guest, status);
-  if (joined) {
-    const verify = element("button", "关联QQ记忆"),
-      check = element("button", "检查验证"),
-      out = element("button", "退出");
-    verify.onclick = async () => {
-      try {
-        const r = await api("challenge");
-        status.textContent =
-          "私聊大肥鱼（" +
-          String(r.botQQ || "").replace(/^(\d{3})\d+(\d{3})$/, "$1****$2") +
-          "）发送：" +
-          r.command;
-      } catch (e) {
-        status.textContent = (e as Error).message;
-      }
-    };
-    check.onclick = async () => {
-      try {
-        const r = await api("identity");
-        identity = r.identity;
-        if (identity.verified) {
-          panel.close();
-          await sync();
-          await history();
-        } else status.textContent = "还没有收到验证消息。";
-      } catch (e) {
-        status.textContent = (e as Error).message;
-      }
-    };
-    out.onclick = async () => {
-      await api("logout");
-      identity = {};
-      joined = false;
-      $("chatLog").replaceChildren();
-      panel.close();
-      await sync();
-    };
-    body.append(verify, check, out);
-  }
 }
 $("identity").onclick = () => void identityPanel();
 function bubble(role: string, text: string) {

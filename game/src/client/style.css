@@ -404,3 +404,110 @@ dialog header {
   width: 26px;
   height: 26px;
 }
+.entry-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+.entry-choices button {
+  min-height: 58px;
+  font-weight: 600;
+}
+.entry-primary {
+  background: var(--green);
+  color: #fff9e8;
+}
+.entry-primary:hover {
+  background: #43684b;
+}
+.verify-form {
+  flex-direction: column;
+  margin: 18px 0;
+}
+.verify-form[hidden],
+.verification-result[hidden] {
+  display: none;
+}
+.verification-result {
+  border-top: 1px dashed var(--line);
+  padding-top: 8px;
+}
+.verification-result button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+}
+.verification-command {
+  padding: 14px;
+  border: 1px dashed #b4c3a5;
+  border-radius: 12px;
+  background: #f1f2e6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: all;
+  font: inherit;
+}
+.copy-fallback {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0.01;
+}
+.travel-note-paper {
+  position: relative;
+  margin: 24px 5px 14px;
+  padding: 27px 24px 20px;
+  border: 1px solid #e4d4a8;
+  border-radius: 3px 3px 18px 3px;
+  background: repeating-linear-gradient(
+    #fff6d7 0 31px,
+    #e9dfbf 32px,
+    #fff6d7 33px
+  );
+  box-shadow:
+    3px 6px 0 #d7c9a340,
+    0 9px 22px #67533115;
+  transform: rotate(-1deg);
+}
+.travel-note-paper::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: calc(50% - 28px);
+  width: 56px;
+  height: 23px;
+  background: #dfaf956e;
+  transform: rotate(4deg);
+}
+.travel-note-paper::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-style: solid;
+  border-width: 0 0 18px 18px;
+  border-color: transparent transparent #ddc899 transparent;
+}
+.travel-note-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-height: 100px;
+  margin: 12px 0;
+  color: #705d4d;
+  font:
+    21px/1.9 KaiTi,
+    STKaiti,
+    "Microsoft YaHei",
+    serif;
+}
+.travel-note-sign {
+  text-align: right;
+  color: #a18a6b;
+  font:
+    15px/2 KaiTi,
+    STKaiti,
+    serif;
+}

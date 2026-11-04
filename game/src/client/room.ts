@@ -13,6 +13,7 @@ export class Room extends Phaser.Scene {
   door!: Phaser.GameObjects.Image;
   foods!: Phaser.GameObjects.Group;
   note!: Phaser.GameObjects.Text;
+  notePaper!: Phaser.GameObjects.Container;
   clockHands!: Phaser.GameObjects.Graphics;
   manifest: any;
   offset = 0;
@@ -80,18 +81,35 @@ export class Room extends Phaser.Scene {
       .image(490, 435, "soft-light-v1")
       .setDisplaySize(150, 270)
       .setVisible(false);
-    this.note = this.add
-      .text(240, 568, "", {
-        fontFamily: "Microsoft YaHei",
-        fontSize: "12px",
-        color: "#715e49",
-        backgroundColor: "#fff5d6",
-        padding: { x: 6, y: 8 },
-        wordWrap: { width: 65 },
-      })
-      .setRotation(0.06)
+    this.notePaper = this.add
+      .container(258, 546)
+      .setRotation(0.075)
+      .setDepth(5);
+    const paper = this.add.graphics();
+    paper.fillStyle(0x604f36, 0.18).fillRoundedRect(3, 4, 78, 65, 2);
+    paper.fillStyle(0xfff2c9).fillRoundedRect(0, 0, 78, 65, 2);
+    paper.lineStyle(1, 0xe5d5a9).strokeRoundedRect(0, 0, 78, 65, 2);
+    paper.lineStyle(1, 0xe9dcb9, 0.65);
+    for (let y = 22; y < 61; y += 14) paper.lineBetween(7, y, 70, y);
+    paper.fillStyle(0xe5cf9e).fillTriangle(66, 65, 78, 53, 78, 65);
+    paper.fillStyle(0xe3b39b, 0.65).fillRect(23, -5, 31, 10);
+    this.note = this.add.text(7, 12, "", {
+      fontFamily: "KaiTi, STKaiti, Microsoft YaHei",
+      fontSize: "12px",
+      color: "#78624d",
+      lineSpacing: 0,
+      wordWrap: { width: 64 },
+    });
+    const signature = this.add.text(47, 56, "小鱼", {
+      fontFamily: "KaiTi, STKaiti, serif",
+      fontSize: "8px",
+      color: "#a58c6a",
+    });
+    const hit = this.add
+      .zone(39, 30, 88, 78)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.onAction("note"));
+    this.notePaper.add([paper, this.note, signature, hit]);
     for (const [name, x, y, w, h] of [
       ["curtain", 300, 143, 160, 200],
       ["light", 299, 389, 64, 50],
@@ -254,10 +272,19 @@ export class Room extends Phaser.Scene {
       );
     this.glow.setDepth(7).setVisible(w.furnishings.lightOn);
     this.fridgeGlow.setDepth(7).setVisible(this.fridgeOpen);
-    this.note
-      .setText(w.travel.note || "")
-      .setVisible(w.travel.phase === "away")
-      .setDepth(5);
+    const noteText = Array.from(w.travel.note || "出门转转，很快回来。");
+    const preview =
+      noteText.slice(0, 13).join("") + (noteText.length > 13 ? "…" : "");
+    this.note.setText(
+      Array.from(preview)
+        .reduce((lines: string[], char, i) => {
+          if (i % 5 === 0) lines.push("");
+          lines[lines.length - 1] += char;
+          return lines;
+        }, [])
+        .join("\n"),
+    );
+    this.notePaper.setVisible(w.travel.phase === "away");
   }
   ensureAnim(name: string) {
     if (!this.manifest[name]) name = "idle";
