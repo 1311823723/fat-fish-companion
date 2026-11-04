@@ -133,11 +133,11 @@ export class Room extends Phaser.Scene {
     g.fillStyle(color);
     g.fillRoundedRect(223, 37, 148, 197, { tl: 74, tr: 74, bl: 0, br: 0 });
     g.fillStyle(night ? 0xeae7c9 : 0xffedb9);
-    if (night) {
+    if (night && ["clear", "cloudy"].includes(weather)) {
       g.fillCircle(267, 91, 13);
       for (let i = 0; i < 7; i++)
         g.fillCircle(245 + i * 16, 60 + (i % 3) * 20, 1);
-    } else if (!rain && weather !== "overcast" && weather !== "fog")
+    } else if (!night && ["clear", "cloudy"].includes(weather))
       g.fillCircle(325, 126, 20);
     g.fillStyle(night ? 0x49635c : 0x9cb39b);
     g.fillEllipse(270, 210, 96, 58);
