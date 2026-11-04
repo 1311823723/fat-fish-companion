@@ -21,3 +21,19 @@
 Worker 只转发白名单的公开小屋路由；内部管理和 DSH 路由返回 404。API 和私人数据不缓存，带版本的静态素材缓存。换域名后浏览器会话独立，重新进入并验证 QQ，旧账号记忆不会因换域名而删除。
 
 Cloudflare 速度或可达性不合格时继续用原隧道。不要为迁移网页停止 QQ 服务，也不要把本机管理端直接挂到 Worker。
+
+## 独立 Pages 入口（网址不包含账号子域名）
+
+Pages 使用独立的项目名，例如 `fatfish-cottage.pages.dev`，不需要更改账号共用的 workers.dev 子域名，也不会更改同账号其他项目的地址。需要 Cloudflare Pages 部署权限。
+
+```powershell
+npm run build:pages
+npx wrangler pages project create fatfish-cottage --production-branch main
+npx wrangler pages secret put ROOM_ORIGIN --project-name fatfish-cottage
+npx wrangler pages secret put ROOM_RELAY_SECRET --project-name fatfish-cottage
+npx wrangler pages deploy state/pages-build --project-name fatfish-cottage --branch main --config deploy/pages/wrangler.jsonc
+```
+
+`ROOM_ORIGIN` 指向部署者自己的固定公网小屋网关，`ROOM_RELAY_SECRET` 与本机网关独立转发凭据一致；不要将凭据写进代码或文档。将实际的 Pages HTTPS 来源加入本机 `state/game-core-link.json` 的 `publicOrigins` 与游戏配置的 `allowedOrigins`。新网址按原方式重新进入、验证 QQ，原有日记和人物记忆保留。
+
+构建脚本只从 `dist` 复制公开静态文件到独立构建目录，并加入受限的 `_worker.js` 转发器。它只转发小屋公开接口，不开放管理端、DSH 或任意目标地址。账号共用域名与其他 Worker 保持原状。切换后可单独停用旧小屋 Worker 的公开路由，保留本机和网关回退入口。

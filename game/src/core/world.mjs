@@ -1,3 +1,4 @@
+import roomLayout from "../../public/assets/room-layout-v2.json" with { type: "json" };
 import { randomUUID } from "node:crypto";
 import { freezeScene } from "./scene.mjs";
 import { departureNote } from "./note.mjs";
@@ -484,6 +485,7 @@ export function publicWorld(w, now) {
             : 0),
       ),
     },
+    room: roomLayout,
     location: w.location,
     activity: { fromX: 0.25, toX: 0.75, ...w.activity },
     furnishings: w.furnishings,

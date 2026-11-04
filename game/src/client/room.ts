@@ -5,8 +5,9 @@ export class Room extends Phaser.Scene {
   world: World = null;
   pet!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Ellipse;
-  sky!: Phaser.GameObjects.Graphics;
-  curtain!: Phaser.GameObjects.Graphics;
+  sky!: Phaser.GameObjects.Image;
+  windowPanes!: Path2D;
+  layout: any;
   dark!: Phaser.GameObjects.Rectangle;
   glow!: Phaser.GameObjects.Image;
   fridgeGlow!: Phaser.GameObjects.Image;
@@ -30,8 +31,10 @@ export class Room extends Phaser.Scene {
     this.onAction = action;
   }
   preload() {
-    this.load.image("room", "/assets/room-v1.webp");
-    this.load.image("door", "/assets/fridge-door-v1.webp");
+    this.load.image("room", "/assets/room-v2.webp");
+    this.load.image("door", "/assets/fridge-door-v2.webp");
+    this.load.image("curtain-fabric", "/assets/curtain-v2.webp");
+    this.load.json("room-layout", "/assets/room-layout-v2.json");
     this.load.json("manifest", "/assets/manifest-v1.json");
     for (const n of ["idle", "walk_right", "walk_left"])
       this.load.spritesheet(n, "/assets/" + n + "-v1.webp", {
@@ -46,15 +49,73 @@ export class Room extends Phaser.Scene {
   }
   create() {
     this.manifest = this.cache.json.get("manifest");
+    this.layout = this.cache.json.get("room-layout");
     this.add.image(0, 0, "room").setOrigin(0).setDisplaySize(600, 800);
-    this.sky = this.add.graphics();
-    this.curtain = this.add.graphics();
+    this.textures.createCanvas("window-state-v2", 600, 800);
+    this.sky = this.add.image(0, 0, "window-state-v2").setOrigin(0);
+    const clip = new Path2D();
+    const polygon = (points: { x: number; y: number }[]) => {
+      clip.moveTo(points[0].x, points[0].y);
+      for (const p of points.slice(1)) clip.lineTo(p.x, p.y);
+      clip.closePath();
+    };
+    const left = [
+      { x: 223, y: 146 },
+      { x: 223, y: 130 },
+    ];
+    for (let i = 0; i <= 20; i++) {
+      const angle = Math.PI + (i * Math.PI) / 40;
+      left.push({
+        x: 296 + 73 * Math.cos(angle),
+        y: 130 + 78 * Math.sin(angle),
+      });
+    }
+    left.push({ x: 292, y: 53 }, { x: 292, y: 146 });
+    polygon(left);
+    const right = [{ x: 302, y: 53 }];
+    for (let i = 0; i <= 20; i++) {
+      const angle = 1.5 * Math.PI + (i * Math.PI) / 40;
+      right.push({
+        x: 296 + 73 * Math.cos(angle),
+        y: 130 + 78 * Math.sin(angle),
+      });
+    }
+    right.push({ x: 370, y: 146 }, { x: 302, y: 146 });
+    polygon(right);
+    polygon([
+      { x: 223, y: 156 },
+      { x: 292, y: 156 },
+      { x: 292, y: 227 },
+      { x: 276, y: 227 },
+      { x: 269, y: 215 },
+      { x: 253, y: 211 },
+      { x: 237, y: 214 },
+      { x: 223, y: 213 },
+    ]);
+    polygon([
+      { x: 302, y: 156 },
+      { x: 370, y: 156 },
+      { x: 370, y: 177 },
+      { x: 361, y: 170 },
+      { x: 349, y: 171 },
+      { x: 341, y: 180 },
+      { x: 330, y: 180 },
+      { x: 328, y: 191 },
+      { x: 337, y: 201 },
+      { x: 339, y: 218 },
+      { x: 345, y: 229 },
+      { x: 302, y: 229 },
+    ]);
+    this.windowPanes = clip;
     this.clockHands = this.add.graphics();
     this.foods = this.add.group();
     this.door = this.add
-      .image(0, 0, "door")
+      .image(this.layout.fridgeDoor.x, this.layout.fridgeDoor.y, "door")
       .setOrigin(0)
-      .setDisplaySize(600, 800);
+      .setDisplaySize(
+        this.layout.fridgeDoor.width,
+        this.layout.fridgeDoor.height,
+      );
     this.shadow = this.add.ellipse(300, 710, 68, 16, 0x41372a, 0.13);
     this.pet = this.add
       .sprite(300, 710, "idle")
@@ -82,7 +143,8 @@ export class Room extends Phaser.Scene {
       .setDisplaySize(150, 270)
       .setVisible(false);
     this.notePaper = this.add
-      .container(258, 546)
+      .container(252, 588)
+      .setScale(0.68)
       .setRotation(0.075)
       .setDepth(5);
     const paper = this.add.graphics();
@@ -110,17 +172,18 @@ export class Room extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.onAction("note"));
     this.notePaper.add([paper, this.note, signature, hit]);
-    for (const [name, x, y, w, h] of [
-      ["curtain", 300, 143, 160, 200],
-      ["light", 299, 389, 64, 50],
-      ["fridge", 498, 429, 112, 220],
-      ["diary", 140, 570, 72, 60],
-      ["album", 217, 570, 64, 60],
-    ] as [string, number, number, number, number][]) {
+    for (const object of this.layout.objects) {
+      if (!object.actions.length) continue;
+      const box = object.bounds;
       this.add
-        .zone(x, y, w, h)
+        .zone(
+          box.x + box.width / 2,
+          box.y + box.height / 2,
+          box.width,
+          box.height,
+        )
         .setInteractive({ useHandCursor: true })
-        .on("pointerdown", () => this.onAction(name));
+        .on("pointerdown", () => this.onAction(object.actions[0]));
     }
     this.input.on(
       "pointerdown",
@@ -151,77 +214,129 @@ export class Room extends Phaser.Scene {
       night = h < 5 || h >= 19;
     const weather = w.weather.available ? w.weather.kind : "unknown",
       rain = ["rain", "thunder"].includes(weather);
-    const g = this.sky;
-    g.clear();
-    const color = night
-      ? 0x283d59
-      : h < 7
-        ? 0xa1adb9
-        : h >= 17
-          ? 0xe0b48e
-          : h < 11
-            ? 0xc7d8cc
-            : weather === "clear"
-              ? 0xb9d7d5
-              : 0xaabdc0;
-    g.fillStyle(color);
-    g.fillRoundedRect(223, 37, 148, 197, { tl: 74, tr: 74, bl: 0, br: 0 });
-    g.fillStyle(night ? 0xeae7c9 : 0xffedb9);
-    if (night && ["clear", "cloudy"].includes(weather)) {
-      g.fillCircle(267, 91, 13);
-      for (let i = 0; i < 7; i++)
-        g.fillCircle(245 + i * 16, 60 + (i % 3) * 20, 1);
-    } else if (!night && h >= 7 && ["clear", "cloudy"].includes(weather))
-      g.fillCircle(h < 11 ? 265 : 325, h < 11 || h >= 17 ? 178 : 110, 20);
-    g.fillStyle(night ? 0x49635c : 0x9cb39b);
-    g.fillEllipse(270, 210, 96, 58);
-    g.fillEllipse(335, 204, 75, 60);
-    g.fillStyle(night ? 0x3b5554 : 0x839c88);
-    g.fillRect(223, 220, 148, 14);
+    const canvas = this.textures.get(
+        "window-state-v2",
+      ) as Phaser.Textures.CanvasTexture,
+      ctx = canvas.context;
+    ctx.clearRect(0, 0, 600, 800);
+    ctx.save();
+    ctx.clip(this.windowPanes);
+    const gradient = ctx.createLinearGradient(0, 50, 0, 235);
+    gradient.addColorStop(
+      0,
+      night ? "#213449" : h < 7 ? "#aab7c4" : h >= 17 ? "#eab88e" : "#b8d4da",
+    );
+    gradient.addColorStop(
+      1,
+      night ? "#41565e" : h >= 17 ? "#f4d7ac" : "#edf0d3",
+    );
+    ctx.fillStyle = gradient;
+    ctx.fillRect(220, 48, 155, 190);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(220, 156, 155, 80);
+    ctx.clip();
+    ctx.drawImage(
+      this.textures.get("room").getSourceImage() as HTMLImageElement,
+      0,
+      0,
+      600,
+      800,
+    );
+    ctx.restore();
+    if (night) {
+      ctx.fillStyle = "rgba(18,37,55,.8)";
+      ctx.fillRect(220, 156, 155, 80);
+    } else if (h >= 17) {
+      ctx.fillStyle = "rgba(229,151,91,.24)";
+      ctx.fillRect(220, 156, 155, 80);
+    }
+    if (["clear", "cloudy"].includes(weather)) {
+      ctx.fillStyle = night ? "#eee6c8" : "#fff0c5";
+      ctx.beginPath();
+      ctx.arc(
+        night ? 267 : h < 11 ? 265 : 325,
+        night ? 91 : h < 11 || h >= 17 ? 119 : 108,
+        night ? 12 : 18,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      if (night) {
+        for (let i = 0; i < 7; i++) {
+          ctx.beginPath();
+          ctx.arc(238 + i * 17, 68 + (i % 3) * 18, 1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
     if (["cloudy", "overcast", "rain", "thunder"].includes(weather)) {
-      g.fillStyle(0xd7dddb, 0.8);
-      g.fillEllipse(277, 105, 78, 25);
-      g.fillEllipse(340, 143, 56, 17);
+      ctx.fillStyle = night ? "rgba(157,177,185,.22)" : "rgba(226,233,227,.7)";
+      for (const [x, y, rx] of [
+        [266, 106, 36],
+        [340, 137, 28],
+      ]) {
+        ctx.beginPath();
+        ctx.ellipse(x, y, rx, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
     if (rain) {
-      g.lineStyle(2, 0xb8dbe1, 0.85);
-      for (let i = 0; i < 20; i++)
-        g.lineBetween(
-          232 + (i % 8) * 18,
-          110 + Math.floor(i / 8) * 40,
-          228 + (i % 8) * 18,
-          122 + Math.floor(i / 8) * 40,
-        );
+      ctx.fillStyle = "rgba(66,91,110,.26)";
+      ctx.fillRect(220, 48, 155, 190);
+      ctx.strokeStyle = "rgba(185,214,226,.8)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 28; i++) {
+        const x = 226 + (i % 9) * 17,
+          y = 77 + Math.floor(i / 9) * 43;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 3, y + 11);
+        ctx.stroke();
+      }
     }
     if (weather === "snow") {
-      g.fillStyle(0xfffdf5);
-      for (let i = 0; i < 20; i++)
-        g.fillCircle(230 + (i % 8) * 19, 105 + Math.floor(i / 8) * 45, 2.5);
+      ctx.fillStyle = "#f6f8f2";
+      for (let i = 0; i < 26; i++) {
+        ctx.beginPath();
+        ctx.arc(
+          226 + (i % 9) * 17,
+          80 + Math.floor(i / 9) * 48,
+          1.6,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+      }
     }
     if (weather === "fog") {
-      g.fillStyle(0xf5f5eb, 0.35);
-      g.fillRect(223, 120, 148, 104);
+      ctx.fillStyle = "rgba(235,239,230,.55)";
+      ctx.fillRect(220, 48, 155, 190);
     }
     if (weather === "thunder") {
-      g.fillStyle(0xfff0ba);
-      g.fillTriangle(300, 125, 291, 146, 311, 146);
+      ctx.fillStyle = "#ffe8ae";
+      ctx.beginPath();
+      ctx.moveTo(315, 108);
+      ctx.lineTo(304, 133);
+      ctx.lineTo(314, 130);
+      ctx.lineTo(309, 149);
+      ctx.lineTo(326, 121);
+      ctx.lineTo(316, 125);
+      ctx.closePath();
+      ctx.fill();
     }
-    g.lineStyle(7, 0xfff8e6);
-    g.lineBetween(296, 49, 296, 231);
-    g.lineBetween(224, 151, 370, 151);
-    this.curtain.clear();
-    if (w.furnishings.curtainClosed) {
-      this.curtain.fillStyle(0xd8c5ad);
-      this.curtain.fillRoundedRect(221, 36, 152, 199, {
-        tl: 72,
-        tr: 72,
-        bl: 0,
-        br: 0,
-      });
-      this.curtain.lineStyle(2, 0xbeaa93, 0.5);
-      for (let i = 0; i < 8; i++)
-        this.curtain.lineBetween(233 + i * 18, 77, 233 + i * 18, 233);
-    }
+    if (w.furnishings.curtainClosed)
+      ctx.drawImage(
+        this.textures
+          .get("curtain-fabric")
+          .getSourceImage() as HTMLImageElement,
+        222,
+        51,
+        150,
+        183,
+      );
+    ctx.restore();
+    canvas.refresh();
     this.clockHands.clear();
     this.clockHands.lineStyle(2.8, 0x5a6c59);
     const d = new Date(now + 28800000),
@@ -249,8 +364,10 @@ export class Room extends Phaser.Scene {
         this.foods.add(
           this.add
             .image(
-              469 + (i % 3) * 30,
-              370 + Math.floor(i / 3) * 46,
+              this.layout.foodGrid.x +
+                (i % 3) * this.layout.foodGrid.columnStep,
+              this.layout.foodGrid.y +
+                Math.floor(i / 3) * this.layout.foodGrid.rowStep,
               "food-" + f.id,
             )
             .setDisplaySize(29, 25)
@@ -329,12 +446,19 @@ export class Room extends Phaser.Scene {
     if (away) return;
     const a = w.activity;
     let name = "idle",
-      tx = 300,
-      ty = 710,
+      tx = this.layout.idle.x,
+      ty = this.layout.idle.y,
       scale = 0.82;
     const now = Date.now() + this.offset;
     if (a.name === "walk") {
-      tx = 300 + Math.sin((now - a.startedAt) / 4200) * 160;
+      const path = this.layout.walkPath,
+        progress = ((now - a.startedAt) / 4200) % path.length,
+        i = Math.floor(progress),
+        f = progress - i,
+        from = path[i],
+        to = path[(i + 1) % path.length];
+      tx = from.x + (to.x - from.x) * f;
+      ty = from.y + (to.y - from.y) * f;
       name = tx > this.x ? "walk_right" : "walk_left";
     } else if (a.name === "sleep") {
       name = "sleep";
@@ -343,11 +467,15 @@ export class Room extends Phaser.Scene {
       scale = 0.65;
     } else if (["eat", "tea"].includes(a.name)) {
       name = a.name === "tea" ? "tea" : "eat_taiyaki";
-      tx = 430;
-      ty = 610;
+      const chair = this.layout.objects.find(
+        (x: any) => x.id === "desk",
+      ).standPoint;
+      tx = chair.x;
+      ty = chair.y;
+      scale = 0.65;
     } else if (a.name === "rest") {
-      tx = 300;
-      ty = 690;
+      tx = this.layout.rest.x;
+      ty = this.layout.rest.y;
     } else if (
       ["smile", "sleepy", "sad", "angry"].includes(w.mood.expression)
     ) {

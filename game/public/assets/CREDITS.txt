@@ -4,3 +4,5 @@
 来源：https://github.com/tndmgzo7/blue-fat-fish-desktop-pet
 本小屋仅对原图集所选动作重新打包为WebP，未重绘角色，保留原始帧像素。
 许可：https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+精细版环境图（room-v2.webp / fridge-door-v2.webp / curtain-v2.webp）：由本项目通过 AI 辅助生成并整理，按 MIT 许可提供；房间布局数据同为 MIT。上述环境素材许可不改变大肥鱼角色原有的署名和非商业许可。

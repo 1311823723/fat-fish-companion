@@ -191,6 +191,7 @@ export function installGameCore(room, { root }) {
           version: p.revision,
           time: new Date(p.serverTime).toISOString(),
           location: p.location,
+          room: p.room,
           atHome: !w.travel.current,
           activity: p.activity.name,
           hunger: p.hunger,

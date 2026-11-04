@@ -34,6 +34,7 @@ export default {
       )
         return new Response("Forbidden", { status: 403 });
       const target = new URL(url.pathname, env.ROOM_ORIGIN);
+      target.search = url.search;
       const h = new Headers();
       for (const name of [
         "content-type",

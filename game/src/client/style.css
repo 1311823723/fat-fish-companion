@@ -511,3 +511,203 @@ dialog header {
     STKaiti,
     serif;
 }
+/* A fixed paper size: text is paginated inside it, never used to size the book. */
+#panel.diary-mode {
+  width: min(640px, calc(100vw - 24px), calc(88dvh * 0.8));
+  height: min(800px, 88dvh, calc((100vw - 24px) * 1.25));
+  max-height: none;
+  padding: 15px 15px 15px 30px;
+  border: 2px solid #b3bea2;
+  border-radius: 18px;
+  background: #8fa284;
+  box-shadow:
+    0 20px 70px #142c3266,
+    inset 0 0 0 5px #cad3b02b;
+  overflow: hidden;
+}
+#panel.diary-mode[open] {
+  display: flex;
+  flex-direction: column;
+}
+.diary-mode::before {
+  content: "";
+  position: absolute;
+  right: 32px;
+  top: 0;
+  width: 22px;
+  height: 54px;
+  z-index: 4;
+  background: #d39b7c;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+  pointer-events: none;
+}
+.diary-mode > header {
+  position: relative;
+  top: auto;
+  flex: 0 0 auto;
+  background: #fffaee;
+  margin: 0;
+  padding: 18px 20px 12px;
+  border-radius: 4px 8px 0 0;
+}
+.diary-mode h2 {
+  font:
+    600 26px/1.4 KaiTi,
+    STKaiti,
+    serif;
+  color: #718668;
+}
+.diary-mode #closePanel {
+  border: 0;
+  border-radius: 50%;
+  color: #72856a;
+  background: #e9eddf;
+  min-height: 40px;
+  padding: 8px 12px;
+  margin-right: 12px;
+}
+.diary-mode #panelBody {
+  flex: 1;
+  min-height: 0;
+  background: #fffaee;
+  border-radius: 0 0 8px 4px;
+  box-shadow:
+    3px 4px 0 #e7dfc9,
+    6px 7px 0 #c9c2aa;
+}
+.diary-paper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  position: relative;
+  padding: 0 22px 10px;
+}
+.diary-page-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  flex: 0 0 auto;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #d6ceb6;
+  font-size: 12px;
+  color: #8c997e;
+}
+.diary-mood {
+  border-radius: 20px;
+  background: #e7edda;
+  padding: 2px 10px;
+}
+.diary-mood:empty {
+  display: none;
+}
+.diary-copy {
+  flex: 1;
+  min-height: 0;
+  margin: 10px 0 0;
+  padding: 0;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    19px/30px KaiTi,
+    STKaiti,
+    "Microsoft YaHei",
+    serif;
+  color: #78644f;
+  background: repeating-linear-gradient(transparent 0 29px, #e8dfc9 29px 30px);
+}
+.diary-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 0 0 46px;
+  border-top: 1px dashed #d6ceb6;
+  margin-top: 12px;
+}
+.diary-navigation button {
+  border: 0;
+  background: transparent;
+  padding: 6px 0;
+  font-size: 12px;
+  min-height: 38px;
+}
+.diary-navigation button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+.diary-count {
+  font:
+    italic 12px/1 Georgia,
+    serif;
+  color: #a2997f;
+  white-space: nowrap;
+}
+.diary-footer {
+  flex: 0 0 24px;
+  text-align: center;
+  color: #bea787;
+  font-size: 12px;
+}
+.diary-rings {
+  position: absolute;
+  left: -23px;
+  top: -35px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 5;
+  pointer-events: none;
+}
+.diary-rings i {
+  width: 18px;
+  height: 7px;
+  border: 1px solid #a39372;
+  border-radius: 5px;
+  background: linear-gradient(#eee3bf, #d4bc8b, #e8d9ad);
+  box-shadow: 0 1px 2px #6b5b4733;
+}
+@media (max-width: 500px) {
+  .diary-mode > header {
+    padding: 12px 14px 8px;
+  }
+  .diary-mode h2 {
+    font-size: 23px;
+  }
+  .diary-paper {
+    padding: 0 14px 7px;
+  }
+  .diary-copy {
+    font-size: 17px;
+    line-height: 28px;
+    background-size: auto 28px;
+    background-image: repeating-linear-gradient(
+      transparent 0 27px,
+      #e8dfc9 27px 28px
+    );
+  }
+  .diary-page-meta {
+    min-height: 36px;
+  }
+  .diary-footer {
+    flex-basis: 15px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .diary-copy {
+    animation: diary-page-in 0.18s ease-out;
+  }
+  @keyframes diary-page-in {
+    from {
+      opacity: 0.5;
+      transform: translateX(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

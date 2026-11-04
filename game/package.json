@@ -15,7 +15,8 @@
     "setup": "node scripts/setup.mjs",
     "migrate": "node scripts/migrate.mjs",
     "backup": "node scripts/backup.mjs",
-    "release": "node scripts/export.mjs"
+    "release": "node scripts/export.mjs",
+    "build:pages": "npm run build && node scripts/build-pages.mjs"
   },
   "dependencies": {
     "phaser": "4.2.1",

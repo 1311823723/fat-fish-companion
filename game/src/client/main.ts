@@ -1,3 +1,4 @@
+import { openDiary } from "./diary";
 import Phaser from "phaser";
 import { Room, World } from "./room";
 import "./style.css";
@@ -39,6 +40,7 @@ function element<K extends keyof HTMLElementTagNameMap>(
   return e;
 }
 function open(title: string) {
+  panel.classList.remove("diary-mode");
   generation++;
   $("panelTitle").textContent = title;
   body.replaceChildren();
@@ -143,8 +145,8 @@ async function command(type: string, args: any, button?: HTMLButtonElement) {
   }
 }
 const sceneAction = (name: string) => {
-  if (name === "walk") {
-    void command("activity", { name: "walk" });
+  if (["walk", "sleep", "wake", "rest"].includes(name)) {
+    void command("activity", { name });
     return;
   }
   $(name)?.click();
@@ -434,34 +436,14 @@ $("album").onclick = () => {
   }
 };
 $("diary").onclick = async () => {
-  const g = open("她的日记");
-  if (!identity.canReadDiary) {
-    body.append(element("p", "这本日记只给已验证的主人看。"));
-    return;
-  }
-  body.textContent = "翻开日记…";
-  try {
-    const r = await api("diary-list");
-    if (g !== generation) return;
-    body.replaceChildren();
-    for (const p of r.entries) {
-      const b = element("button", p.date + " · " + (p.mood || ""));
-      b.onclick = async () => {
-        const g2 = open("她的日记");
-        try {
-          const r = await api("diary-read", { id: p.id });
-          if (generation === g2)
-            body.append(element("article", r.entry.text, "diary-page"));
-        } catch (e) {
-          notice((e as Error).message);
-        }
-      };
-      body.append(b);
-    }
-    if (!r.entries.length) body.textContent = "还没有可翻看的日记。";
-  } catch (e) {
-    if (g === generation) body.textContent = (e as Error).message;
-  }
+  const g = open("她的日记 ✿");
+  await openDiary({
+    panel,
+    body,
+    api,
+    canRead: !!identity.canReadDiary,
+    isCurrent: () => g === generation && panel.open,
+  });
 };
 async function copyVerification(text: string) {
   try {

@@ -1,0 +1,93 @@
+{
+  "version": "storybook-v2",
+  "canvas": { "width": 600, "height": 800 },
+  "objects": [
+    {
+      "id": "bed",
+      "name": "单人床",
+      "bounds": { "x": 20, "y": 330, "width": 220, "height": 205 },
+      "standPoint": { "x": 125, "y": 435 },
+      "actions": ["sleep", "wake"],
+      "stateFields": ["activity"]
+    },
+    {
+      "id": "light",
+      "name": "床头灯",
+      "bounds": { "x": 264, "y": 352, "width": 64, "height": 84 },
+      "standPoint": { "x": 345, "y": 560 },
+      "actions": ["light"],
+      "stateFields": ["furnishings.lightOn"]
+    },
+    {
+      "id": "fridge",
+      "name": "冰箱",
+      "bounds": { "x": 438, "y": 318, "width": 120, "height": 238 },
+      "standPoint": { "x": 470, "y": 610 },
+      "actions": ["fridge"],
+      "stateFields": ["kitchen.items", "kitchen.total"]
+    },
+    {
+      "id": "desk",
+      "name": "书桌和椅子",
+      "bounds": { "x": 85, "y": 594, "width": 225, "height": 130 },
+      "standPoint": { "x": 180, "y": 700 },
+      "actions": [],
+      "stateFields": ["activity"]
+    },
+    {
+      "id": "diary",
+      "name": "日记本",
+      "bounds": { "x": 104, "y": 558, "width": 72, "height": 42 },
+      "standPoint": { "x": 325, "y": 655 },
+      "actions": ["diary"],
+      "stateFields": []
+    },
+    {
+      "id": "album",
+      "name": "旅行相册",
+      "bounds": { "x": 185, "y": 557, "width": 62, "height": 44 },
+      "standPoint": { "x": 325, "y": 655 },
+      "actions": ["album"],
+      "stateFields": ["photos"]
+    },
+    {
+      "id": "curtain",
+      "name": "窗户与窗帘",
+      "bounds": { "x": 180, "y": 40, "width": 235, "height": 215 },
+      "standPoint": { "x": 345, "y": 560 },
+      "actions": ["curtain"],
+      "stateFields": ["weather", "furnishings.curtainClosed"]
+    },
+    {
+      "id": "clock",
+      "name": "北京时间时钟",
+      "bounds": { "x": 272, "y": 1, "width": 57, "height": 56 },
+      "actions": [],
+      "stateFields": ["serverTime"]
+    }
+  ],
+  "fridgeDoor": { "x": 448, "y": 332, "width": 101, "height": 207 },
+  "foodGrid": {
+    "x": 467,
+    "y": 375,
+    "columns": 3,
+    "columnStep": 30,
+    "rowStep": 47
+  },
+  "walkable": [
+    { "x": 320, "y": 590 },
+    { "x": 545, "y": 590 },
+    { "x": 545, "y": 765 },
+    { "x": 130, "y": 765 },
+    { "x": 130, "y": 733 },
+    { "x": 320, "y": 733 }
+  ],
+  "walkPath": [
+    { "x": 350, "y": 710 },
+    { "x": 480, "y": 710 },
+    { "x": 500, "y": 620 },
+    { "x": 350, "y": 640 }
+  ],
+  "idle": { "x": 350, "y": 710 },
+  "rest": { "x": 350, "y": 690 }
+}
