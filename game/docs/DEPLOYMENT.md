@@ -10,6 +10,8 @@
 
 ## Cloudflare Workers，无需购买域名
 
+本项目默认关闭 Workers 的公开与预览路由，独立网址优先采用下面的 Pages 方案，避免公开账号子域名。只有决定使用账号子域名时，才在 `wrangler.jsonc` 将 `workers_dev` 改为 `true`。
+
 1. 本机正常工作后运行 `npm run build`。
 2. 用官方 Wrangler 登录：`npx wrangler login --scopes account:read user:read workers:write workers_scripts:write`。亲自完成浏览器授权，不将令牌发送给助手或群聊。
 3. `npx wrangler deploy` 部署静态网页，获得固定 `workers.dev` 地址。
