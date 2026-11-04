@@ -200,6 +200,7 @@ export function installGameCore(room, { root }) {
           intent: w.travel.current?.intent,
           photoEvent: w.travel.current?.photoScene,
           photoStatus: w.travel.current?.photo?.status,
+          drawing: p.drawing,
           latestReturn: w.travel.lastReturnedAt,
           recentTrips: [...w.travel.history, ...w.travel.pending]
             .slice(-3)

@@ -364,6 +364,22 @@ noteButton.onclick = () => {
 };
 $("album").onclick = () => {
   open("旅行相册");
+  if (world?.drawing?.waiting)
+    body.append(
+      element(
+        "p",
+        "照片还在等生图额度恢复，预计 " +
+          new Date(world.drawing.retryAt).toLocaleString("zh-CN", {
+            timeZone: "Asia/Shanghai",
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }) +
+          " 后补试。旅行和拍照记录都已保留。",
+        "subtle",
+      ),
+    );
   if (!world?.photos.length) {
     body.append(element("p", "还没有旅行照片。"));
     return;

@@ -6,7 +6,7 @@ import { WebSocketServer } from "ws";
 import { Store } from "./core/store.mjs";
 import { config, ROOT } from "./config.mjs";
 import { Weather } from "./weather.mjs";
-import { drawScene } from "./drawing.mjs";
+import { drawScene, safeDrawingFailure } from "./drawing.mjs";
 export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   fs.mkdirSync(path.join(ROOT, "state"), { recursive: true });
   store ??= new Store(path.resolve(ROOT, c.database || "state/world.db"));
@@ -105,7 +105,11 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         const b = JSON.parse(raw || "{}");
         if (url.pathname === "/internal/snapshot") {
           const publicState = store.snapshot();
-          json({ ok: true, world: store.raw(), public: publicState });
+          json({
+            ok: true,
+            world: { ...store.raw(), drawing: store.drawingState() },
+            public: publicState,
+          });
           return;
         }
         if (url.pathname === "/internal/command") {
@@ -524,8 +528,8 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         plan: true,
       });
       store.finish(job.id);
-    } catch {
-      store.retryPhoto(job.id);
+    } catch (error) {
+      store.retryPhoto(job.id, safeDrawingFailure(error));
     } finally {
       drawing = false;
     }

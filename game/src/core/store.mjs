@@ -59,7 +59,11 @@ export class Store extends EventEmitter {
           }
         }
       }
-      result = { ok: true, ...publicWorld(w, now) };
+      result = {
+        ok: true,
+        ...publicWorld(w, now),
+        drawing: this.drawingState(),
+      };
       if (command)
         this.db
           .prepare("INSERT INTO requests VALUES(?,?,?)")
@@ -85,6 +89,7 @@ export class Store extends EventEmitter {
   }
   // Claim before external effects. A crash or ambiguous send is never retried automatically.
   claim(kind) {
+    if (kind === "photo" && this.drawingState().waiting) return null;
     const now = this.clock();
     this.db.exec("BEGIN IMMEDIATE");
     try {
@@ -112,7 +117,8 @@ export class Store extends EventEmitter {
         "SELECT * FROM outbox WHERE id=? AND status='pending' AND due<=?",
       )
       .get(id, this.clock());
-    if (!row) return null;
+    if (!row || (row.kind === "photo" && this.drawingState().waiting))
+      return null;
     const r = this.db
       .prepare(
         "UPDATE outbox SET status='attempted',attempts=attempts+1,started=? WHERE id=? AND status='pending'",
@@ -125,12 +131,54 @@ export class Store extends EventEmitter {
       .prepare("UPDATE outbox SET status=?,result=? WHERE id=?")
       .run(status, String(result).slice(0, 300), id);
   }
-  retryPhoto(id) {
-    this.db
-      .prepare(
-        "UPDATE outbox SET status=CASE WHEN attempts<3 THEN 'pending' ELSE 'abandoned' END,due=? WHERE id=? AND kind='photo'",
-      )
-      .run(this.clock() + 2 * 3600000, id);
+  drawingState() {
+    const row = this.db
+      .prepare("SELECT value FROM meta WHERE key='drawingCooldown'")
+      .get();
+    const saved = row ? JSON.parse(row.value) : null;
+    return saved?.retryAt > this.clock()
+      ? {
+          waiting: true,
+          retryAt: saved.retryAt,
+          reason: "GPT生图额度已用完，等待重置",
+        }
+      : { waiting: false };
+  }
+  retryPhoto(
+    id,
+    {
+      reason = "绘图任务未完成",
+      retryAfterMs = 2 * 3600000,
+      rateLimited = false,
+    } = {},
+  ) {
+    const due =
+      this.clock() +
+      Math.min(
+        48 * 3600000 + 300000,
+        Math.max(
+          60000,
+          Number.isFinite(retryAfterMs) ? retryAfterMs : 2 * 3600000,
+        ),
+      );
+    this.db.exec("BEGIN IMMEDIATE");
+    try {
+      this.db
+        .prepare(
+          "UPDATE outbox SET status=CASE WHEN ? OR attempts<3 THEN 'pending' ELSE 'abandoned' END,due=?,result=? WHERE id=? AND kind='photo'",
+        )
+        .run(rateLimited ? 1 : 0, due, reason, id);
+      if (rateLimited)
+        this.db
+          .prepare(
+            "INSERT INTO meta(key,value) VALUES('drawingCooldown',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+          )
+          .run(JSON.stringify({ retryAt: due }));
+      this.db.exec("COMMIT");
+    } catch (error) {
+      this.db.exec("ROLLBACK");
+      throw error;
+    }
   }
   close() {
     this.db.close();

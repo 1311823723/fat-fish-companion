@@ -53,7 +53,14 @@ export async function drawScene(
         : /auth|login|登录/i.test(raw)
           ? "需要重新登录"
           : "服务暂不可用";
-    throw Error("图片生成失败：" + reason);
+    const error = new Error("图片生成失败：" + reason);
+    if (r.errorCode === "image-quota" || reason === "服务限额") {
+      error.code = "DRAWING_QUOTA";
+      error.retryAfterMs = Number.isFinite(r.retryAfterMs)
+        ? Math.min(48 * 3600000 + 300000, Math.max(60000, r.retryAfterMs))
+        : 24 * 3600000;
+    }
+    throw error;
   }
   const result = await post("image", { attachment: r.attachment }),
     buf = Buffer.from(await result.arrayBuffer());
@@ -71,4 +78,22 @@ export async function drawScene(
     .webp({ quality: 80 })
     .toFile(path.join(directory, id + ".thumb.webp"));
   return id;
+}
+
+export function safeDrawingFailure(error) {
+  const quota = error?.code === "DRAWING_QUOTA";
+  const message = String(error?.message || "");
+  return {
+    rateLimited: quota,
+    retryAfterMs: quota ? error.retryAfterMs : 2 * 3600000,
+    reason: quota
+      ? "GPT生图额度已用完，等待重置"
+      : /绘图服务未返回图片/.test(message)
+        ? "绘图服务未返回图片"
+        : /需要重新登录/.test(message)
+          ? "需要重新登录"
+          : /Timeout|timed out|abort/i.test(message)
+            ? "绘图请求超时"
+            : "绘图服务暂不可用",
+  };
 }
