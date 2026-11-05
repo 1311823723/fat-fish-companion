@@ -16,6 +16,8 @@ export class Room extends Phaser.Scene {
   note!: Phaser.GameObjects.Text;
   notePaper!: Phaser.GameObjects.Container;
   clockHands!: Phaser.GameObjects.Graphics;
+  tvScreen!: Phaser.GameObjects.Graphics;
+  tvLabel!: Phaser.GameObjects.Text;
   manifest: any;
   offset = 0;
   x = 300;
@@ -37,9 +39,10 @@ export class Room extends Phaser.Scene {
   }
   preload() {
     this.load.image("room", "/assets/room-v5.webp");
+    this.load.image("television", "/assets/television-v1.webp");
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
-    this.load.json("room-layout", "/assets/room-layout-v3.json");
+    this.load.json("room-layout", "/assets/room-layout-v4.json");
     this.load.json("manifest", "/assets/manifest-v1.json");
     for (const n of ["idle", "walk_right", "walk_left"])
       this.load.spritesheet(n, "/assets/" + n + "-v1.webp", {
@@ -56,6 +59,21 @@ export class Room extends Phaser.Scene {
     this.manifest = this.cache.json.get("manifest");
     this.layout = this.cache.json.get("room-layout");
     this.add.image(0, 0, "room").setOrigin(0).setDisplaySize(600, 800);
+    const tv = this.layout.objects.find(
+      (o: any) => o.id === "television",
+    ).bounds;
+    this.add
+      .image(tv.x, tv.y, "television")
+      .setOrigin(0)
+      .setDisplaySize(tv.width, tv.height);
+    this.tvScreen = this.add.graphics();
+    this.tvLabel = this.add
+      .text(tv.x + tv.width / 2, tv.y + tv.height * 0.48, "来一局", {
+        fontFamily: "Microsoft YaHei, sans-serif",
+        fontSize: "12px",
+        color: "#f9edcd",
+      })
+      .setOrigin(0.5);
     this.textures.createCanvas("window-state-v2", 600, 800);
     this.sky = this.add.image(0, 0, "window-state-v2").setOrigin(0);
     const clip = new Path2D();
@@ -201,7 +219,12 @@ export class Room extends Phaser.Scene {
     this.input.on(
       "pointerdown",
       (p: Phaser.Input.Pointer, objects: unknown[]) => {
-        if (this.canInteract(p) && !objects.length && p.y > 620 && this.world?.travel.phase !== "away")
+        if (
+          this.canInteract(p) &&
+          !objects.length &&
+          p.y > 620 &&
+          this.world?.travel.phase !== "away"
+        )
           this.onAction("walk");
       },
     );
@@ -211,7 +234,10 @@ export class Room extends Phaser.Scene {
   }
   canInteract(pointer: Phaser.Input.Pointer) {
     // Native dialogs must not pass their clicks through to the room below.
-    return pointer.event?.target === this.game.canvas && !document.querySelector("dialog[open]");
+    return (
+      pointer.event?.target === this.game.canvas &&
+      !document.querySelector("dialog[open]")
+    );
   }
   sync(w: World) {
     if (this.world && w.revision < this.world.revision) return;
@@ -377,6 +403,23 @@ export class Room extends Phaser.Scene {
       h = new Date(now + 28800000).getUTCHours(),
       night = h < 5 || h >= 19;
     this.drawWindow();
+    const tv = this.layout.objects.find(
+        (o: any) => o.id === "television",
+      ).bounds,
+      playing = (w.arcade?.activeCount || 0) > 0;
+    this.tvScreen.clear().setDepth(playing ? 7 : 1);
+    this.tvScreen.fillStyle(playing ? 0x294b61 : 0x111b32, 1);
+    this.tvScreen.fillRoundedRect(
+      tv.x + tv.width * 0.087,
+      tv.y + tv.height * 0.17,
+      tv.width * 0.826,
+      tv.height * 0.64,
+      4,
+    );
+    this.tvLabel
+      .setText(playing ? "游戏中" : "来一局")
+      .setDepth(playing ? 7 : 1)
+      .setAlpha(playing ? 1 : 0.65);
     this.clockHands.clear();
     this.clockHands.lineStyle(2.8, 0x5a6c59);
     const d = new Date(now + 28800000),
@@ -552,7 +595,9 @@ export class Room extends Phaser.Scene {
       name = tx > this.x ? "walk_right" : "walk_left";
     } else if (a.name === "sleep") {
       name = "sleep";
-      const bed = this.layout.objects.find((o: any) => o.id === "bed").standPoint;
+      const bed = this.layout.objects.find(
+        (o: any) => o.id === "bed",
+      ).standPoint;
       tx = bed.x;
       ty = bed.y;
       scale = 0.65;
@@ -571,6 +616,17 @@ export class Room extends Phaser.Scene {
       ["smile", "sleepy", "sad", "angry"].includes(w.mood.expression)
     ) {
       name = "expr_" + w.mood.expression;
+    }
+    if (
+      (w.arcade?.activeCount || 0) > 0 &&
+      ["idle", "rest"].includes(a.name) &&
+      !a.manual
+    ) {
+      const point = this.layout.objects.find(
+        (o: any) => o.id === "television",
+      ).standPoint;
+      tx = point.x;
+      ty = point.y;
     }
     const factor = 1 - Math.exp(-Math.min(delta, 100) / 190);
     this.x += (tx - this.x) * factor;

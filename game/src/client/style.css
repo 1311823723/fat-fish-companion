@@ -7,6 +7,7 @@
   --line: #e7ddcd;
   --paper: #fffaf0;
 }
+
 * {
   box-sizing: border-box;
 }
@@ -157,7 +158,8 @@ input {
   border-radius: 8px;
 }
 .tools {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
   flex-wrap: wrap;
 }

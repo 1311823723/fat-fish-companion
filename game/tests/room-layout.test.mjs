@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import layout from "../public/assets/room-layout-v3.json" with { type: "json" };
+import layout from "../public/assets/room-layout-v4.json" with { type: "json" };
 import { Store } from "../src/core/store.mjs";
 test("fine room exposes the same machine-readable landmarks used by the renderer and keeps walking clear of furniture", () => {
   const store = new Store();
   try {
     const room = store.snapshot().room;
-    assert.equal(room.version, "storybook-v3");
+    assert.equal(room.version, "storybook-v4");
     assert.deepEqual(room, layout);
     for (const object of room.objects) {
       const b = object.bounds;

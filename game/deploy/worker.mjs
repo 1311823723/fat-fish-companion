@@ -10,6 +10,9 @@ const api = new Set([
   "/api/room-diary-list",
   "/api/room-diary-read",
   "/api/room-events",
+  "/api/room-arcade",
+  "/api/room-arcade-view",
+  "/api/room-arcade-action",
 ]);
 export default {
   async fetch(request, env) {

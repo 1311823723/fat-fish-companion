@@ -1,7 +1,9 @@
 import { openDiary } from "./diary";
+import { createArcadeUI } from "./arcade";
 import Phaser from "phaser";
 import { Room, World } from "./room";
 import "./style.css";
+import "./arcade.css";
 const newRequestId = () =>
   typeof crypto.randomUUID === "function"
     ? crypto.randomUUID()
@@ -40,7 +42,7 @@ function element<K extends keyof HTMLElementTagNameMap>(
   return e;
 }
 function open(title: string) {
-  panel.classList.remove("diary-mode");
+  panel.classList.remove("diary-mode", "arcade-mode");
   generation++;
   $("panelTitle").textContent = title;
   body.replaceChildren();
@@ -178,6 +180,19 @@ const game = new Phaser.Game({
   render: { antialias: true, pixelArt: false },
   audio: { noAudio: true },
 });
+const arcadeUI = createArcadeUI({
+  panel,
+  body,
+  open,
+  api,
+  enter: () => {
+    if (joined) return true;
+    void identityPanel();
+    notice("先进入小屋，再来玩。");
+    return false;
+  },
+});
+$("television").onclick = () => arcadeUI.open();
 game.events.once("room-ready", () => {
   document.querySelector(".loading")?.remove();
   if (world) room.sync(world);
@@ -200,7 +215,10 @@ function connect() {
       location.host +
       "/api/room-events",
   );
-  ws.onmessage = () => void sync();
+  ws.onmessage = () => {
+    void sync();
+    arcadeUI.changed();
+  };
   ws.onclose = () => {
     reconnect = setTimeout(connect, 5000);
   };

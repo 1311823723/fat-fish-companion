@@ -11,6 +11,7 @@ import { safeDrawingFailure } from "./drawing.mjs";
 export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   fs.mkdirSync(path.join(ROOT, "state"), { recursive: true });
   store ??= new Store(path.resolve(ROOT, c.database || "state/world.db"));
+  store.arcade.reviewAvailable = !!c.bridge?.enabled;
   store.drawingFallback =
     (c.drawing?.provider || "gpt") === "gpt" &&
     c.drawing?.fallbackProvider === "doubao";
@@ -113,6 +114,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
             ok: true,
             world: { ...store.raw(), drawing: store.drawingState() },
             public: publicState,
+            arcade: store.arcade.personal(),
           });
           return;
         }
@@ -135,7 +137,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
             ok: true,
             jobs: store.db
               .prepare(
-                "SELECT id,kind,payload,due FROM outbox WHERE status='pending' AND due<=? ORDER BY due LIMIT 30",
+                "SELECT id,kind,payload,due FROM outbox WHERE status='pending' AND due<=? ORDER BY kind='arcade-review',due LIMIT 30",
               )
               .all(Date.now())
               .map((x) => ({ ...x, payload: JSON.parse(x.payload) })),
@@ -160,7 +162,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
           return;
         }
         if (url.pathname === "/internal/outbox/claim") {
-          if (!["share", "decision", "photo"].includes(b.kind))
+          if (!["share", "decision", "photo", "arcade-review"].includes(b.kind))
             throw Error("类型错误");
           json({
             ok: true,
@@ -170,6 +172,15 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         }
         if (url.pathname === "/internal/outbox/finish") {
           store.finish(b.id, b.status, b.result);
+          json({ ok: true });
+          return;
+        }
+        if (url.pathname === "/internal/arcade/review-job") {
+          json({ ok: true, game: store.arcade.reviewJob(b.matchId) });
+          return;
+        }
+        if (url.pathname === "/internal/arcade/review-finish") {
+          store.arcade.finishReview(b.matchId, b.text);
           json({ ok: true });
           return;
         }
@@ -208,6 +219,21 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         }
         const body = JSON.parse(raw || "{}");
         const route = url.pathname.slice("/api/room-".length);
+        if (["arcade", "arcade-view", "arcade-action"].includes(route)) {
+          const a = await actor(req);
+          if (!a) {
+            json({ ok: false, error: "先进入小屋，再来玩。" }, 401);
+            return;
+          }
+          json(
+            route === "arcade"
+              ? store.arcade.lobby(a)
+              : route === "arcade-view"
+                ? store.arcade.view(body.id, a)
+                : store.arcade.act(body, a),
+          );
+          return;
+        }
         if (
           [
             "enter",

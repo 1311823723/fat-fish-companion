@@ -39,6 +39,7 @@ const insertion = `  const gameCore=installGameCore(webRoom,{root:ROOT});
       cfg,active:()=>currentMode==='reserved2'&&!socialV2.paused&&snowlumaHealth.connected&&cfg.socialV2?.proactive?.enabled!==false,
       isAllowed:key=>isSessionAllowedInCurrentMode(key)&&!shouldBlockSilentReply(key),
       isBusy:key=>{const h=new Date(Date.now()+28800000).getUTCHours();return h<8||h>=23||[...socialV2.conversations].some(([k,st])=>(!key||key===k)&&(isConversationBusyV2(k,st)||Date.now()-(st.lastIncomingAt||0)<15*60000));},
+      isArcadeBusy:()=>[...socialV2.conversations].some(([k,st])=>isConversationBusyV2(k,st)),
       lastIncomingAt:key=>socialV2.conversations.get(key)?.lastIncomingAt||0,
       people:()=>peopleLedger?.data||{},generate:messages=>generateRoomReply(messages,{root:ROOT}),
       enqueue:run=>{const next=sendChain.then(run);sendChain=next.catch(()=>{});return next;},captureGuard:captureSendGuard,

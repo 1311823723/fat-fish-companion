@@ -10,9 +10,9 @@ export function roomSettings(root=ROOM_ROOT){
  return {...local,mode,port,upstream,host:mode==='lan'?'0.0.0.0':'127.0.0.1',secureCookies:mode==='public',botQQ:String(local.botQQ||'')};
 }
 export async function generateRoomReply(messages,{root=ROOM_ROOT,model}={}){
- const s=roomSettings(root);let key=process.env[s.apiKeyEnv||'ROOM_API_KEY']||'';
- if(s.proxyConfigModule){const proxy=await import(pathToFileURL(path.resolve(root,s.proxyConfigModule)).href);key=proxy.primaryKey(proxy.loadConfig());}
+ const s=roomSettings(root);let key=process.env[s.apiKeyEnv||'ROOM_API_KEY']||'',proxyDefault='';
+ if(s.proxyConfigModule){const proxy=await import(pathToFileURL(path.resolve(root,s.proxyConfigModule)).href),config=proxy.loadConfig();key=proxy.primaryKey(config);proxyDefault=typeof config.defaultModel==='string'?config.defaultModel.trim():'';}
  const base=String(s.modelBaseURL||'http://127.0.0.1:8788/v1').replace(/\/$/,'');
- const response=await fetch(base+'/chat/completions',{method:'POST',headers:{'content-type':'application/json',...(key?{Authorization:'Bearer '+key}:{})},body:JSON.stringify({model:s.model||model||'deepseek-chat',messages,max_tokens:400,temperature:.7,stream:false}),signal:AbortSignal.timeout(90000)});
+ const response=await fetch(base+'/chat/completions',{method:'POST',headers:{'content-type':'application/json',...(key?{Authorization:'Bearer '+key}:{})},body:JSON.stringify({model:s.model||model||proxyDefault||'deepseek-chat',messages,max_tokens:400,temperature:.7,stream:false}),signal:AbortSignal.timeout(90000)});
  if(!response.ok)throw Error('网页模型请求失败');const result=await response.json();const text=result.choices?.[0]?.message?.content;return typeof text==='string'?text:'';
 }

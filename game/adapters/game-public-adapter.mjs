@@ -45,6 +45,9 @@ export async function routeGame(req, res, { root }) {
     "/favicon.ico",
     "/api/room-state",
     "/api/room-action",
+    "/api/room-arcade",
+    "/api/room-arcade-view",
+    "/api/room-arcade-action",
   ]);
   const game =
     publicRoutes.has(u.pathname) ||

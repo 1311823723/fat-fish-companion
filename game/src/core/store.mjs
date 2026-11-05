@@ -1,6 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { EventEmitter } from "node:events";
 import { initial, settle, apply, publicWorld } from "./world.mjs";
+import { Arcade } from "./arcade.mjs";
 export class Store extends EventEmitter {
   constructor(file = ":memory:", clock = Date.now) {
     super();
@@ -16,6 +17,7 @@ export class Store extends EventEmitter {
       .prepare("INSERT OR IGNORE INTO world VALUES(1,?)")
       .run(JSON.stringify(initial(clock())));
     if (this.raw().schema !== 1) throw Error("不支持的存档版本，禁止自动重建");
+    this.arcade = new Arcade(this);
   }
   raw() {
     return JSON.parse(
@@ -63,6 +65,7 @@ export class Store extends EventEmitter {
         ok: true,
         ...publicWorld(w, now),
         drawing: this.drawingState(),
+        arcade: this.arcade.summary(),
       };
       if (command)
         this.db
