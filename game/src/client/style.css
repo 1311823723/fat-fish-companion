@@ -268,8 +268,10 @@ dialog header {
   gap: 5px;
 }
 .food-slot img {
-  width: 68px;
-  height: 54px;
+  width: 76px;
+  height: 76px;
+  max-width: 100%;
+  object-fit: contain;
 }
 .food-slot button {
   font-size: 12px;
@@ -713,4 +715,42 @@ dialog header {
       transform: none;
     }
   }
+}
+
+.pack-item img {
+  object-fit: contain;
+  flex: none;
+}
+.pack-item small {
+  color: var(--green);
+}
+.pack-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.pack-grid .pack-item {
+  position: relative;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f1f0e3;
+  padding: 14px 8px;
+}
+.pack-grid .pack-item input {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+.pack-grid .pack-item:has(input:checked) {
+  border-color: #8ca68d;
+  background: #e8eee1;
+}
+.pack-grid .pack-item span {
+  font-size: 13px;
+}
+.pack-grid .pack-item small {
+  font-size: 11px;
 }

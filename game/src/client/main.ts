@@ -87,6 +87,7 @@ function render(w: World) {
           rest: "歇一会儿",
           eat: "吃饭",
           tea: "喝奶茶",
+          read: "翻书",
         }[w.activity.name as string] || "发呆");
   $("weather").textContent = w.weather.available
     ? w.weather.city + " " + w.weather.label + " " + w.weather.temperature + "℃"
@@ -295,21 +296,36 @@ $("feed").onclick = () => {
     ),
     grid = element("div", "", "food-grid");
   body.append(count, grid);
-  for (const f of world.kitchen.items) {
+  body.prepend(element("p", "今日菜单 · " + world.kitchen.menuDay, "subtle"));
+  const feedingCount = element("p", "", "subtle");
+  const updateFeedingCount = () => {
+    feedingCount.textContent = `今天 ${world.feeding.visitors} 位访客放了 ${world.feeding.portions} 份`;
+  };
+  updateFeedingCount();
+  for (const f of world.kitchen.items
+    .filter((f: any) => f.availableToday !== false)
+    .sort((a: any, b: any) => Number(b.gain === 30) - Number(a.gain === 30))) {
     const box = element("div", "", "food-slot"),
       img = element("img");
-    img.src = "/assets/" + f.id + "-v1.svg";
+    img.src = f.icon || "/assets/" + f.id + "-v1.svg";
     img.alt = f.label;
     const n = element("small", "剩 " + f.count + " 份"),
       b = element("button", "放进去");
     b.disabled = world.kitchen.total >= 12;
     b.onclick = async () => {
-      if (await command("restock", { item: f.id }, b)) {
+      if (
+        await command(
+          "restock",
+          { item: f.id, menuDay: world.kitchen.menuDay },
+          b,
+        )
+      ) {
         n.textContent =
           "剩 " +
           world.kitchen.items.find((x: any) => x.id === f.id).count +
           " 份";
         count.textContent = "已放 " + world.kitchen.total + " / 12 份";
+        updateFeedingCount();
         if (world.kitchen.total >= 12)
           grid.querySelectorAll("button").forEach((x) => (x.disabled = true));
       }
@@ -317,32 +333,48 @@ $("feed").onclick = () => {
     box.append(img, element("span", f.label), n, b);
     grid.append(box);
   }
-  body.append(
-    element(
-      "p",
-      "今天 " +
-        world.feeding.visitors +
-        " 位访客放了 " +
-        world.feeding.portions +
-        " 份",
-      "subtle",
-    ),
-  );
+  body.append(feedingCount);
 };
 $("backpack").onclick = () => {
   if (!world) return;
   open("准备背包");
   body.append(element("p", "最多带三件，食物另从冰箱准备。", "subtle"));
   const inputs: HTMLInputElement[] = [];
-  for (const [id, label] of Object.entries(labels)) {
+  const packing = world.packing;
+  if (packing)
+    body.append(element("p", "今日随身小物 · " + packing.day, "subtle"));
+  const packGrid = element("div", "", "pack-grid");
+  body.append(packGrid);
+  for (const item of (
+    packing?.items ||
+    Object.entries(labels).map(([id, label]) => ({
+      id,
+      label,
+      availableToday: true,
+      packed: false,
+    }))
+  ).filter((x: any) => x.availableToday || x.packed)) {
+    const { id, label } = item;
     const line = element("label", "", "pack-item"),
       input = element("input");
     input.type = "checkbox";
     input.value = id;
     input.checked = world.backpack.includes(id);
     inputs.push(input);
-    line.append(input, element("span", label));
-    body.append(line);
+    if (item.icon) {
+      const img = element("img");
+      img.src = item.icon;
+      img.alt = "";
+      img.width = 64;
+      img.height = 64;
+      line.append(img);
+    }
+    line.append(
+      input,
+      element("span", label),
+      ...(!item.availableToday ? [element("small", "已收好")] : []),
+    );
+    packGrid.append(line);
   }
   const b = element("button", "收好背包");
   b.onclick = async () => {
@@ -351,7 +383,10 @@ $("backpack").onclick = () => {
       notice("背包最多放三件。");
       return;
     }
-    if (await command("backpack_set", { items }, b)) panel.close();
+    if (
+      await command("backpack_set", { items, menuDay: world.packing?.day }, b)
+    )
+      panel.close();
   };
   body.append(b);
 };

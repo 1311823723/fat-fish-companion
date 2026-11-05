@@ -43,16 +43,16 @@ export class Room extends Phaser.Scene {
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
     this.load.json("room-layout", "/assets/room-layout-v4.json");
-    this.load.json("manifest", "/assets/manifest-v1.json");
+    this.load.json("manifest", "/assets/manifest-v2.json");
+    this.load.atlas(
+      "food-icons-v2",
+      "/assets/food-icons-v2.webp",
+      "/assets/food-icons-v2.json",
+    );
     for (const n of ["idle", "walk_right", "walk_left"])
       this.load.spritesheet(n, "/assets/" + n + "-v1.webp", {
         frameWidth: 256,
         frameHeight: 256,
-      });
-    for (const n of ["tomato", "wings", "pork", "soup", "milk_tea", "lemon"])
-      this.load.svg("food-" + n, "/assets/" + n + "-v1.svg", {
-        width: 64,
-        height: 50,
       });
   }
   create() {
@@ -451,7 +451,8 @@ export class Room extends Phaser.Scene {
                 (i % 3) * this.layout.foodGrid.columnStep,
               this.layout.foodGrid.y +
                 Math.floor(i / 3) * this.layout.foodGrid.rowStep,
-              "food-" + f.id,
+              "food-icons-v2",
+              f.id,
             )
             .setDisplaySize(29, 25)
             .setDepth(1),
@@ -601,8 +602,9 @@ export class Room extends Phaser.Scene {
       tx = bed.x;
       ty = bed.y;
       scale = 0.65;
-    } else if (["eat", "tea"].includes(a.name)) {
-      name = a.name === "tea" ? "tea" : "eat_taiyaki";
+    } else if (["eat", "tea", "read"].includes(a.name)) {
+      name =
+        a.name === "read" ? "read" : a.name === "tea" ? "tea" : "eat_taiyaki";
       const chair = this.layout.objects.find(
         (x: any) => x.id === "desk",
       ).standPoint;
@@ -632,7 +634,10 @@ export class Room extends Phaser.Scene {
     this.x += (tx - this.x) * factor;
     this.y += (ty - this.y) * factor;
     const key = this.ensureAnim(name);
-    if (this.pet.anims.currentAnim?.key !== key) this.pet.play(key);
+    if (this.pet.anims.currentAnim?.key !== key) {
+      this.pet.play(key);
+      document.getElementById("game")!.dataset.animation = key;
+    }
     this.pet.setPosition(this.x, this.y).setScale(scale).setDepth(4);
     this.shadow.setPosition(this.x, this.y + 2).setDepth(3);
     if (Math.floor(_time / 60000) !== Number(this.lastLayout)) {

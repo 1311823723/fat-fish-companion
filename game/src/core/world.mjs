@@ -3,15 +3,8 @@ import { randomUUID } from "node:crypto";
 import { freezeScene } from "./scene.mjs";
 import { departureNote } from "./note.mjs";
 import { displayCaption } from "./caption.mjs";
-export const MENU = [
-  ["tomato", "番茄炒蛋", 30],
-  ["wings", "可乐鸡翅", 30],
-  ["pork", "小酥肉", 30],
-  ["soup", "紫菜蛋花汤", 10],
-  ["milk_tea", "奶茶", 5],
-  ["lemon", "柠檬水", 0],
-];
-export const PACK = ["camera", "umbrella", "map", "blanket"];
+import { MENU, PACK, GEAR, dailySupply } from "./catalog.mjs";
+export { MENU, PACK } from "./catalog.mjs";
 export const PLACES = [
   {
     id: "doorstep",
@@ -165,7 +158,9 @@ export function settle(w, now, events) {
       !(w.activity.manual && w.activity.until > cursor) &&
       w.hunger < 35
     ) {
-      const food = MENU.find(([id, , gain]) => gain >= 10 && w.stock[id] > 0);
+      const food =
+        MENU.find(([id, , gain]) => gain === 30 && w.stock[id] > 0) ||
+        MENU.find(([id, , gain]) => gain >= 10 && w.stock[id] > 0);
       if (food) {
         consume(w, food[0], events, next, true);
         w.activity = {
@@ -200,7 +195,9 @@ export function settle(w, now, events) {
           ? "rest"
           : stretch
             ? "walk"
-            : "idle",
+            : w.energy >= 45 && Math.floor(now / 300000) % 3 === 1
+              ? "read"
+              : "idle",
       startedAt: now,
       until: now + (sleep ? 30 : stretch && !wet ? 0.5 : 5) * 60000,
     };
@@ -210,9 +207,15 @@ export function apply(w, command, actor, now, events) {
   const { type, args = {} } = command;
   if (type === "restock") {
     if (!MENU.some((x) => x[0] === args.item)) throw Error("没有这种食物");
+    if (args.menuDay !== undefined) {
+      const today = dailySupply(now);
+      if (args.menuDay !== today.day)
+        throw Error("今日菜单已更新，请刷新后再选");
+      if (!today.food.includes(args.item)) throw Error("今天没有供应这道菜");
+    }
     if (Object.values(w.stock).reduce((a, b) => a + b, 0) >= 12)
       throw Error("冰箱已经放满啦");
-    w.stock[args.item]++;
+    w.stock[args.item] = (w.stock[args.item] || 0) + 1;
     w.feeding.push({
       id: command.requestId,
       at: now,
@@ -238,6 +241,17 @@ export function apply(w, command, actor, now, events) {
       args.items.some((x) => !PACK.includes(x))
     )
       throw Error("背包最多三件不同的物品");
+    if (args.menuDay !== undefined) {
+      const today = dailySupply(now);
+      if (args.menuDay !== today.day)
+        throw Error("今天的小物已更新，请刷新后再选");
+      if (
+        args.items.some(
+          (id) => !today.gear.includes(id) && !w.backpack.includes(id),
+        )
+      )
+        throw Error("这件小物今天没有供应");
+    }
     if (w.travel.current) throw Error("出门后不能修改随身背包");
     w.backpack = [...args.items];
     event(events, "backpack_changed", {}, now);
@@ -252,7 +266,7 @@ export function apply(w, command, actor, now, events) {
   } else if (type === "activity") {
     if (w.travel.current) throw Error("她还在外面");
     if (
-      !["walk", "sleep", "wake", "rest", "eat", "tea", "idle"].includes(
+      !["walk", "sleep", "wake", "rest", "eat", "tea", "idle", "read"].includes(
         args.name,
       )
     )
@@ -276,7 +290,12 @@ export function apply(w, command, actor, now, events) {
               new Date(now + 28800000).toISOString().slice(0, 10) +
                 "T07:00:00+08:00",
             ) + (new Date(now + 28800000).getUTCHours() >= 19 ? 86400000 : 0)
-          : now + (args.name === "sleep" ? 30 * 60000 : 30000),
+          : now +
+            (args.name === "sleep"
+              ? 30 * 60000
+              : args.name === "read"
+                ? 120000
+                : 30000),
       manual: true,
     };
     event(events, "activity_started", { name: args.name }, now);
@@ -456,6 +475,7 @@ export function publicWorld(w, now) {
     (x) => new Date(x.at + 28800000).toISOString().slice(0, 10) === today,
   );
   const trip = w.travel.current;
+  const supply = dailySupply(now);
   return {
     revision: w.revision,
     serverTime: now,
@@ -491,6 +511,16 @@ export function publicWorld(w, now) {
     furnishings: w.furnishings,
     weather: w.weather,
     backpack: w.backpack,
+    packing: {
+      day: supply.day,
+      items: GEAR.map(([id, label]) => ({
+        id,
+        label,
+        icon: `/assets/gear-${id}-v2.webp`,
+        availableToday: supply.gear.includes(id),
+        packed: w.backpack.includes(id),
+      })),
+    },
     souvenirs: w.souvenirs,
     photos: w.photos.map(
       ({ photoId, place, capturedAt, caption, assetVersion, scene }) => ({
@@ -517,6 +547,7 @@ export function publicWorld(w, now) {
       returnAt: trip?.returnAt,
     },
     kitchen: {
+      menuDay: supply.day,
       capacity: 12,
       total: Object.values(w.stock).reduce((a, b) => a + b, 0),
       items: MENU.map(([id, label, gain]) => ({
@@ -524,7 +555,9 @@ export function publicWorld(w, now) {
         label,
         gain,
         kind: gain === 30 ? "food" : "drink",
-        count: w.stock[id],
+        count: w.stock[id] || 0,
+        icon: `/assets/food-${id}-v2.webp`,
+        availableToday: supply.food.includes(id),
       })),
     },
     feeding: {

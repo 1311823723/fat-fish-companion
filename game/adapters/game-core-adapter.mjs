@@ -236,6 +236,21 @@ export function installGameCore(room, { root }) {
           energy: p.energy,
           mood: p.mood,
           weather: p.weather,
+          todayMenu: {
+            day: p.kitchen.menuDay,
+            items: p.kitchen.items
+              .filter((x) => x.availableToday)
+              .map(({ id, label }) => ({ id, label })),
+          },
+          backpack: p.packing.items
+            .filter((x) => x.packed)
+            .map(({ id, label }) => ({ id, label })),
+          todayGear: {
+            day: p.packing.day,
+            items: p.packing.items
+              .filter((x) => x.availableToday)
+              .map(({ id, label }) => ({ id, label })),
+          },
           intent: w.travel.current?.intent,
           photoEvent: w.travel.current?.photoScene,
           photoStatus: w.travel.current?.photo?.status,
@@ -287,10 +302,10 @@ export function installGameCore(room, { root }) {
       let type, values;
       if (name === "restock") {
         type = "restock";
-        values = { item: args.item };
+        values = { item: args.item, menuDay: args.menuDay };
       } else if (name === "backpack_set") {
         type = "backpack_set";
-        values = { items: args.items };
+        values = { items: args.items, menuDay: args.menuDay };
       } else if (name.startsWith("curtain_") || name.startsWith("light_")) {
         type = "furniture";
         values = name.startsWith("curtain_")
