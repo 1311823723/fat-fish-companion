@@ -10,3 +10,5 @@
 雾蓝鲸鱼环境（room-v3.webp / fridge-door-v3.webp / curtain-v3.webp）：由本项目通过 AI 辅助生成并整理，按 MIT 许可提供；角色动画及其原有署名、非商业与相同方式共享要求保持不变。
 
 温馨版环境底图 room-v4.webp：由本项目通过内置 Image Gen 在 v3 布局上编辑并整理，按 MIT 许可提供；原角色许可保持不变。
+
+房间布局版底图 room-v5.webp：由本项目使用内置 Image Gen 参考 v4 重新布局并整理，按 MIT 许可提供；机器可读布局 room-layout-v3.json 同为 MIT。角色原有许可保持不变。

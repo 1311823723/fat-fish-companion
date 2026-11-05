@@ -36,10 +36,10 @@ export class Room extends Phaser.Scene {
     this.onAction = action;
   }
   preload() {
-    this.load.image("room", "/assets/room-v4.webp");
+    this.load.image("room", "/assets/room-v5.webp");
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
-    this.load.json("room-layout", "/assets/room-layout-v2.json");
+    this.load.json("room-layout", "/assets/room-layout-v3.json");
     this.load.json("manifest", "/assets/manifest-v1.json");
     for (const n of ["idle", "walk_right", "walk_left"])
       this.load.spritesheet(n, "/assets/" + n + "-v1.webp", {
@@ -144,16 +144,16 @@ export class Room extends Phaser.Scene {
     context.fillRect(0, 0, 256, 256);
     lightTexture.refresh();
     this.glow = this.add
-      .image(300, 400, "soft-light-v1")
+      .image(296, 375, "soft-light-v1")
       .setDisplaySize(190, 200)
       .setVisible(false);
     this.fridgeGlow = this.add
-      .image(490, 435, "soft-light-v1")
+      .image(485, 400, "soft-light-v1")
       .setDisplaySize(150, 270)
       .setVisible(false);
     this.notePaper = this.add
-      .container(252, 588)
-      .setScale(0.68)
+      .container(this.layout.note.x, this.layout.note.y)
+      .setScale(this.layout.note.scale)
       .setRotation(0.075)
       .setDepth(5);
     const paper = this.add.graphics();
@@ -179,7 +179,9 @@ export class Room extends Phaser.Scene {
     const hit = this.add
       .zone(39, 30, 88, 78)
       .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => this.onAction("note"));
+      .on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+        if (this.canInteract(pointer)) this.onAction("note");
+      });
     this.notePaper.add([paper, this.note, signature, hit]);
     for (const object of this.layout.objects) {
       if (!object.actions.length) continue;
@@ -192,18 +194,24 @@ export class Room extends Phaser.Scene {
           box.height,
         )
         .setInteractive({ useHandCursor: true })
-        .on("pointerdown", () => this.onAction(object.actions[0]));
+        .on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+          if (this.canInteract(pointer)) this.onAction(object.actions[0]);
+        });
     }
     this.input.on(
       "pointerdown",
       (p: Phaser.Input.Pointer, objects: unknown[]) => {
-        if (!objects.length && p.y > 620 && this.world?.travel.phase !== "away")
+        if (this.canInteract(p) && !objects.length && p.y > 620 && this.world?.travel.phase !== "away")
           this.onAction("walk");
       },
     );
     this.events.on("shutdown", () => this.loading.clear());
     this.game.events.emit("room-ready");
     this.drawEnvironment();
+  }
+  canInteract(pointer: Phaser.Input.Pointer) {
+    // Native dialogs must not pass their clicks through to the room below.
+    return pointer.event?.target === this.game.canvas && !document.querySelector("dialog[open]");
   }
   sync(w: World) {
     if (this.world && w.revision < this.world.revision) return;
@@ -376,17 +384,17 @@ export class Room extends Phaser.Scene {
     const a = (((h % 12) + minute / 60) * Math.PI) / 6 - Math.PI / 2,
       b = (minute * Math.PI) / 30 - Math.PI / 2;
     this.clockHands.lineBetween(
-      300,
-      28,
-      300 + Math.cos(a) * 9,
-      28 + Math.sin(a) * 9,
+      this.layout.clock.x,
+      this.layout.clock.y,
+      this.layout.clock.x + Math.cos(a) * 9,
+      this.layout.clock.y + Math.sin(a) * 9,
     );
     this.clockHands.lineStyle(2, 0x5a6c59);
     this.clockHands.lineBetween(
-      300,
-      28,
-      300 + Math.cos(b) * 13,
-      28 + Math.sin(b) * 13,
+      this.layout.clock.x,
+      this.layout.clock.y,
+      this.layout.clock.x + Math.cos(b) * 13,
+      this.layout.clock.y + Math.sin(b) * 13,
     );
     this.door.setVisible(true);
     this.foods.clear(true, true);
@@ -544,8 +552,9 @@ export class Room extends Phaser.Scene {
       name = tx > this.x ? "walk_right" : "walk_left";
     } else if (a.name === "sleep") {
       name = "sleep";
-      tx = 125;
-      ty = 430;
+      const bed = this.layout.objects.find((o: any) => o.id === "bed").standPoint;
+      tx = bed.x;
+      ty = bed.y;
       scale = 0.65;
     } else if (["eat", "tea"].includes(a.name)) {
       name = a.name === "tea" ? "tea" : "eat_taiyaki";
