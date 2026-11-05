@@ -33,6 +33,8 @@ export class Room extends Phaser.Scene {
   loading = new Set<string>();
   tapLoading = false;
   petPressPointer: number | null = null;
+  groundPressPointer: number | null = null;
+  lastTouchAt = 0;
   reactionAnchor: { id: string; x: number; y: number; scale: number } | null =
     null;
   playingReactionId: string | null = null;
@@ -241,44 +243,56 @@ export class Room extends Phaser.Scene {
     });
     const hit = this.add
       .zone(39, 30, 88, 78)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-        if (this.canInteract(pointer)) this.onAction("note");
-      });
+      .setInteractive({ useHandCursor: true });
+    this.bindTap(hit, () => this.onAction("note"));
     this.notePaper.add([paper, this.note, signature, hit]);
     for (const object of this.layout.objects) {
       if (!object.actions.length) continue;
       const box = object.bounds;
-      this.add
+      const zone = this.add
         .zone(
           box.x + box.width / 2,
           box.y + box.height / 2,
           box.width,
           box.height,
         )
-        .setInteractive({ useHandCursor: true })
-        .on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-          if (this.canInteract(pointer)) this.onAction(object.actions[0]);
-        });
+        .setInteractive({ useHandCursor: true });
+      this.bindTap(zone, () => this.onAction(object.actions[0]));
     }
     this.input.on(
       "pointerdown",
       (p: Phaser.Input.Pointer, objects: unknown[]) => {
-        if (
+        this.groundPressPointer = (
           this.canInteract(p) &&
           !objects.length &&
           p.y > 620 &&
           this.world?.travel.phase !== "away"
-        )
-          this.onAction("walk");
+        ) ? p.id : null;
       },
     );
+    this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
+      const pressed = this.groundPressPointer === p.id;
+      this.groundPressPointer = null;
+      if (pressed && this.canInteract(p) && p.getDistance() < 12 && this.world?.travel.phase !== "away") this.onAction("walk");
+    });
     this.events.on("shutdown", () => this.loading.clear());
     this.game.events.emit("room-ready");
     this.drawEnvironment();
     this.time.delayedCall(1000, () => {
       for (const name of ["headpat", "spin"]) this.ensureAnim(name);
     });
+  }
+  bindTap(zone: Phaser.GameObjects.Zone, action: () => void) {
+    let press: number | null = null;
+    zone.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+      press = this.canInteract(pointer) ? pointer.id : null;
+    });
+    zone.on("pointerup", (pointer: Phaser.Input.Pointer) => {
+      const tapped = press === pointer.id;
+      press = null;
+      if (tapped && this.canInteract(pointer) && pointer.getDistance() < 12) action();
+    });
+    zone.on("pointerout", () => { press = null; });
   }
   async requestPetReaction() {
     const allowed = () =>
@@ -313,6 +327,10 @@ export class Room extends Phaser.Scene {
   }
   canInteract(pointer: Phaser.Input.Pointer) {
     // Native dialogs must not pass their clicks through to the room below.
+    const type = pointer.event?.type || "";
+    if (type.startsWith("touch")) this.lastTouchAt = Date.now();
+    if (type === "touchcancel") return false;
+    if (type.startsWith("mouse") && Date.now() - this.lastTouchAt < 800) return false;
     return (
       pointer.event?.target === this.game.canvas &&
       !document.querySelector("dialog[open]")

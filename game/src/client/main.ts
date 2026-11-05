@@ -186,6 +186,7 @@ const game = new Phaser.Game({
   height: 800,
   backgroundColor: "#eaddc9",
   scene: room,
+  input: { touch: { capture: false } },
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   fps: { target: 60, limit: power ? 30 : 60, forceSetTimeOut: false },
   render: { antialias: true, pixelArt: false },
