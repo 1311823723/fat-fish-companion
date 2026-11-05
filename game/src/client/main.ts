@@ -154,6 +154,10 @@ async function command(type: string, args: any, button?: HTMLButtonElement) {
   }
 }
 const sceneAction = (name: string) => {
+  if (name === "pet_interact") {
+    void command("pet_interact", {});
+    return;
+  }
   if (["walk", "sleep", "wake", "rest"].includes(name)) {
     void command("activity", { name });
     return;

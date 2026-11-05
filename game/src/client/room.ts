@@ -31,6 +31,11 @@ export class Room extends Phaser.Scene {
   onAction: Action;
   lastLayout = "";
   loading = new Set<string>();
+  tapLoading = false;
+  petPressPointer: number | null = null;
+  reactionAnchor: { id: string; x: number; y: number; scale: number } | null =
+    null;
+  playingReactionId: string | null = null;
   renderedFrames = 0;
   fpsStart = 0;
   constructor(action: Action) {
@@ -43,7 +48,7 @@ export class Room extends Phaser.Scene {
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
     this.load.json("room-layout", "/assets/room-layout-v4.json");
-    this.load.json("manifest", "/assets/manifest-v3.json");
+    this.load.json("manifest", "/assets/manifest-v4.json");
     this.load.atlas(
       "food-icons-v2",
       "/assets/food-icons-v2.webp",
@@ -148,6 +153,46 @@ export class Room extends Phaser.Scene {
       .sprite(300, 710, "idle")
       .setOrigin(0.5, 244 / 256)
       .setScale(0.82);
+    this.pet
+      .setInteractive({
+        useHandCursor: true,
+        pixelPerfect: true,
+        alphaTolerance: 64,
+      })
+      .on(
+        "pointerdown",
+        (
+          pointer: Phaser.Input.Pointer,
+          _x: number,
+          _y: number,
+          event: Phaser.Types.Input.EventData,
+        ) => {
+          event.stopPropagation();
+          this.petPressPointer = this.canInteract(pointer) ? pointer.id : null;
+        },
+      )
+      .on(
+        "pointerup",
+        (
+          pointer: Phaser.Input.Pointer,
+          _x: number,
+          _y: number,
+          event: Phaser.Types.Input.EventData,
+        ) => {
+          event.stopPropagation();
+          const pressed = this.petPressPointer === pointer.id;
+          this.petPressPointer = null;
+          if (
+            pressed &&
+            this.canInteract(pointer) &&
+            pointer.getDistance() < 12
+          )
+            void this.requestPetReaction();
+        },
+      )
+      .on("pointerout", () => {
+        this.petPressPointer = null;
+      });
     this.dark = this.add
       .rectangle(0, 0, 600, 800, 0x142438, 1)
       .setOrigin(0)
@@ -231,6 +276,40 @@ export class Room extends Phaser.Scene {
     this.events.on("shutdown", () => this.loading.clear());
     this.game.events.emit("room-ready");
     this.drawEnvironment();
+    this.time.delayedCall(1000, () => {
+      for (const name of ["headpat", "spin"]) this.ensureAnim(name);
+    });
+  }
+  async requestPetReaction() {
+    const allowed = () =>
+      this.world &&
+      this.world.travel.phase !== "away" &&
+      !["sleep", "eat", "tea"].includes(this.world.activity.name) &&
+      Date.now() + this.offset >= (this.world.petTapReadyAt || 0) &&
+      !document.querySelector("dialog[open]");
+    if (this.tapLoading || !allowed()) return;
+    this.tapLoading = true;
+    try {
+      for (const name of ["headpat", "spin"]) this.ensureAnim(name);
+      if (!this.textures.exists("headpat") || !this.textures.exists("spin"))
+        await new Promise<void>((resolve) => {
+          const finish = () => {
+            clearTimeout(timer);
+            this.load.off("complete", finish);
+            resolve();
+          };
+          const timer = window.setTimeout(finish, 15000);
+          this.load.once("complete", finish);
+        });
+      if (
+        allowed() &&
+        this.textures.exists("headpat") &&
+        this.textures.exists("spin")
+      )
+        this.onAction("pet_interact");
+    } finally {
+      this.tapLoading = false;
+    }
   }
   canInteract(pointer: Phaser.Input.Pointer) {
     // Native dialogs must not pass their clicks through to the room below.
@@ -558,7 +637,7 @@ export class Room extends Phaser.Scene {
           end: this.manifest[name].frames - 1,
         }),
         frameRate: this.manifest[name].fps,
-        repeat: -1,
+        repeat: this.manifest[name].once ? 0 : -1,
       });
     return name;
   }
@@ -636,12 +715,45 @@ export class Room extends Phaser.Scene {
       tx = point.x;
       ty = point.y;
     }
+    const reaction =
+      w.petReaction && now < w.petReaction.until ? w.petReaction : null;
+    if (reaction) {
+      if (!this.reactionAnchor || this.reactionAnchor.id !== reaction.id)
+        this.reactionAnchor = {
+          id: reaction.id,
+          x: this.x,
+          y: this.y,
+          scale: this.pet.scaleX,
+        };
+      name = reaction.kind;
+      tx = this.reactionAnchor.x;
+      ty = this.reactionAnchor.y;
+      scale = this.reactionAnchor.scale;
+    } else {
+      this.reactionAnchor = null;
+      this.playingReactionId = null;
+    }
     const factor = 1 - Math.exp(-Math.min(delta, 100) / 190);
     this.x += (tx - this.x) * factor;
     this.y += (ty - this.y) * factor;
     const key = this.ensureAnim(name);
-    if (this.pet.anims.currentAnim?.key !== key) {
-      this.pet.play(key);
+    if (
+      this.pet.anims.currentAnim?.key !== key ||
+      (reaction &&
+        key === reaction.kind &&
+        this.playingReactionId !== reaction.id)
+    ) {
+      if (reaction && key === reaction.kind) {
+        const startFrame = Math.min(
+          this.manifest[key].frames - 1,
+          Math.floor(
+            (Math.max(0, now - reaction.startedAt) * this.manifest[key].fps) /
+              1000,
+          ),
+        );
+        this.pet.play({ key, startFrame });
+        this.playingReactionId = reaction.id;
+      } else this.pet.play(key);
       document.getElementById("game")!.dataset.animation = key;
     }
     this.pet.setPosition(this.x, this.y).setScale(scale).setDepth(4);

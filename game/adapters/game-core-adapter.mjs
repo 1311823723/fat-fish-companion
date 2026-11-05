@@ -232,6 +232,15 @@ export function installGameCore(room, { root }) {
           homePage: entrance,
           atHome: !w.travel.current,
           activity: p.activity.name,
+          recentPetReaction:
+            w.petReaction && p.serverTime - w.petReaction.startedAt < 5 * 60000
+              ? {
+                  kind: w.petReaction.kind,
+                  at: w.petReaction.startedAt,
+                  active: !!p.petReaction,
+                  actorKnown: false,
+                }
+              : null,
           hunger: p.hunger,
           energy: p.energy,
           mood: p.mood,

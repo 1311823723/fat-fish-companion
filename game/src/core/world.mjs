@@ -218,7 +218,35 @@ export function settle(w, now, events) {
 }
 export function apply(w, command, actor, now, events) {
   const { type, args = {} } = command;
-  if (type === "restock") {
+  if (type === "pet_interact") {
+    if (
+      w.travel.current ||
+      ["sleep", "eat", "tea"].includes(w.activity.name) ||
+      now < (w.petTapReadyAt || 0)
+    )
+      return;
+    const roll = Math.random();
+    const kind =
+      roll < 0.35
+        ? "headpat"
+        : roll < 0.55 &&
+            w.activity.name !== "read" &&
+            w.energy >= 35 &&
+            (w.mood.value ?? 60) >= 60 &&
+            !["有点低落", "有点烦"].includes(w.mood.label)
+          ? "spin"
+          : null;
+    w.petTapReadyAt = now + (kind ? 12000 : 3000);
+    if (kind) {
+      w.petReaction = {
+        id: randomUUID(),
+        kind,
+        startedAt: now,
+        until: now + (kind === "headpat" ? 2200 : 1400),
+      };
+      event(events, "pet_reacted", { kind }, now);
+    }
+  } else if (type === "restock") {
     if (!MENU.some((x) => x[0] === args.item)) throw Error("没有这种食物");
     if (args.menuDay !== undefined) {
       const today = dailySupply(now);
@@ -328,6 +356,7 @@ export function apply(w, command, actor, now, events) {
                   : 30000),
       manual: true,
     };
+    delete w.petReaction;
     if (args.name === "sing") w.lastHumAt = now;
     event(events, "activity_started", { name: args.name }, now);
   } else if (type === "travel_decision") {
@@ -539,6 +568,18 @@ export function publicWorld(w, now) {
     room: roomLayout,
     location: w.location,
     activity: { fromX: 0.25, toX: 0.75, ...w.activity },
+    petReaction:
+      !trip &&
+      !["sleep", "eat", "tea"].includes(w.activity.name) &&
+      w.petReaction?.until > now
+        ? {
+            id: w.petReaction.id,
+            kind: w.petReaction.kind,
+            startedAt: w.petReaction.startedAt,
+            until: w.petReaction.until,
+          }
+        : null,
+    petTapReadyAt: w.petTapReadyAt || 0,
     furnishings: w.furnishings,
     weather: w.weather,
     backpack: w.backpack,

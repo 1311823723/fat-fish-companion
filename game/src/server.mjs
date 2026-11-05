@@ -362,9 +362,13 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
             };
           }
           if (
-            !["activity", "furniture", "restock", "backpack_set"].includes(
-              command.type,
-            )
+            ![
+              "activity",
+              "furniture",
+              "restock",
+              "backpack_set",
+              "pet_interact",
+            ].includes(command.type)
           )
             throw Error("操作无效");
           json(store.transact(command, a));
