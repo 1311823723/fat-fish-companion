@@ -1,4 +1,4 @@
-> **新版生活小游戏（独立目录）**：已加入 Phaser 4.2.1、Node 24 / SQLite 统一世界、饱食与精力、背包与纪念品、冻结拍照事件与 Cloudflare Pages 部署。新增手绘电视小游戏：猜拳、四子棋、多人独立对局、可选观战与赛后复盘，见 [玩法与演示](game/docs/ARCADE.md)。先读 [game/README.md](game/README.md)；部署助手读取 [game/DEPLOYMENT_AGENT.md](game/DEPLOYMENT_AGENT.md)。旧版迁移需备份、核对计数并关闭旧调度器。绘图依赖实际服务，失败不会伪装成成功；公网入口由部署者选择。
+> **新版生活小游戏（独立目录）**：已加入 Phaser 4.2.1、Node 24 / SQLite 统一世界、饱食与精力、背包与纪念品、冻结拍照事件与 Cloudflare Pages 部署。新增手绘电视小游戏：四子棋、多人独立对局、可回看的对战记录与赛后复盘，见 [玩法与演示](game/docs/ARCADE.md)。先读 [game/README.md](game/README.md)；部署助手读取 [game/DEPLOYMENT_AGENT.md](game/DEPLOYMENT_AGENT.md)。旧版迁移需备份、核对计数并关闭旧调度器。绘图依赖实际服务，失败不会伪装成成功；公网入口由部署者选择。
 # QQ ↔ DeepSeek Harness 桥接
 
 > **手机小屋版**：这是基于 [qq-bridge](https://github.com/Derpyu520/qq-bridge) 的扩展，包含竖屏小屋、QQ验证和主人日记入口。先看 [安装说明](docs/ROOM-DEPLOY.md)；把仓库地址交给 DSH 时，让它读取 [DSH-INSTALL.md](DSH-INSTALL.md)。

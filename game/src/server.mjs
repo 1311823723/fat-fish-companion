@@ -228,7 +228,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
           }
           json(
             route === "arcade"
-              ? store.arcade.lobby(a)
+              ? store.arcade.lobby(a, body)
               : route === "arcade-view"
                 ? store.arcade.view(body.id, a)
                 : store.arcade.act(body, a),

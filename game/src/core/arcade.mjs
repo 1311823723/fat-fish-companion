@@ -1,11 +1,7 @@
 import crypto from "node:crypto";
 
-const KINDS = new Set(["rps", "connect4"]);
-const MOVES = ["石头", "布", "剪刀"];
+const KINDS = new Set(["connect4"]);
 const ORDER = [3, 2, 4, 1, 5, 0, 6];
-const hash = (value) => crypto.createHash("sha256").update(value).digest("hex");
-export const commitment = (id, round, choice, nonce) =>
-  hash(`${id}:${round}:${choice}:${nonce}`);
 export function drop(board, column, player) {
   if (!Number.isInteger(column) || column < 0 || column > 6)
     throw Error("选一列再落子");
@@ -121,7 +117,7 @@ const nickname = (value) => {
   const text = String(value || "")
     .replace(/[\x00-\x1f\x7f<>]/g, "")
     .trim();
-  if (/\d{5,}/.test(text)) throw Error("观战昵称不要填写QQ号");
+  if (/\d{5,}/.test(text)) throw Error("展示昵称不要填写QQ号");
   return Array.from(text).slice(0, 12).join("") || "来访的朋友";
 };
 
@@ -146,6 +142,12 @@ export class Arcade {
     this.secret = this.db
       .prepare("SELECT value FROM meta WHERE key=?")
       .get("arcadeIdentityKey").value;
+    // Retire the removed game without deleting historical data or blocking a new board.
+    this.db
+      .prepare(
+        "UPDATE arcade_matches SET status='expired',shared=0 WHERE kind='rps' AND status='active'",
+      )
+      .run();
   }
   owner(actor) {
     return crypto
@@ -262,6 +264,8 @@ export class Arcade {
       commitment: m.commitment,
       moves: m.moves,
       updatedAt: row.updated,
+      createdAt: row.created,
+      resigned: !!m.resigned,
       own,
       turn: m.thinking ? "fish" : "player",
       thinkingUntil: m.thinking?.readyAt || 0,
@@ -269,6 +273,11 @@ export class Arcade {
     if (own) {
       v.review = m.review;
       v.reviewAvailable = this.reviewAvailable;
+    } else if (row.shared && row.status === "finished" && m.review) {
+      v.review = {
+        status: m.review.status,
+        ...(m.review.status === "ready" ? { text: m.review.text } : {}),
+      };
     }
     return Object.fromEntries(
       Object.entries(v).filter(([, value]) => value !== undefined),
@@ -277,7 +286,7 @@ export class Arcade {
   stats(owner) {
     const values = this.db
       .prepare(
-        "SELECT kind,json FROM arcade_matches WHERE owner=? AND status='finished'",
+        "SELECT kind,json FROM arcade_matches WHERE owner=? AND kind='connect4' AND status='finished'",
       )
       .all(owner);
     const stats = { played: values.length, won: 0, lost: 0, drawn: 0 };
@@ -289,25 +298,33 @@ export class Arcade {
     }
     return stats;
   }
-  lobby(actor) {
+  lobby(actor, options = {}) {
     this.settleDue();
     this.expire();
     const owner = this.owner(actor);
     const mine = this.db
       .prepare(
-        "SELECT * FROM arcade_matches WHERE owner=? ORDER BY status='active' DESC,updated DESC LIMIT 1",
+        "SELECT * FROM arcade_matches WHERE owner=? AND kind='connect4' ORDER BY status='active' DESC,updated DESC LIMIT 1",
       )
       .get(owner);
+    const page = Number.isInteger(options.page)
+      ? Math.max(0, Math.min(500, options.page))
+      : 0;
+    const scope = options.scope === "mine" ? "mine" : "everyone";
+    const records = this.db
+      .prepare(
+        `SELECT * FROM arcade_matches WHERE kind='connect4' AND status IN ('finished','expired') AND ${scope === "mine" ? "owner=?" : "(owner=? OR (shared=1 AND status='finished'))"} ORDER BY updated DESC,id DESC LIMIT 21 OFFSET ?`,
+      )
+      .all(owner, page * 20);
     return {
       ok: true,
       mine: mine ? this.public(mine, true) : null,
       stats: this.stats(owner),
-      watch: this.db
-        .prepare(
-          "SELECT * FROM arcade_matches WHERE shared=1 AND status='active' ORDER BY updated DESC LIMIT 20",
-        )
-        .all()
-        .map((row) => this.public(row)),
+      records: records
+        .slice(0, 20)
+        .map((row) => this.public(row, row.owner === owner)),
+      page,
+      hasMore: records.length > 20,
       reviewAvailable: this.reviewAvailable,
     };
   }
@@ -316,30 +333,13 @@ export class Arcade {
     this.expire();
     const row = this.row(id),
       own = row?.owner === this.owner(actor);
-    if (!row || (!own && (!row.shared || row.status === "expired")))
-      throw Error("这局没有开放观战");
-    return { ok: true, match: this.public(row, own) };
-  }
-  seal(m, owner) {
-    const previous = this.db
-      .prepare(
-        "SELECT json FROM arcade_matches WHERE owner=? AND kind='rps' AND id<>? ORDER BY created DESC LIMIT 6",
-      )
-      .all(owner, m.id)
-      .flatMap((row) => JSON.parse(row.json).history || [])
-      .concat(m.history || [])
-      .slice(-12);
-    let choice = Math.floor(this.random() * 3) % 3;
     if (
-      previous.length >= 4 &&
-      this.random() < (m.difficulty === "serious" ? 0.7 : 0.25)
-    ) {
-      const counts = [0, 0, 0];
-      for (const turn of previous) counts[turn.player]++;
-      choice = (counts.indexOf(Math.max(...counts)) + 1) % 3;
-    }
-    m.secret = { choice, nonce: crypto.randomBytes(24).toString("hex") };
-    m.commitment = commitment(m.id, m.round, choice, m.secret.nonce);
+      !row ||
+      row.kind !== "connect4" ||
+      (!own && (!row.shared || row.status !== "finished"))
+    )
+      throw Error("这局记录没有公开");
+    return { ok: true, match: this.public(row, own) };
   }
   save(row, m) {
     this.db
@@ -402,13 +402,11 @@ export class Arcade {
           history: [],
           moves: [],
           result: null,
-          message:
-            body.kind === "rps" ? "我选好了，该你了。" : "你先落，我看看。",
+          message: "你先落，我看看。",
         };
-        if (m.kind === "rps") this.seal(m, owner);
-        else m.board = Array(42).fill(0);
+        m.board = Array(42).fill(0);
         row = {
-          shared: body.shared === true,
+          shared: body.shared !== false,
           nickname: nickname(body.nickname),
         };
         this.db
@@ -431,6 +429,7 @@ export class Arcade {
       } else {
         row = this.row(body.id);
         if (!row || row.owner !== owner) throw Error("只能操作自己的对局");
+        if (row.kind !== "connect4") throw Error("这个游戏已下架");
         m = JSON.parse(row.json);
         if (body.version !== m.version) throw Error("棋局已更新，请刷新后再试");
         if (body.op === "share") {
@@ -460,74 +459,28 @@ export class Arcade {
             m.resigned = true;
           } else if (body.op === "move") {
             if (m.thinking) throw Error("等她下完这一步");
-            if (m.kind === "rps") {
-              if (
-                !Number.isInteger(body.choice) ||
-                body.choice < 0 ||
-                body.choice > 2
-              )
-                throw Error("请选择石头、布或剪刀");
-              const fish = m.secret.choice,
-                winner =
-                  body.choice === fish
-                    ? "draw"
-                    : (body.choice - fish + 3) % 3 === 1
-                      ? "player"
-                      : "fish";
-              m.history.push({
-                round: m.round,
-                player: body.choice,
-                fish,
-                winner,
-                nonce: m.secret.nonce,
-                commitment: m.commitment,
-              });
-              if (winner !== "draw") m.score[winner]++;
-              delete m.secret;
-              delete m.commitment;
-              if (
-                m.score.player >= 2 ||
-                m.score.fish >= 2 ||
-                m.history.length >= 30
-              )
-                m.result =
-                  m.score.player === m.score.fish
-                    ? "draw"
-                    : m.score.player > m.score.fish
-                      ? "player"
-                      : "fish";
-              m.message =
-                winner === "draw"
-                  ? "又想到一块去了。"
-                  : winner === "player"
-                    ? "行，这轮你赢了。"
-                    : "这轮我拿下了。";
-              m.round++;
-              if (!m.result) this.seal(m, owner);
-            } else {
-              const human = drop(m.board, body.column, 1);
-              m.board = human.board;
-              m.lastCells = [human.cell];
-              m.moves.push({ player: 1, column: body.column });
-              m.line = winningLine(m.board);
-              if (m.line.length) m.result = "player";
-              else if (!legal(m.board).length) m.result = "draw";
-              else {
-                m.thinking = {
-                  readyAt: this.store.clock() + this.thinkingDelay(m),
-                };
-              }
-              m.message =
-                m.result === "player"
-                  ? "你这条线，我刚刚没拦住。"
-                  : m.result === "fish"
-                    ? "连起来了。这盘归我。"
-                    : m.result === "draw"
-                      ? "填满了，谁也没占到便宜。"
-                      : ["让我看看……", "嗯，想一下。", "这步得想想。"][
-                          m.moves.length % 3
-                        ];
+            const human = drop(m.board, body.column, 1);
+            m.board = human.board;
+            m.lastCells = [human.cell];
+            m.moves.push({ player: 1, column: body.column });
+            m.line = winningLine(m.board);
+            if (m.line.length) m.result = "player";
+            else if (!legal(m.board).length) m.result = "draw";
+            else {
+              m.thinking = {
+                readyAt: this.store.clock() + this.thinkingDelay(m),
+              };
             }
+            m.message =
+              m.result === "player"
+                ? "你这条线，我刚刚没拦住。"
+                : m.result === "fish"
+                  ? "连起来了。这盘归我。"
+                  : m.result === "draw"
+                    ? "填满了，谁也没占到便宜。"
+                    : ["让我看看……", "嗯，想一下。", "这步得想想。"][
+                        m.moves.length % 3
+                      ];
             if (m.result === "player") m.message = "这盘算你厉害，我记住了。";
           } else throw Error("操作无效");
         }
@@ -562,11 +515,6 @@ export class Arcade {
       resigned: !!m.resigned,
       board: m.board,
       moves: m.moves,
-      history: m.history?.map(({ player, fish, winner }) => ({
-        player: MOVES[player],
-        fish: MOVES[fish],
-        winner,
-      })),
     };
   }
   finishReview(id, text) {
@@ -595,12 +543,12 @@ export class Arcade {
       .all()) {
       byQQ[p.qq] = this.db
         .prepare(
-          "SELECT * FROM arcade_matches WHERE owner=? AND status='finished' ORDER BY updated DESC LIMIT 3",
+          "SELECT * FROM arcade_matches WHERE owner=? AND kind='connect4' AND status='finished' ORDER BY updated DESC LIMIT 3",
         )
         .all(p.owner)
         .map((row) => {
           const m = JSON.parse(row.json),
-            game = m.kind === "rps" ? "猜拳" : "四子棋";
+            game = "四子棋";
           return {
             role: "assistant",
             at: row.updated,

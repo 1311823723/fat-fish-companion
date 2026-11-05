@@ -549,3 +549,57 @@
     animation: none;
   }
 }
+.arcade-record-filters,
+.arcade-replay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.arcade-mode .arcade-record-filters button,
+.arcade-mode .arcade-replay button {
+  padding: 8px 10px;
+  font-size: 14px;
+  min-width: 0;
+}
+.arcade-record-filters button[aria-pressed="true"] {
+  background: #527d94;
+  color: #fff8e8;
+}
+.arcade-record-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  text-align: left;
+}
+.arcade-record-row strong {
+  font-size: 16px;
+}
+.arcade-record-row small {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.arcade-replay span {
+  font-size: 13px;
+  white-space: nowrap;
+}
+.arcade-bottom .arcade-record-back {
+  grid-column: 1 / -1;
+}
+.arcade-bottom {
+  flex-wrap: wrap;
+}
+.arcade-bottom .arcade-record-back {
+  flex: 1 0 100%;
+}
+@media (max-width: 360px) {
+  .arcade-mode .arcade-tabs button {
+    font-size: 16px;
+    white-space: nowrap;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}

@@ -6,8 +6,6 @@ type Options = {
   api: Api;
   enter: () => boolean;
 };
-const hands = ["✊", "✋", "✌"];
-const names = ["石头", "布", "剪刀"];
 const el = <K extends keyof HTMLElementTagNameMap>(
   tag: K,
   text = "",
@@ -40,13 +38,17 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
   let tab = "play",
     match: any = null,
     stats: any = {},
-    watch: any[] = [],
+    records: any[] = [],
+    recordScope = "mine",
+    recordPage = 0,
+    hasMore = false,
+    replayStep: number | null = null,
     busy = false,
     loading = false,
     epoch = 0,
     message = "",
     difficulty = "normal",
-    shared = false,
+    shared = true,
     alias = "",
     reviewAvailable = false,
     pending: { payload: string; request: any } | null = null;
@@ -92,12 +94,14 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
           render();
         }
       } else {
-        const r = await api("arcade");
+        const r = await api("arcade", { scope: recordScope, page: recordPage });
         if (!currentRead()) return;
         const changed =
-          JSON.stringify([stats, watch]) !== JSON.stringify([r.stats, r.watch]);
+          JSON.stringify([stats, records, hasMore]) !==
+          JSON.stringify([r.stats, r.records, r.hasMore]);
         stats = r.stats;
-        watch = r.watch;
+        records = r.records || [];
+        hasMore = !!r.hasMore;
         reviewAvailable = r.reviewAvailable;
         if (tab === "play" && r.mine?.status === "active") match = r.mine;
         const hadError = !!message;
@@ -137,6 +141,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
       const r = await api("arcade-action", pending.request);
       pending = null;
       if (current !== epoch || !active()) return;
+      if (op === "create" || op === "resign") replayStep = null;
       match = r.match;
       stats = r.stats;
     } catch (e) {
@@ -155,7 +160,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     nav.setAttribute("aria-label", "电视栏目");
     for (const [id, label] of [
       ["play", "和肥鱼来一局"],
-      ["watch", "看看对局"],
+      ["watch", "对战记录"],
     ]) {
       const b = button(label, () => {
         epoch++;
@@ -174,28 +179,101 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     surface.append(
       el(
         "h3",
-        tab === "watch" ? "看看她们玩到哪了" : "开电视，来一局",
+        tab === "watch" ? "留在这里的棋局" : "开电视，来一局",
         "arcade-heading",
       ),
     );
     if (tab === "watch") {
-      if (!watch.length)
-        surface.append(el("p", "现在没有开放观战的对局。", "arcade-muted"));
-      for (const m of watch) {
+      const filters = el("div", "", "arcade-record-filters");
+      for (const [scope, text] of [
+        ["mine", "我的记录"],
+        ["everyone", "大家的记录"],
+      ]) {
+        const filter = button(text, () => {
+          epoch++;
+          recordScope = scope;
+          recordPage = 0;
+          records = [];
+          render();
+          void refresh();
+        });
+        filter.setAttribute("aria-pressed", String(recordScope === scope));
+        filters.append(filter);
+      }
+      surface.append(filters);
+      if (!records.length)
         surface.append(
-          button(
-            `${m.nickname} · ${m.kind === "rps" ? "猜拳" : "四子棋"} →`,
-            () => {
-              epoch++;
-              match = m;
-              message = "";
-              render();
-              void refresh();
-            },
-            "arcade-watch-row",
+          el(
+            "p",
+            recordScope === "mine"
+              ? "下完的棋局和复盘都会留在这里。"
+              : "还没有公开的对战记录。",
+            "arcade-muted",
           ),
         );
+      for (const m of records) {
+        const row = button(
+          "",
+          () => {
+            epoch++;
+            match = m;
+            replayStep = m.moves?.length || 0;
+            message = "";
+            render();
+            void refresh();
+          },
+          "arcade-watch-row arcade-record-row",
+        );
+        row.append(
+          el(
+            "strong",
+            (m.own ? "我的对局" : m.nickname) +
+              " · " +
+              (m.status === "expired"
+                ? "已收起"
+                : m.resigned
+                  ? "提前收局"
+                  : m.result === "player"
+                    ? "玩家获胜"
+                    : m.result === "fish"
+                      ? "肥鱼获胜"
+                      : "平局"),
+          ),
+          el(
+            "small",
+            new Date(m.createdAt || m.updatedAt).toLocaleString("zh-CN", {
+              timeZone: "Asia/Shanghai",
+              hour12: false,
+            }) +
+              " · " +
+              (m.review?.status === "ready"
+                ? "有复盘"
+                : m.review?.status === "pending"
+                  ? "复盘排队中"
+                  : "查看棋谱"),
+          ),
+        );
+        surface.append(row);
       }
+      const pages = el("div", "", "arcade-record-filters");
+      const previous = button("上一页", () => {
+        epoch++;
+        recordPage--;
+        records = [];
+        render();
+        void refresh();
+      });
+      previous.disabled ||= recordPage === 0;
+      const next = button("下一页", () => {
+        epoch++;
+        recordPage++;
+        records = [];
+        render();
+        void refresh();
+      });
+      next.disabled ||= !hasMore;
+      pages.append(previous, el("span", String(recordPage + 1)), next);
+      surface.append(pages);
       surface.append(status());
       return;
     }
@@ -220,14 +298,14 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
       shared = check.checked;
       render();
     };
-    share.append(check, "允许观战");
+    share.append(check, "公开这局记录");
     surface.append(share);
     if (shared) {
       const field = el("input");
-      field.placeholder = "观战昵称（可选，不填QQ号）";
+      field.placeholder = "展示昵称（可选，不填QQ号）";
       field.maxLength = 12;
       field.value = alias;
-      field.setAttribute("aria-label", "观战昵称");
+      field.setAttribute("aria-label", "展示昵称");
       field.oninput = () => {
         alias = field.value;
       };
@@ -235,7 +313,6 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     }
     const games = el("div", "", "arcade-choices");
     for (const [kind, title, desc] of [
-      ["rps", "猜拳", "先赢两局 · 她先锁定出拳"],
       ["connect4", "四子棋", "轮流落子 · 连成四颗就赢"],
     ]) {
       const b = button(
@@ -286,7 +363,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
             ? "她在想…"
             : own
               ? "轮到你了"
-              : "观战中",
+              : "回看棋谱",
       ),
     );
     banner.lastElementChild?.classList.add("arcade-turn");
@@ -300,18 +377,61 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
       banner,
       el("p", m.message || "慢慢来，不着急。", "arcade-speech"),
     );
+    if (ended) {
+      const total = m.moves?.length || 0,
+        step = Math.max(0, Math.min(total, replayStep ?? total));
+      const nav = el("div", "", "arcade-replay");
+      const select = (n: number) => {
+        replayStep = n;
+        render();
+      };
+      const first = button("回到开局", () => select(0)),
+        prev = button("上一步", () => select(step - 1)),
+        next = button("下一步", () => select(step + 1)),
+        last = button("看终局", () => select(total));
+      first.disabled ||= step === 0;
+      prev.disabled ||= step === 0;
+      next.disabled ||= step === total;
+      last.disabled ||= step === total;
+      nav.append(
+        first,
+        prev,
+        el("span", `第 ${step} / ${total} 步`),
+        next,
+        last,
+      );
+      surface.append(nav);
+    }
     if (m.kind === "connect4") {
+      const step = ended
+        ? Math.max(
+            0,
+            Math.min(m.moves?.length || 0, replayStep ?? m.moves?.length ?? 0),
+          )
+        : m.moves?.length || 0;
+      const shownBoard: number[] = ended ? Array(42).fill(0) : m.board;
+      if (ended)
+        for (const move of (m.moves || []).slice(0, step)) {
+          for (let row = 5; row >= 0; row--) {
+            const cell = row * 7 + move.column;
+            if (!shownBoard[cell]) {
+              shownBoard[cell] = move.player;
+              break;
+            }
+          }
+        }
+      const atEnd = step === (m.moves?.length || 0);
       const board = el("div", "", "arcade-board");
       board.setAttribute("role", "img");
       board.setAttribute(
         "aria-label",
-        `四子棋棋盘，玩家 ${m.board.filter((x: number) => x === 1).length} 颗，鲸鱼 ${m.board.filter((x: number) => x === 2).length} 颗`,
+        `四子棋棋盘，玩家 ${shownBoard.filter((x: number) => x === 1).length} 颗，鲸鱼 ${shownBoard.filter((x: number) => x === 2).length} 颗`,
       );
       for (let i = 0; i < 42; i++) {
         const disc = el(
           "span",
           "",
-          `arcade-disc piece-${m.board[i]}${m.line?.includes(i) ? " winning" : ""}${m.lastCells?.includes(i) ? " new-piece" : ""}`,
+          `arcade-disc piece-${shownBoard[i]}${atEnd && m.line?.includes(i) ? " winning" : ""}${!ended && m.lastCells?.includes(i) ? " new-piece" : ""}`,
         );
         disc.setAttribute("aria-hidden", "true");
         if (own && !ended && !busy && !thinking)
@@ -336,52 +456,6 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
         el("span", "她执鲸鱼蓝"),
       );
       footer.append(legend);
-    } else {
-      surface.append(
-        el(
-          "div",
-          `${own ? "你" : "玩家"} ${m.score.player} : ${m.score.fish} 大肥鱼`,
-          "arcade-score",
-        ),
-      );
-      const turn = m.history.at(-1),
-        reveal = el("div", "", "arcade-reveal");
-      reveal.append(
-        turn ? image(`hand-${turn.player}`) : el("span", "？"),
-        el("small", "VS"),
-        turn ? image(`hand-${turn.fish}`) : el("span", "？"),
-      );
-      surface.append(reveal);
-      if (turn)
-        surface.append(
-          el(
-            "p",
-            `刚才：${names[turn.player]} 对 ${names[turn.fish]} · ${turn.winner === "draw" ? "平手" : turn.winner === "player" ? "玩家胜" : "她胜"}`,
-            "arcade-muted",
-          ),
-        );
-      if (own && !ended) {
-        const choices = el("div", "", "arcade-hands");
-        for (let choice = 0; choice < 3; choice++)
-          choices.append(
-            button(names[choice], () => void send("move", { choice })),
-          );
-        surface.append(
-          el("p", `第 ${m.round} 轮 · 她已选好`, "arcade-muted"),
-          choices,
-        );
-      }
-      const fair = el("details", "", "arcade-fair");
-      fair.append(el("summary", "她先出，你后选"));
-      fair.append(el("p", "每轮先保存肥鱼的出拳，揭晓后才公开。平手不计胜局。"));
-      if (turn)
-        fair.append(
-          el(
-            "code",
-            `承诺 ${turn.commitment}\n校验内容 ${m.id}:${turn.round}:${turn.fish}:${turn.nonce}`,
-          ),
-        );
-      surface.append(fair);
     }
     surface.append(footer);
     const actions = el("div", "", "arcade-bottom");
@@ -392,7 +466,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
       toggle.checked = m.shared;
       toggle.disabled = busy;
       toggle.onchange = () => void send("share", { shared: toggle.checked });
-      share.append(toggle, "允许观战");
+      share.append(toggle, "公开这局记录");
       footer.append(share);
       if (ended) {
         actions.append(
@@ -402,13 +476,13 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
               void send("create", {
                 kind: m.kind,
                 difficulty: m.difficulty,
-                shared: false,
+                shared: m.shared,
                 nickname: m.nickname,
               }),
             "arcade-primary",
           ),
         );
-        if (m.reviewAvailable || reviewAvailable) {
+        if (m.status === "finished" && (m.reviewAvailable || reviewAvailable)) {
           const review = button(
             m.review?.status === "pending"
               ? "复盘排队中…"
@@ -439,7 +513,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
                     void send("create", {
                       kind: m.kind,
                       difficulty: m.difficulty,
-                      shared: false,
+                      shared: m.shared,
                       nickname: m.nickname,
                     });
                 }),
@@ -451,8 +525,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
             "arcade-primary",
           ),
         );
-      if (m.review?.status === "ready")
-        surface.append(el("p", m.review.text, "arcade-review"));
+
       if (m.review?.status === "pending")
         surface.append(
           el(
@@ -466,6 +539,23 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
           el("p", "复盘没连上，战绩已经记下，可以重试。", "arcade-muted"),
         );
     }
+    if (ended && m.review?.status === "ready")
+      surface.append(el("p", m.review.text, "arcade-review"));
+    if (ended)
+      actions.prepend(
+        button(
+          "返回记录",
+          () => {
+            epoch++;
+            match = null;
+            tab = "watch";
+            replayStep = null;
+            render();
+            void refresh();
+          },
+          "arcade-record-back",
+        ),
+      );
     actions.append(button("收起电视", () => panel.close()));
     surface.append(actions, status());
   }
@@ -492,15 +582,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     surface.append(face);
     surface = face;
     const badge = el("h3", "", "arcade-game-title");
-    badge.append(
-      image("tv-mark"),
-      el(
-        "span",
-        match
-          ? `电视 · ${match.kind === "rps" ? "猜拳" : "四子棋"}`
-          : "电视 · 小游戏",
-      ),
-    );
+    badge.append(image("tv-mark"), el("span", "电视 · 四子棋"));
     surface.append(badge);
     if (match) game();
     else lobby();
@@ -509,7 +591,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
       const wrap = el("span", "", "arcade-switch"),
         state = el("small", input.checked ? "ON" : "OFF");
       state.setAttribute("aria-hidden", "true");
-      input.setAttribute("aria-label", "允许观战");
+      input.setAttribute("aria-label", "公开这局记录");
       input.replaceWith(wrap);
       wrap.append(input, state);
     }
@@ -522,7 +604,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
   return {
     open() {
       if (!enter()) return;
-      shared = false;
+      shared = true;
       difficulty = "normal";
       epoch++;
       match = null;

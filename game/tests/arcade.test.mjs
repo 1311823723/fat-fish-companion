@@ -4,12 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { Store } from "../src/core/store.mjs";
-import {
-  commitment,
-  drop,
-  winningLine,
-  chooseColumn,
-} from "../src/core/arcade.mjs";
+import { drop, winningLine, chooseColumn } from "../src/core/arcade.mjs";
 import { makeServer } from "../src/server.mjs";
 import { installGameCore } from "../adapters/game-core-adapter.mjs";
 import { removeTestDirectory } from "./helpers.mjs";
@@ -18,18 +13,122 @@ const alice = { id: "test-alice", verifiedQQ: "999990001" },
 let seq = 0;
 const act = (a, who, body) =>
   a.act({ requestId: `arcade-request-${++seq}`, ...body }, who);
-const finishRps = (a, actor, m) => {
-  while (m.status === "active") {
-    const secret = JSON.parse(a.row(m.id).json).secret;
-    m = act(a, actor, {
-      op: "move",
+const finishGame = (a, actor, m) =>
+  act(a, actor, { op: "resign", id: m.id, version: m.version }).match;
+test("archives keep private reviews for their owner, publish only completed opt-in boards and revoke sharing", () => {
+  const s = new Store(),
+    a = s.arcade;
+  a.reviewAvailable = true;
+  try {
+    assert.throws(
+      () => act(a, alice, { op: "create", kind: "rps" }),
+      /没有这个游戏/,
+    );
+    let m = act(a, alice, {
+      op: "create",
+      kind: "connect4",
+      shared: false,
+    }).match;
+    assert.throws(() => a.view(m.id, bob), /没有公开/);
+    m = finishGame(a, alice, m);
+    m = act(a, alice, { op: "review", id: m.id, version: m.version }).match;
+    a.finishReview(m.id, "这盘收得早。下次再慢慢下。");
+    assert.equal(
+      a.lobby(alice, { scope: "mine" }).records[0].review.status,
+      "ready",
+    );
+    assert.equal(a.lobby(bob).records.length, 0);
+    m = a.view(m.id, alice).match;
+    m = act(a, alice, {
+      op: "share",
       id: m.id,
       version: m.version,
-      choice: (secret.choice + 1) % 3,
+      shared: true,
+      nickname: "小云",
     }).match;
+    const publicRecord = a.lobby(bob).records[0];
+    assert.equal(publicRecord.id, m.id);
+    assert.equal(publicRecord.review.text, "这盘收得早。下次再慢慢下。");
+    assert.equal(publicRecord.own, false);
+    assert.equal(a.lobby(bob, { scope: "mine" }).records.length, 0);
+    for (const op of ["move", "share", "resign", "review"])
+      assert.throws(
+        () => act(a, bob, { op, id: m.id, version: m.version, column: 0 }),
+        /自己的对局/,
+      );
+    assert.ok(!JSON.stringify(publicRecord).includes(alice.verifiedQQ));
+    assert.ok(!JSON.stringify(publicRecord).includes(a.owner(alice)));
+    m = act(a, alice, {
+      op: "share",
+      id: m.id,
+      version: m.version,
+      shared: false,
+    }).match;
+    assert.equal(a.lobby(bob).records.length, 0);
+    assert.throws(() => a.view(m.id, bob), /没有公开/);
+    const active = act(a, alice, {
+      op: "create",
+      kind: "connect4",
+      shared: true,
+    }).match;
+    assert.equal(a.lobby(bob).records.length, 0);
+    assert.throws(() => a.view(active.id, bob), /没有公开/);
+  } finally {
+    s.close();
   }
-  return m;
-};
+});
+test("archives paginate and old completed reviews remain reachable after restart and a new match", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fatfish-records-")),
+    file = path.join(dir, "world.db");
+  let now = Date.now(),
+    s = new Store(file, () => now),
+    first;
+  try {
+    for (let i = 0; i < 23; i++) {
+      now += 3600001;
+      let m = act(s.arcade, alice, {
+        op: "create",
+        kind: "connect4",
+        shared: true,
+      }).match;
+      m = finishGame(s.arcade, alice, m);
+      if (i === 0) {
+        first = m.id;
+        s.arcade.reviewAvailable = true;
+        m = act(s.arcade, alice, {
+          op: "review",
+          id: m.id,
+          version: m.version,
+        }).match;
+        s.arcade.finishReview(m.id, "旧局的复盘还在。");
+      }
+    }
+    s.close();
+    s = new Store(file, () => now);
+    act(s.arcade, alice, { op: "create", kind: "connect4" });
+    const one = s.arcade.lobby(alice, { scope: "mine", page: 0 }),
+      two = s.arcade.lobby(alice, { scope: "mine", page: 1 });
+    assert.equal(one.records.length, 20);
+    assert.equal(one.hasMore, true);
+    assert.equal(two.records.length, 3);
+    assert.equal(two.hasMore, false);
+    assert.equal(
+      new Set([...one.records, ...two.records].map((m) => m.id)).size,
+      23,
+    );
+    assert.equal(
+      s.arcade.view(first, alice).match.review.text,
+      "旧局的复盘还在。",
+    );
+    assert.equal(
+      s.arcade.view(first, bob).match.review.text,
+      "旧局的复盘还在。",
+    );
+  } finally {
+    s.close();
+    removeTestDirectory(dir);
+  }
+});
 test("thinking persists, hides future moves, prevents extra input and resolves only once after restart", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fatfish-thinking-")),
     file = path.join(dir, "world.db");
@@ -52,7 +151,7 @@ test("thinking persists, hides future moves, prevents extra input and resolves o
     m = s.arcade.act(request, alice).match;
     assert.equal(m.thinkingUntil, now + 3000);
     assert.equal(m.moves.length, 1);
-    assert.equal(s.arcade.view(m.id, bob).match.turn, "fish");
+    assert.throws(() => s.arcade.view(m.id, bob), /没有公开/);
     assert.deepEqual(s.arcade.act(request, alice).match, m);
     const deadline = m.thinkingUntil;
     s.close();
@@ -95,8 +194,8 @@ test("failed reviews can be retried with a new job, duplicates cannot multiply r
     a = s.arcade;
   a.reviewAvailable = true;
   try {
-    let m = act(a, alice, { op: "create", kind: "rps" }).match;
-    m = finishRps(a, alice, m);
+    let m = act(a, alice, { op: "create", kind: "connect4" }).match;
+    m = finishGame(a, alice, m);
     m = act(a, alice, { op: "review", id: m.id, version: m.version }).match;
     s.db
       .prepare(
@@ -119,96 +218,6 @@ test("failed reviews can be retried with a new job, duplicates cannot multiply r
     );
     a.finishReview(m.id, "这盘你赢了。");
     assert.equal(a.view(m.id, alice).match.review.status, "ready");
-  } finally {
-    s.close();
-  }
-});
-test("RPS locks a verifiable choice before input; two wins, idempotency and no unrevealed choice in spectator output", () => {
-  const s = new Store(),
-    a = s.arcade;
-  try {
-    let m = act(a, alice, {
-      op: "create",
-      kind: "rps",
-      shared: true,
-      nickname: "小云",
-    }).match;
-    const before = a.view(m.id, bob).match;
-    assert.equal(before.own, false);
-    assert.equal(before.secret, undefined);
-    assert.ok(before.commitment);
-    assert.ok(!JSON.stringify(before).includes("nonce"));
-    const request = {
-      requestId: "rps-retry-unique",
-      op: "move",
-      id: m.id,
-      version: m.version,
-      choice: 0,
-    };
-    const one = a.act(request, alice),
-      two = a.act(request, alice);
-    assert.deepEqual(two, one);
-    assert.equal(two.match.history.length, 1);
-    const turn = one.match.history[0];
-    assert.equal(
-      commitment(m.id, turn.round, turn.fish, turn.nonce),
-      before.commitment,
-    );
-    assert.throws(() => a.act({ ...request, choice: 1 }, alice), /请求编号/);
-    m = finishRps(a, alice, one.match);
-    assert.equal(m.status, "finished");
-    assert.ok(m.score.player >= 2 || m.score.fish >= 2);
-    assert.equal(a.lobby(alice).stats.played, 1);
-  } finally {
-    s.close();
-  }
-});
-test("concurrent players have separate matches; QQ is canonical, watch is opt-in, read-only and immediately revoked", () => {
-  const s = new Store(),
-    a = s.arcade;
-  try {
-    let m = act(a, alice, { op: "create", kind: "connect4" }).match;
-    const other = act(a, bob, { op: "create", kind: "rps" }).match;
-    assert.notEqual(m.id, other.id);
-    assert.equal(a.lobby(bob).watch.length, 0);
-    assert.throws(() => a.view(m.id, bob), /没有开放/);
-    assert.equal(a.lobby({ ...alice, id: "different-browser" }).mine.id, m.id);
-    assert.throws(
-      () => act(a, alice, { op: "create", kind: "rps" }),
-      /现有对局/,
-    );
-    m = act(a, alice, {
-      op: "share",
-      id: m.id,
-      version: m.version,
-      shared: true,
-      nickname: "小云",
-    }).match;
-    const viewed = a.view(m.id, bob).match;
-    assert.equal(viewed.own, false);
-    assert.equal(a.lobby(bob).watch.length, 1);
-    for (const op of ["move", "share", "resign", "review"])
-      assert.throws(
-        () => act(a, bob, { op, id: m.id, version: m.version, column: 3 }),
-        /自己的对局/,
-      );
-    m = act(a, alice, {
-      op: "share",
-      id: m.id,
-      version: m.version,
-      shared: false,
-    }).match;
-    assert.throws(() => a.view(m.id, bob), /没有开放/);
-    const text = JSON.stringify(a.lobby(bob));
-    assert.ok(!text.includes(alice.verifiedQQ));
-    assert.ok(!text.includes(a.owner(alice)));
-    const next = act(a, bob, {
-      op: "resign",
-      id: other.id,
-      version: other.version,
-    }).match;
-    assert.equal(next.status, "finished");
-    assert.equal(a.lobby(bob).stats.lost, 1);
   } finally {
     s.close();
   }
@@ -271,18 +280,18 @@ test("four-in-a-row detects all directions; gravity, immediate win and blocking 
     s.close();
   }
 });
-test("sealed hands, QQ statistics and completed personal experiences survive restart; inactivity cannot reopen an expired match", () => {
+test("board, QQ statistics and completed personal experiences survive restart; inactivity cannot reopen an expired match", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fatfish-arcade-")),
     file = path.join(dir, "world.db");
   let now = 1000000000000,
     s = new Store(file, () => now);
   try {
-    let m = act(s.arcade, alice, { op: "create", kind: "rps" }).match;
-    const locked = m.commitment;
+    let m = act(s.arcade, alice, { op: "create", kind: "connect4" }).match;
+    const locked = m.board;
     s.close();
     s = new Store(file, () => now);
-    assert.equal(s.arcade.lobby(alice).mine.commitment, locked);
-    m = finishRps(s.arcade, alice, m);
+    assert.deepEqual(s.arcade.lobby(alice).mine.board, locked);
+    m = finishGame(s.arcade, alice, m);
     assert.equal(s.arcade.personal().byQQ[alice.verifiedQQ].length, 1);
     m = act(s.arcade, alice, { op: "create", kind: "connect4" }).match;
     now += 31 * 60000;
@@ -294,7 +303,7 @@ test("sealed hands, QQ statistics and completed personal experiences survive res
       shared: true,
     });
     assert.equal(s.arcade.row(m.id).status, "expired");
-    assert.throws(() => s.arcade.view(m.id, bob), /没有开放/);
+    assert.throws(() => s.arcade.view(m.id, bob), /没有公开/);
     assert.equal(s.arcade.lobby(alice).stats.played, 1);
   } finally {
     s.close();
@@ -327,7 +336,7 @@ test("arcade HTTP authenticates owners, rejects cross-site actions, ignores supp
         "arcade-action",
         {
           op: "create",
-          kind: "rps",
+          kind: "connect4",
           requestId: "http-arcade-create",
           verifiedQQ: alice.verifiedQQ,
         },
@@ -400,8 +409,8 @@ test("model review waits for QQ idle, is requested once, and verified personal c
   };
   const core = installGameCore(room, { root: dir });
   try {
-    let m = act(store.arcade, alice, { op: "create", kind: "rps" }).match;
-    m = finishRps(store.arcade, alice, m);
+    let m = act(store.arcade, alice, { op: "create", kind: "connect4" }).match;
+    m = finishGame(store.arcade, alice, m);
     m = act(store.arcade, alice, {
       op: "review",
       id: m.id,
@@ -437,13 +446,39 @@ test("model review waits for QQ idle, is requested once, and verified personal c
     assert.ok(
       room
         .personalRecent(alice.verifiedQQ)
-        .some((x) => x.text.includes("猜拳")),
+        .some((x) => x.text.includes("四子棋")),
     );
     assert.ok(!JSON.stringify(store.snapshot()).includes(alice.verifiedQQ));
   } finally {
     core.stop();
     await new Promise((r) => server.close(r));
     store.close();
+    removeTestDirectory(dir);
+  }
+});
+
+test("removed game is retired on restart without deleting its save or blocking a new connect4 match", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fatfish-retired-")),
+    file = path.join(dir, "world.db");
+  let s = new Store(file);
+  try {
+    const m = act(s.arcade, alice, { op: "create", kind: "connect4" }).match;
+    const old = JSON.parse(s.arcade.row(m.id).json);
+    old.kind = "rps";
+    s.db
+      .prepare("UPDATE arcade_matches SET kind='rps',json=? WHERE id=?")
+      .run(JSON.stringify(old), m.id);
+    s.close();
+    s = new Store(file);
+    assert.equal(s.arcade.row(m.id).status, "expired");
+    assert.equal(s.arcade.lobby(alice).records.length, 0);
+    assert.throws(() => s.arcade.view(m.id, alice), /没有公开/);
+    assert.equal(
+      act(s.arcade, alice, { op: "create", kind: "connect4" }).match.status,
+      "active",
+    );
+  } finally {
+    s.close();
     removeTestDirectory(dir);
   }
 });

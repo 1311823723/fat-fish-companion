@@ -215,7 +215,7 @@ export function installGameCore(room, { root }) {
         )
           entrance = {
             url: url.href,
-            activities: ["给冰箱放食物", "看公开旅行相册", "猜拳和四子棋"],
+            activities: ["给冰箱放食物", "看公开旅行相册", "四子棋和对战记录"],
             guest: true,
             privateMemoryRequiresQQVerification: true,
             diaryOwnerOnly: true,
