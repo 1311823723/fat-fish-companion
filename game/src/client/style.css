@@ -1,11 +1,11 @@
 :root {
   font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-  color: #50634f;
-  background: #f4efe4;
+  color: #4a6072;
+  background: #edf1f5;
   font-synthesis: none;
-  --green: #527759;
-  --line: #e1dfd0;
-  --paper: #fffcf4;
+  --green: #5f7a94;
+  --line: #dce4eb;
+  --paper: #fbfcfd;
 }
 * {
   box-sizing: border-box;
@@ -42,7 +42,7 @@ header {
 }
 header p {
   font-size: 13px;
-  color: #82907b;
+  color: #8394a5;
   margin: 0;
 }
 button,
@@ -52,7 +52,7 @@ input {
 button {
   border: 1px solid var(--line);
   background: var(--paper);
-  color: #536e54;
+  color: #526d84;
   padding: 10px 12px;
   border-radius: 12px;
   cursor: pointer;
@@ -60,7 +60,7 @@ button {
   touch-action: manipulation;
 }
 button:hover {
-  background: #e7eddf;
+  background: #e6edf5;
 }
 button:active {
   transform: translateY(1px);
@@ -70,16 +70,16 @@ button:disabled {
   cursor: wait;
 }
 button[aria-pressed="true"] {
-  background: #d9e6d0;
-  border-color: #96af89;
+  background: #d7e3ef;
+  border-color: #99aec4;
 }
 input {
   min-width: 0;
   border: 1px solid var(--line);
-  background: #fffdf8;
+  background: #fbfcff;
   border-radius: 12px;
   padding: 12px;
-  color: #465d49;
+  color: #40566b;
 }
 #game {
   position: relative;
@@ -153,7 +153,7 @@ input {
   border-radius: 8px;
 }
 .needs meter::-webkit-meter-optimum-value {
-  background: #7a9672;
+  background: #7e98af;
   border-radius: 8px;
 }
 .tools {
@@ -198,7 +198,7 @@ input {
 }
 .bubble.user {
   align-self: flex-end;
-  background: #e1e9d7;
+  background: #dfe9f3;
 }
 form {
   display: flex;
@@ -228,7 +228,7 @@ a {
 dialog {
   border: 1px solid #d1d8c6;
   border-radius: 24px;
-  background: #fffcf3;
+  background: #f9fbfd;
   color: #52654e;
   padding: 22px;
   width: min(520px, calc(100vw - 24px));
@@ -242,7 +242,7 @@ dialog::backdrop {
 dialog header {
   position: sticky;
   top: -22px;
-  background: #fffcf3;
+  background: #f9fbfd;
   z-index: 2;
   padding: 8px 0;
 }
@@ -320,7 +320,7 @@ dialog header {
 }
 .subtle {
   font-size: 12px;
-  color: #8b947e;
+  color: #8796a5;
 }
 .settings-row {
   display: flex;
@@ -520,7 +520,7 @@ dialog header {
   padding: 15px 15px 15px 30px;
   border: 2px solid #b3bea2;
   border-radius: 18px;
-  background: #8fa284;
+  background: #8398aa;
   box-shadow:
     0 20px 70px #142c3266,
     inset 0 0 0 5px #cad3b02b;
@@ -592,8 +592,8 @@ dialog header {
   flex: 0 0 auto;
   padding-bottom: 8px;
   border-bottom: 1px dashed #d6ceb6;
-  font-size: 12px;
-  color: #8c997e;
+  font-size: 14px;
+  color: #8796a5;
 }
 .diary-mood {
   border-radius: 20px;
@@ -612,12 +612,12 @@ dialog header {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font:
-    19px/30px KaiTi,
+    26px/40px KaiTi,
     STKaiti,
     "Microsoft YaHei",
     serif;
   color: #78644f;
-  background: repeating-linear-gradient(transparent 0 29px, #e8dfc9 29px 30px);
+  background: repeating-linear-gradient(transparent 0 39px, #e8dfc9 39px 40px);
 }
 .diary-navigation {
   display: flex;

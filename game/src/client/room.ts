@@ -21,6 +21,11 @@ export class Room extends Phaser.Scene {
   x = 300;
   y = 710;
   fridgeOpen = false;
+  fridgeProgress = 0;
+  curtainProgress = 0;
+  curtainTarget = 0;
+  furnishingsInitialized = false;
+  reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   onAction: Action;
   lastLayout = "";
   loading = new Set<string>();
@@ -31,9 +36,9 @@ export class Room extends Phaser.Scene {
     this.onAction = action;
   }
   preload() {
-    this.load.image("room", "/assets/room-v2.webp");
-    this.load.image("door", "/assets/fridge-door-v2.webp");
-    this.load.image("curtain-fabric", "/assets/curtain-v2.webp");
+    this.load.image("room", "/assets/room-v3.webp");
+    this.load.image("door", "/assets/fridge-door-v3.webp");
+    this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
     this.load.json("room-layout", "/assets/room-layout-v2.json");
     this.load.json("manifest", "/assets/manifest-v1.json");
     for (const n of ["idle", "walk_right", "walk_left"])
@@ -110,8 +115,12 @@ export class Room extends Phaser.Scene {
     this.clockHands = this.add.graphics();
     this.foods = this.add.group();
     this.door = this.add
-      .image(this.layout.fridgeDoor.x, this.layout.fridgeDoor.y, "door")
-      .setOrigin(0)
+      .image(
+        this.layout.fridgeDoor.x + this.layout.fridgeDoor.width,
+        this.layout.fridgeDoor.y,
+        "door",
+      )
+      .setOrigin(1, 0)
       .setDisplaySize(
         this.layout.fridgeDoor.width,
         this.layout.fridgeDoor.height,
@@ -198,6 +207,11 @@ export class Room extends Phaser.Scene {
   }
   sync(w: World) {
     if (this.world && w.revision < this.world.revision) return;
+    this.curtainTarget = w.furnishings.curtainClosed ? 1 : 0;
+    if (!this.furnishingsInitialized) {
+      this.curtainProgress = this.curtainTarget;
+      this.furnishingsInitialized = true;
+    }
     this.world = w;
     this.offset = w.serverTime - Date.now();
     if (this.pet) this.drawEnvironment();
@@ -206,7 +220,7 @@ export class Room extends Phaser.Scene {
     this.fridgeOpen = !this.fridgeOpen;
     this.drawEnvironment();
   }
-  drawEnvironment() {
+  drawWindow() {
     if (!this.world || !this.sky) return;
     const w = this.world,
       now = Date.now() + this.offset,
@@ -325,18 +339,36 @@ export class Room extends Phaser.Scene {
       ctx.closePath();
       ctx.fill();
     }
-    if (w.furnishings.curtainClosed)
+    const progress = this.curtainProgress;
+    if (progress > 0) {
+      const fabric = this.textures
+        .get("curtain-fabric")
+        .getSourceImage() as HTMLImageElement;
+      const fw = fabric.width,
+        fh = fabric.height;
+      ctx.drawImage(fabric, 0, 0, fw / 2, fh, 222, 51, 75 * progress, 183);
       ctx.drawImage(
-        this.textures
-          .get("curtain-fabric")
-          .getSourceImage() as HTMLImageElement,
-        222,
+        fabric,
+        fw / 2,
+        0,
+        fw / 2,
+        fh,
+        372 - 75 * progress,
         51,
-        150,
+        75 * progress,
         183,
       );
+    }
     ctx.restore();
     canvas.refresh();
+  }
+  drawEnvironment() {
+    if (!this.world || !this.sky) return;
+    const w = this.world,
+      now = Date.now() + this.offset,
+      h = new Date(now + 28800000).getUTCHours(),
+      night = h < 5 || h >= 19;
+    this.drawWindow();
     this.clockHands.clear();
     this.clockHands.lineStyle(2.8, 0x5a6c59);
     const d = new Date(now + 28800000),
@@ -356,7 +388,7 @@ export class Room extends Phaser.Scene {
       300 + Math.cos(b) * 13,
       28 + Math.sin(b) * 13,
     );
-    this.door.setVisible(!this.fridgeOpen);
+    this.door.setVisible(true);
     this.foods.clear(true, true);
     let i = 0;
     for (const f of w.kitchen.items)
@@ -374,21 +406,7 @@ export class Room extends Phaser.Scene {
             .setDepth(1),
         );
     this.door.setDepth(2);
-    this.dark
-      .setDepth(6)
-      .setAlpha(
-        night
-          ? w.furnishings.lightOn
-            ? 0.16
-            : w.furnishings.curtainClosed
-              ? 0.78
-              : 0.48
-          : w.furnishings.lightOn
-            ? 0
-            : 0.12,
-      );
-    this.glow.setDepth(7).setVisible(w.furnishings.lightOn);
-    this.fridgeGlow.setDepth(7).setVisible(this.fridgeOpen);
+    this.updateFurniturePresentation();
     const noteText = Array.from(w.travel.note || "出门转转，很快回来。");
     const preview =
       noteText.slice(0, 13).join("") + (noteText.length > 13 ? "…" : "");
@@ -402,6 +420,69 @@ export class Room extends Phaser.Scene {
         .join("\n"),
     );
     this.notePaper.setVisible(w.travel.phase === "away");
+  }
+  updateFurniturePresentation() {
+    if (!this.world || !this.door || !this.dark) return;
+    const p = this.fridgeProgress,
+      ease = p * p * (3 - 2 * p),
+      angle = ease * Math.PI * 0.475,
+      box = this.layout.fridgeDoor;
+    this.door
+      .setDisplaySize(
+        Math.max(3, box.width * Math.cos(angle)),
+        box.height + Math.sin(angle) * 5,
+      )
+      .setY(box.y - Math.sin(angle) * 2.5)
+      .setTint(
+        Phaser.Display.Color.GetColor(
+          255 - ease * 24,
+          255 - ease * 20,
+          255 - ease * 14,
+        ),
+      );
+    const h = new Date(Date.now() + this.offset + 28800000).getUTCHours(),
+      night = h < 5 || h >= 19,
+      closed = this.curtainProgress;
+    this.dark
+      .setDepth(6)
+      .setAlpha(
+        night
+          ? this.world.furnishings.lightOn
+            ? 0.16
+            : 0.48 + 0.3 * closed
+          : this.world.furnishings.lightOn
+            ? 0.035 * closed
+            : 0.12 + 0.12 * closed,
+      );
+    this.glow.setDepth(7).setVisible(this.world.furnishings.lightOn);
+    this.fridgeGlow
+      .setDepth(7)
+      .setVisible(p > 0.005)
+      .setAlpha(ease);
+    const container = document.getElementById("game");
+    if (container) {
+      container.dataset.fridgeProgress = p.toFixed(3);
+      container.dataset.curtainProgress = closed.toFixed(3);
+    }
+  }
+  animateFurniture(delta: number) {
+    const step = Math.min(delta, 80) / 650,
+      approach = (value: number, target: number) =>
+        this.reducedMotion
+          ? target
+          : value +
+            Math.sign(target - value) *
+              Math.min(Math.abs(target - value), step);
+    const curtain = approach(this.curtainProgress, this.curtainTarget),
+      fridge = approach(this.fridgeProgress, this.fridgeOpen ? 1 : 0),
+      changed =
+        curtain !== this.curtainProgress || fridge !== this.fridgeProgress;
+    if (curtain !== this.curtainProgress) {
+      this.curtainProgress = curtain;
+      this.drawWindow();
+    }
+    this.fridgeProgress = fridge;
+    if (changed) this.updateFurniturePresentation();
   }
   ensureAnim(name: string) {
     if (!this.manifest[name]) name = "idle";
@@ -439,6 +520,7 @@ export class Room extends Phaser.Scene {
       this.fpsStart = _time;
     }
     if (!this.world || !this.pet) return;
+    this.animateFurniture(delta);
     const w = this.world,
       away = w.travel.phase === "away";
     this.pet.setVisible(!away);
