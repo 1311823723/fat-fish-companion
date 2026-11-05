@@ -8,3 +8,5 @@
 精细版环境图（room-v2.webp / fridge-door-v2.webp / curtain-v2.webp）：由本项目通过 AI 辅助生成并整理，按 MIT 许可提供；房间布局数据同为 MIT。上述环境素材许可不改变大肥鱼角色原有的署名和非商业许可。
 
 雾蓝鲸鱼环境（room-v3.webp / fridge-door-v3.webp / curtain-v3.webp）：由本项目通过 AI 辅助生成并整理，按 MIT 许可提供；角色动画及其原有署名、非商业与相同方式共享要求保持不变。
+
+温馨版环境底图 room-v4.webp：由本项目通过内置 Image Gen 在 v3 布局上编辑并整理，按 MIT 许可提供；原角色许可保持不变。

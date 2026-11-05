@@ -1,11 +1,11 @@
 :root {
   font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
   color: #4a6072;
-  background: #edf1f5;
+  background: #f5efe4;
   font-synthesis: none;
   --green: #5f7a94;
-  --line: #dce4eb;
-  --paper: #fbfcfd;
+  --line: #e7ddcd;
+  --paper: #fffaf0;
 }
 * {
   box-sizing: border-box;
@@ -60,7 +60,7 @@ button {
   touch-action: manipulation;
 }
 button:hover {
-  background: #e6edf5;
+  background: #f0e6d7;
 }
 button:active {
   transform: translateY(1px);
@@ -70,13 +70,13 @@ button:disabled {
   cursor: wait;
 }
 button[aria-pressed="true"] {
-  background: #d7e3ef;
+  background: #e6e7df;
   border-color: #99aec4;
 }
 input {
   min-width: 0;
   border: 1px solid var(--line);
-  background: #fbfcff;
+  background: #fffdf6;
   border-radius: 12px;
   padding: 12px;
   color: #40566b;
@@ -198,7 +198,7 @@ input {
 }
 .bubble.user {
   align-self: flex-end;
-  background: #dfe9f3;
+  background: #e8ece7;
 }
 form {
   display: flex;
@@ -228,7 +228,7 @@ a {
 dialog {
   border: 1px solid #d1d8c6;
   border-radius: 24px;
-  background: #f9fbfd;
+  background: #fffbf2;
   color: #52654e;
   padding: 22px;
   width: min(520px, calc(100vw - 24px));
@@ -242,7 +242,7 @@ dialog::backdrop {
 dialog header {
   position: sticky;
   top: -22px;
-  background: #f9fbfd;
+  background: #fffbf2;
   z-index: 2;
   padding: 8px 0;
 }

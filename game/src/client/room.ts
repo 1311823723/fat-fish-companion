@@ -36,7 +36,7 @@ export class Room extends Phaser.Scene {
     this.onAction = action;
   }
   preload() {
-    this.load.image("room", "/assets/room-v3.webp");
+    this.load.image("room", "/assets/room-v4.webp");
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
     this.load.json("room-layout", "/assets/room-layout-v2.json");
