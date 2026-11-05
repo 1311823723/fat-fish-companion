@@ -154,7 +154,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     const nav = el("nav", "", "arcade-tabs");
     nav.setAttribute("aria-label", "电视栏目");
     for (const [id, label] of [
-      ["play", "挑战她"],
+      ["play", "和肥鱼来一局"],
       ["watch", "看看对局"],
     ]) {
       const b = button(label, () => {
@@ -373,7 +373,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
       }
       const fair = el("details", "", "arcade-fair");
       fair.append(el("summary", "她先出，你后选"));
-      fair.append(el("p", "每轮先保存她的出拳，揭晓后才公开。平手不计胜局。"));
+      fair.append(el("p", "每轮先保存肥鱼的出拳，揭晓后才公开。平手不计胜局。"));
       if (turn)
         fair.append(
           el(

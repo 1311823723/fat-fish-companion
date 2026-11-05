@@ -459,7 +459,7 @@ $("album").onclick = () => {
   }
 };
 $("diary").onclick = async () => {
-  const g = open("她的日记 ✿");
+  const g = open("肥鱼的日记 ✿");
   await openDiary({
     panel,
     body,
