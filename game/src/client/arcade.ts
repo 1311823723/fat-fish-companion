@@ -71,10 +71,16 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     if (!active() || busy || loading || document.hidden) return;
     loading = true;
     const current = epoch;
+    const requestedId = match?.id || null;
+    const currentRead = () =>
+      current === epoch &&
+      active() &&
+      !busy &&
+      requestedId === (match?.id || null);
     try {
       if (match) {
         const r = await api("arcade-view", { id: match.id });
-        if (current !== epoch || !active()) return;
+        if (!currentRead() || r.match.version < match.version) return;
         if (
           r.match.version !== match.version ||
           r.match.status !== match.status ||
@@ -87,7 +93,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
         }
       } else {
         const r = await api("arcade");
-        if (current !== epoch || !active()) return;
+        if (!currentRead()) return;
         const changed =
           JSON.stringify([stats, watch]) !== JSON.stringify([r.stats, r.watch]);
         stats = r.stats;
@@ -99,7 +105,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
         if (changed || match || hadError) render();
       }
     } catch (e) {
-      if (current !== epoch || !active()) return;
+      if (!currentRead()) return;
       message = (e as Error).message;
       if (match && !match.own) {
         match = null;

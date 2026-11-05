@@ -58,7 +58,12 @@ async function api(route: string, args: any = {}) {
     body: JSON.stringify(args),
     signal: AbortSignal.timeout(route === "chat" ? 105000 : 16000),
   });
-  const v = await r.json();
+  let v;
+  try {
+    v = await r.json();
+  } catch {
+    throw Error("小屋暂时连不上，请稍后再试");
+  }
   if (!r.ok || !v.ok) throw Error(v.error || "连接暂时断开");
   return v;
 }
