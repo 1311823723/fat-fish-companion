@@ -413,7 +413,8 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
           review.disabled ||=
             ["pending", "ready"].includes(m.review?.status) ||
             (m.review?.attempt || 0) >= 3;
-          actions.append(review);
+          review.classList.add("arcade-review-button");
+          surface.append(review);
         }
       } else
         actions.append(
