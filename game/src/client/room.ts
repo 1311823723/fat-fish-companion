@@ -43,7 +43,7 @@ export class Room extends Phaser.Scene {
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
     this.load.json("room-layout", "/assets/room-layout-v4.json");
-    this.load.json("manifest", "/assets/manifest-v2.json");
+    this.load.json("manifest", "/assets/manifest-v3.json");
     this.load.atlas(
       "food-icons-v2",
       "/assets/food-icons-v2.webp",
@@ -604,13 +604,19 @@ export class Room extends Phaser.Scene {
       scale = 0.65;
     } else if (["eat", "tea", "read"].includes(a.name)) {
       name =
-        a.name === "read" ? "read" : a.name === "tea" ? "tea" : "eat_taiyaki";
+        a.name === "read"
+          ? "read"
+          : a.name === "tea" || a.mealKind === "drink"
+            ? "tea"
+            : "eat_rice";
       const chair = this.layout.objects.find(
         (x: any) => x.id === "desk",
       ).standPoint;
       tx = chair.x;
       ty = chair.y;
       scale = 0.65;
+    } else if (a.name === "sing") {
+      name = "sing";
     } else if (a.name === "rest") {
       tx = this.layout.rest.x;
       ty = this.layout.rest.y;

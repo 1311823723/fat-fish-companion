@@ -18,3 +18,4 @@
 电视游戏界面 tv-shell-v1.webp 与 ui-*-v*.webp：由本项目通过内置 Image Gen 参考原创概念图生成并整理，按 MIT 许可提供；界面文字、棋盘状态和交互由代码实现。
 新增的 food-*-v2.webp、food-icons-v2.webp 与 gear-*-v2.webp 由本项目使用内置 imagegen 生成，做等格切片、透明边缘清理与缩小打包，按 MIT 许可提供；它们不包含原角色动画。
 新增 read-v1.webp 为参照原大肥鱼形象制作的 AI 辅助翻书动作，256×256 对齐、12 帧循环、3 fps。它属于角色衍生素材，保留上善无形、ZipZipPipe 与原动画项目的署名，按 CC BY-NC-SA 4.0 提供，禁止商业使用；不是原作者绘制或审核的素材。原有帧未被替换或重绘。
+新增 sing-v1.webp 与 eat_rice-v1.webp：参照既有大肥鱼形象使用内置 imagegen 制作，9 帧、256×256、3 fps，继承角色 CC BY-NC-SA 4.0 署名、非商业、相同方式共享要求；原角色作者为上善无形、ZipZipPipe，参考动画来自 tndmgzo7/blue-fat-fish-desktop-pet。新动作不是原作者绘制或已审核的素材。sing 只有动画，不含音频。

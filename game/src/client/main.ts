@@ -88,6 +88,7 @@ function render(w: World) {
           eat: "吃饭",
           tea: "喝奶茶",
           read: "翻书",
+          sing: "哼歌",
         }[w.activity.name as string] || "发呆");
   $("weather").textContent = w.weather.available
     ? w.weather.city + " " + w.weather.label + " " + w.weather.temperature + "℃"

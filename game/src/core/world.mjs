@@ -165,6 +165,8 @@ export function settle(w, now, events) {
         consume(w, food[0], events, next, true);
         w.activity = {
           name: "eat",
+          mealKind: food[2] === 30 ? "meal" : "drink",
+          foodItem: food[0],
           startedAt: next,
           until: next + 18000,
           automatic: true,
@@ -188,6 +190,13 @@ export function settle(w, now, events) {
     const wet =
       w.weather.available &&
       ["rain", "snow", "thunder"].includes(w.weather.kind);
+    const hum =
+      w.energy >= 45 &&
+      (w.mood.value ?? 60) >= 60 &&
+      h >= 9 &&
+      h < 21 &&
+      Math.floor(now / 300000) % 12 === 2 &&
+      now - (w.lastHumAt || 0) >= 45 * 60000;
     w.activity = {
       name: sleep
         ? "sleep"
@@ -195,12 +204,16 @@ export function settle(w, now, events) {
           ? "rest"
           : stretch
             ? "walk"
-            : w.energy >= 45 && Math.floor(now / 300000) % 3 === 1
-              ? "read"
-              : "idle",
+            : hum
+              ? "sing"
+              : w.energy >= 45 && Math.floor(now / 300000) % 3 === 1
+                ? "read"
+                : "idle",
       startedAt: now,
-      until: now + (sleep ? 30 : stretch && !wet ? 0.5 : 5) * 60000,
+      until:
+        now + (sleep ? 30 : stretch && !wet ? 0.5 : hum ? 0.75 : 5) * 60000,
     };
+    if (w.activity.name === "sing") w.lastHumAt = now;
   }
 }
 export function apply(w, command, actor, now, events) {
@@ -266,21 +279,36 @@ export function apply(w, command, actor, now, events) {
   } else if (type === "activity") {
     if (w.travel.current) throw Error("她还在外面");
     if (
-      !["walk", "sleep", "wake", "rest", "eat", "tea", "idle", "read"].includes(
-        args.name,
-      )
+      ![
+        "walk",
+        "sleep",
+        "wake",
+        "rest",
+        "eat",
+        "tea",
+        "idle",
+        "read",
+        "sing",
+      ].includes(args.name)
     )
       throw Error("动作无效");
+    let mealKind, foodItem;
     if (["eat", "tea"].includes(args.name)) {
-      const food = MENU.find(
-        ([id, , gain]) =>
-          w.stock[id] > 0 && (args.name === "eat" ? gain >= 10 : gain < 10),
-      );
+      const food =
+        (args.name === "eat" &&
+          MENU.find(([id, , gain]) => gain === 30 && w.stock[id] > 0)) ||
+        MENU.find(
+          ([id, , gain]) =>
+            w.stock[id] > 0 && (args.name === "eat" ? gain >= 10 : gain < 10),
+        );
       if (!food) throw Error("冰箱里没有合适的食物");
+      mealKind = food[2] === 30 ? "meal" : "drink";
+      foodItem = food[0];
       consume(w, food[0], events, now);
     }
     w.activity = {
       name: args.name === "wake" ? "idle" : args.name,
+      ...(mealKind ? { mealKind, foodItem } : {}),
       startedAt: now,
       until:
         args.name === "sleep" &&
@@ -295,9 +323,12 @@ export function apply(w, command, actor, now, events) {
               ? 30 * 60000
               : args.name === "read"
                 ? 120000
-                : 30000),
+                : args.name === "sing"
+                  ? 60000
+                  : 30000),
       manual: true,
     };
+    if (args.name === "sing") w.lastHumAt = now;
     event(events, "activity_started", { name: args.name }, now);
   } else if (type === "travel_decision") {
     if (!actor.system) throw Error("仅内部意愿适配器可决定出游");
