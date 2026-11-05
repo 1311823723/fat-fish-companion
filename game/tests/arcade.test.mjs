@@ -30,6 +30,65 @@ const finishRps = (a, actor, m) => {
   }
   return m;
 };
+test("thinking persists, hides future moves, prevents extra input and resolves only once after restart", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fatfish-thinking-")),
+    file = path.join(dir, "world.db");
+  let now = Date.now(),
+    s = new Store(file, () => now);
+  try {
+    s.arcade.thinkingDelay = () => 3000;
+    let m = act(s.arcade, alice, {
+      op: "create",
+      kind: "connect4",
+      shared: true,
+    }).match;
+    const request = {
+      op: "move",
+      id: m.id,
+      version: m.version,
+      column: 3,
+      requestId: "thinking-dedupe-001",
+    };
+    m = s.arcade.act(request, alice).match;
+    assert.equal(m.thinkingUntil, now + 3000);
+    assert.equal(m.moves.length, 1);
+    assert.equal(s.arcade.view(m.id, bob).match.turn, "fish");
+    assert.deepEqual(s.arcade.act(request, alice).match, m);
+    const deadline = m.thinkingUntil;
+    s.close();
+    s = new Store(file, () => now);
+    now = deadline - 1;
+    assert.equal(
+      s.arcade.view(m.id, alice).match.board.filter(Boolean).length,
+      1,
+    );
+    now = deadline;
+    const done = s.arcade.view(m.id, alice).match;
+    assert.equal(done.board.filter(Boolean).length, 2);
+    assert.equal(done.turn, "player");
+    assert.ok(done.version > m.version);
+    s.arcade.settleDue();
+    assert.deepEqual(s.arcade.view(m.id, alice).match, done);
+    m = act(s.arcade, alice, {
+      op: "move",
+      id: m.id,
+      version: done.version,
+      column: 4,
+    }).match;
+    m = act(s.arcade, alice, {
+      op: "resign",
+      id: m.id,
+      version: m.version,
+    }).match;
+    now += 10000;
+    s.arcade.settleDue();
+    assert.equal(s.arcade.view(m.id, alice).match.moves.length, 3);
+    assert.equal(s.arcade.view(m.id, alice).match.status, "finished");
+  } finally {
+    s.close();
+    removeTestDirectory(dir);
+  }
+});
 test("failed reviews can be retried with a new job, duplicates cannot multiply requests, and interrupted reviews expire safely", () => {
   let now = Date.now();
   const s = new Store(":memory:", () => now),
@@ -175,7 +234,8 @@ test("four-in-a-row detects all directions; gravity, immediate win and blocking 
   for (let i = 0; i < 6; i++) b = drop(b, 6, 1).board;
   assert.throws(() => drop(b, 6, 2), /满了/);
   assert.throws(() => drop(b, -1, 2), /选一列/);
-  const s = new Store();
+  let now = Date.now();
+  const s = new Store(":memory:", () => now);
   try {
     let m = act(s.arcade, alice, { op: "create", kind: "connect4" }).match;
     const old = m.version;
@@ -185,7 +245,22 @@ test("four-in-a-row detects all directions; gravity, immediate win and blocking 
       version: m.version,
       column: 3,
     }).match;
+    assert.equal(m.board.filter(Boolean).length, 1);
+    assert.equal(m.turn, "fish");
+    assert.throws(
+      () =>
+        act(s.arcade, alice, {
+          op: "move",
+          id: m.id,
+          version: m.version,
+          column: 4,
+        }),
+      /等她/,
+    );
+    now = m.thinkingUntil + 1;
+    m = s.arcade.view(m.id, alice).match;
     assert.equal(m.board.filter(Boolean).length, 2);
+    assert.equal(m.turn, "player");
     assert.equal(m.board[38], 1);
     assert.throws(
       () =>

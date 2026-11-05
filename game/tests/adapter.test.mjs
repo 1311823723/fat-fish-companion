@@ -11,6 +11,10 @@ import { installGameCore } from "../adapters/game-core-adapter.mjs";
 test("bridge adapter shares authoritative state, suppresses legacy writers, routes verified identity", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fatfish-adapter-"));
   fs.mkdirSync(path.join(dir, "state"));
+  fs.writeFileSync(
+    path.join(dir, "room.config.json"),
+    JSON.stringify({ publicRoomUrl: "https://cottage.example/room" }),
+  );
   const store = new Store(),
     secret = "test-only-".repeat(8),
     { server } = makeServer(
@@ -51,6 +55,16 @@ test("bridge adapter shares authoritative state, suppresses legacy writers, rout
   try {
     await new Promise((r) => setTimeout(r, 30));
     await adapter.refresh();
+    assert.ok(room.travelContext().includes("https://cottage.example/room"));
+    assert.ok(room.travelContext().includes("四子棋"));
+    assert.ok(room.travelContext().includes("公开旅行相册"));
+    fs.writeFileSync(
+      path.join(dir, "room.config.json"),
+      JSON.stringify({
+        publicRoomUrl: "https://cottage.example/room?token=private-value",
+      }),
+    );
+    assert.ok(!room.travelContext().includes("?token="));
     assert.equal(room.publicState().hunger, 80);
     assert.equal(room.travelTick().type, "none");
     await room.handle(

@@ -131,6 +131,9 @@ export class Arcade {
     this.db = store.db;
     this.reviewAvailable = reviewAvailable;
     this.random = random;
+    this.thinkingDelay = (m) =>
+      (m.difficulty === "serious" ? 3500 : 2000) +
+      Math.floor(this.random() * 2500);
     this.db
       .exec(`CREATE TABLE IF NOT EXISTS arcade_matches(id TEXT PRIMARY KEY,owner TEXT NOT NULL,kind TEXT NOT NULL,status TEXT NOT NULL,shared INTEGER NOT NULL DEFAULT 0,nickname TEXT NOT NULL,created INTEGER NOT NULL,updated INTEGER NOT NULL,json TEXT NOT NULL);
       CREATE UNIQUE INDEX IF NOT EXISTS arcade_one_active ON arcade_matches(owner) WHERE status='active';
@@ -183,6 +186,61 @@ export class Arcade {
       .prepare("SELECT * FROM arcade_matches WHERE id=?")
       .get(String(id || ""));
   }
+  settleDue() {
+    const due = this.db
+      .prepare(
+        "SELECT * FROM arcade_matches WHERE kind='connect4' AND status='active' AND json_extract(json,'$.thinking.readyAt')<=?",
+      )
+      .all(this.store.clock());
+    if (!due.length) return;
+    this.db.exec("BEGIN IMMEDIATE");
+    try {
+      for (const row of due) {
+        const fresh = this.row(row.id);
+        const m = JSON.parse(fresh.json);
+        if (
+          fresh.status !== "active" ||
+          !m.thinking ||
+          m.thinking.readyAt > this.store.clock()
+        )
+          continue;
+        if (fresh.updated < this.store.clock() - 30 * 60000) {
+          this.db
+            .prepare(
+              "UPDATE arcade_matches SET status='expired',shared=0 WHERE id=?",
+            )
+            .run(row.id);
+          continue;
+        }
+        const column = chooseColumn(m.board, m.difficulty, this.random),
+          fish = drop(m.board, column, 2);
+        m.board = fish.board;
+        m.lastCells = [fish.cell];
+        m.moves.push({ player: 2, column });
+        m.line = winningLine(m.board);
+        delete m.thinking;
+        if (m.line.length) m.result = "fish";
+        else if (!legal(m.board).length) m.result = "draw";
+        m.message =
+          m.result === "fish"
+            ? "连起来了。这盘归我。"
+            : m.result === "draw"
+              ? "填满了，谁也没占到便宜。"
+              : [
+                  "我放好了，轮到你。",
+                  "嗯……这边。该你了。",
+                  "你慢慢想，我等着。",
+                ][m.moves.length % 3];
+        m.version++;
+        this.save(fresh, m);
+      }
+      this.db.exec("COMMIT");
+    } catch (e) {
+      this.db.exec("ROLLBACK");
+      throw e;
+    }
+    this.store.emit("change", { arcadeChanged: true });
+  }
   public(row, own = false) {
     const m = JSON.parse(row.json);
     const v = {
@@ -205,6 +263,8 @@ export class Arcade {
       moves: m.moves,
       updatedAt: row.updated,
       own,
+      turn: m.thinking ? "fish" : "player",
+      thinkingUntil: m.thinking?.readyAt || 0,
     };
     if (own) {
       v.review = m.review;
@@ -230,6 +290,7 @@ export class Arcade {
     return stats;
   }
   lobby(actor) {
+    this.settleDue();
     this.expire();
     const owner = this.owner(actor);
     const mine = this.db
@@ -251,6 +312,7 @@ export class Arcade {
     };
   }
   view(id, actor) {
+    this.settleDue();
     this.expire();
     const row = this.row(id),
       own = row?.owner === this.owner(actor);
@@ -294,6 +356,7 @@ export class Arcade {
       );
   }
   act(body, actor) {
+    this.settleDue();
     if (!/^[\w:-]{10,120}$/.test(body.requestId || ""))
       throw Error("请求编号无效");
     const owner = this.owner(actor),
@@ -391,10 +454,12 @@ export class Arcade {
         } else {
           if (row.status !== "active") throw Error("这局已经结束");
           if (body.op === "resign") {
+            delete m.thinking;
             m.result = "fish";
             m.message = "那就先收起来，想玩了再来。";
             m.resigned = true;
           } else if (body.op === "move") {
+            if (m.thinking) throw Error("等她下完这一步");
             if (m.kind === "rps") {
               if (
                 !Number.isInteger(body.choice) ||
@@ -448,14 +513,9 @@ export class Arcade {
               if (m.line.length) m.result = "player";
               else if (!legal(m.board).length) m.result = "draw";
               else {
-                const col = chooseColumn(m.board, m.difficulty, this.random),
-                  fish = drop(m.board, col, 2);
-                m.board = fish.board;
-                m.lastCells.push(fish.cell);
-                m.moves.push({ player: 2, column: col });
-                m.line = winningLine(m.board);
-                if (m.line.length) m.result = "fish";
-                else if (!legal(m.board).length) m.result = "draw";
+                m.thinking = {
+                  readyAt: this.store.clock() + this.thinkingDelay(m),
+                };
               }
               m.message =
                 m.result === "player"
@@ -464,11 +524,9 @@ export class Arcade {
                     ? "连起来了。这盘归我。"
                     : m.result === "draw"
                       ? "填满了，谁也没占到便宜。"
-                      : [
-                          "我放好了，轮到你。",
-                          "嗯……这边。该你了。",
-                          "你慢慢想，我等着。",
-                        ][m.moves.length % 3];
+                      : ["让我看看……", "嗯，想一下。", "这步得想想。"][
+                          m.moves.length % 3
+                        ];
             }
             if (m.result === "player") m.message = "这盘算你厉害，我记住了。";
           } else throw Error("操作无效");

@@ -28,6 +28,7 @@ await fs.mkdir(dest, { recursive: true });
 const exported = [];
 async function copy(source, relative) {
   relative = relative.replaceAll("\\", "/");
+  if (path.basename(relative) === "XIAOHEIHE_POST.md") return;
   const s = await fs.stat(source);
   if (s.isDirectory()) {
     for (const e of await fs.readdir(source))

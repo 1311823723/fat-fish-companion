@@ -506,6 +506,14 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   }, 5000);
   tick.unref();
   const weather = new Weather(c.weather, store);
+  const arcadeTimer = setInterval(() => {
+    try {
+      store.arcade.settleDue();
+    } catch {
+      console.warn("[arcade] 回合恢复稍后重试");
+    }
+  }, 250);
+  arcadeTimer.unref();
   weather.start();
   let drawing = false;
   const photoTimer = setInterval(async () => {
@@ -577,6 +585,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   }, 10000);
   photoTimer.unref();
   server.on("close", () => {
+    clearInterval(arcadeTimer);
     clearInterval(tick);
     clearInterval(photoTimer);
     weather.stop();

@@ -261,7 +261,8 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     const footer = el("div", "", "arcade-footer");
     const m = match,
       own = m.own,
-      ended = m.status !== "active";
+      ended = m.status !== "active",
+      thinking = !ended && m.turn === "fish";
     const banner = el("div", "", "arcade-banner");
     banner.append(
       el(
@@ -281,9 +282,11 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
                   ? "你赢了"
                   : "玩家获胜"
                 : "大肥鱼获胜"
-          : own
-            ? "轮到你了"
-            : "观战中",
+          : thinking
+            ? "她在想…"
+            : own
+              ? "轮到你了"
+              : "观战中",
       ),
     );
     banner.lastElementChild?.classList.add("arcade-turn");
@@ -311,7 +314,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
           `arcade-disc piece-${m.board[i]}${m.line?.includes(i) ? " winning" : ""}${m.lastCells?.includes(i) ? " new-piece" : ""}`,
         );
         disc.setAttribute("aria-hidden", "true");
-        if (own && !ended && !busy)
+        if (own && !ended && !busy && !thinking)
           disc.onclick = () => void send("move", { column: i % 7 });
         board.append(disc);
       }
@@ -321,7 +324,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
           const b = button("", () => void send("move", { column: col }));
           b.setAttribute("aria-label", `第${col + 1}列落子`);
           b.append(el("span", String(col + 1)), image("arrow"));
-          b.disabled ||= m.board[col] !== 0;
+          b.disabled ||= thinking || m.board[col] !== 0;
           controls.append(b);
         }
       surface.append(board, controls);

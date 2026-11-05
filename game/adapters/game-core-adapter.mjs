@@ -200,6 +200,27 @@ export function installGameCore(room, { root }) {
   room.travelContext = () => {
     try {
       const { world: w, public: p } = current();
+      let entrance = null;
+      try {
+        const saved = JSON.parse(
+          fs.readFileSync(path.join(root, "room.config.json"), "utf8"),
+        );
+        const url = new URL(saved.publicRoomUrl);
+        if (
+          ["https:", "http:"].includes(url.protocol) &&
+          !url.username &&
+          !url.password &&
+          !url.search &&
+          !url.hash
+        )
+          entrance = {
+            url: url.href,
+            activities: ["给冰箱放食物", "看公开旅行相册", "猜拳和四子棋"],
+            guest: true,
+            privateMemoryRequiresQQVerification: true,
+            diaryOwnerOnly: true,
+          };
+      } catch {}
       return (
         "【同一个大肥鱼·最高时效世界状态】" +
         JSON.stringify({
@@ -208,6 +229,7 @@ export function installGameCore(room, { root }) {
           location: p.location,
           room: p.room,
           television: p.arcade,
+          homePage: entrance,
           atHome: !w.travel.current,
           activity: p.activity.name,
           hunger: p.hunger,
@@ -230,7 +252,7 @@ export function installGameCore(room, { root }) {
             })),
           souvenirs: p.souvenirs.slice(-3),
         }) +
-        "。状态优先于旧聊天；已回家不要说还在路上。出门由自己的意愿决定，没有真实邀请就不要说被人丢去或安排过去。精力低也应正常回应私聊和艾特。拍照事件不代表照片已发送，发没发只按已确认的发送记录判断。"
+        "。状态优先于旧聊天；已回家不要说还在路上。出门由自己的意愿决定，没有真实邀请就不要说被人丢去或安排过去。精力低也应正常回应私聊和艾特。拍照事件不代表照片已发送，发没发只按已确认的发送记录判断。homePage是你现在正式的小屋入口，分享时用这个地址，优先于记忆中的旧地址。有合适缘由时，可以自然邀请别人来放吃的、看旅行相册、和你玩游戏；沿用现有白名单和分享频率，不固定刷屏宣传。不为访客透露熟人的私人资料，主人日记不向访客开放。未配置入口时不要编造链接。"
       );
     } catch {
       return "【小屋状态暂不可用】不能推测正在出游或回家，正常回应聊天。";

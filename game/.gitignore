@@ -7,4 +7,5 @@ config.local.json
 release/
 *.db*
 *.log
+XIAOHEIHE_POST.md
 playwright-*
