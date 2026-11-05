@@ -16,8 +16,16 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   store.drawingFallback =
     (c.drawing?.provider || "gpt") === "gpt" &&
     c.drawing?.fallbackProvider === "doubao";
-  const sessions = new Map(),
-    limits = new Map();
+  const limits = new Map();
+  // Persist only token hashes; independent local players keep their records across restarts.
+  store.db.exec(
+    "CREATE TABLE IF NOT EXISTS game_guest_sessions(token_hash TEXT PRIMARY KEY,expires INTEGER NOT NULL)",
+  );
+  store.db
+    .prepare("DELETE FROM game_guest_sessions WHERE expires<=?")
+    .run(store.clock());
+  const guestHash = (token) =>
+    crypto.createHash("sha256").update(token).digest("hex");
   const allowed = new Set(c.allowedOrigins || []);
   const internal = (req) => {
     const a = Buffer.from(String(req.headers["x-game-adapter"] || "")),
@@ -67,8 +75,14 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
     const id = String(req.headers.cookie || "").match(
       /game_guest=([a-f0-9]{64})/,
     )?.[1];
-    return id && sessions.has(id)
-      ? { id, identity: { verified: false } }
+    const hash = id && guestHash(id);
+    return hash &&
+      store.db
+        .prepare(
+          "SELECT 1 FROM game_guest_sessions WHERE token_hash=? AND expires>?",
+        )
+        .get(hash, store.clock())
+      ? { id: hash, identity: { verified: false } }
       : null;
   }
   const headers = {
@@ -265,16 +279,26 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
             return;
           }
           if (route === "enter") {
+            const existing = await actor(req);
+            if (existing) {
+              json({ ok: true, identity: existing.identity });
+              return;
+            }
             const id = crypto.randomBytes(32).toString("hex");
-            sessions.set(id, true);
+            store.db
+              .prepare("INSERT INTO game_guest_sessions VALUES(?,?)")
+              .run(guestHash(id), store.clock() + 30 * 86400000);
             json({ ok: true, identity: { verified: false } }, 200, {
-              "set-cookie": `game_guest=${id}; HttpOnly; SameSite=Strict; Path=/`,
+              "set-cookie": `game_guest=${id}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000`,
             });
             return;
           }
           if (route === "logout") {
             const a = await actor(req);
-            if (a) sessions.delete(a.id);
+            if (a)
+              store.db
+                .prepare("DELETE FROM game_guest_sessions WHERE token_hash=?")
+                .run(a.id);
             json({ ok: true }, 200, {
               "set-cookie":
                 "game_guest=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0",

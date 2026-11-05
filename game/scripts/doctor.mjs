@@ -7,18 +7,28 @@ const result = {
   built: fs.existsSync(path.join(ROOT, "dist/index.html")),
   configured: fs.existsSync(path.join(ROOT, "config.local.json")),
   core: false,
+  portConflict: false,
   bridgeConfigured: !!c.bridge?.enabled,
   drawingConfigured: !!c.drawing?.enabled,
 };
 try {
+  const response = await fetch("http://127.0.0.1:" + c.port + "/health", {
+    signal: AbortSignal.timeout(3000),
+  });
+  result.portConflict = true;
+  const health = await response.json();
   result.core =
-    (
-      await (
-        await fetch("http://127.0.0.1:" + c.port + "/health", {
-          signal: AbortSignal.timeout(3000),
-        })
-      ).json()
-    ).ok === true;
+    response.ok &&
+    health.ok === true &&
+    health.service === "fatfish-game" &&
+    health.schema === 1;
+  result.portConflict = !result.core;
 } catch {}
 console.log(JSON.stringify(result, null, 2));
-if (!result.node24 || !result.built) process.exitCode = 1;
+if (
+  !result.node24 ||
+  !result.built ||
+  !result.configured ||
+  result.portConflict
+)
+  process.exitCode = 1;

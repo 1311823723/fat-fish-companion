@@ -16,7 +16,7 @@ dsh plugin --profile web add dsh-doubao-image-free
 
 在本机 `config.local.json` 的 `drawing` 设置 `enabled:true`、实际 `baseUrl`、`provider:"gpt"` 和 `referenceFile`。固定参考图必须存在；不允许丢失参考图后改成无参考生成。仓库提供从角色授权图集提取的 `public/assets/reference-v1.png`，也可使用自己有权使用的固定参考图。本机既有角色参考图不会被自动替换。
 
-设置 `provider:"doubao"` 可单独测试豆包；默认不会在两种风格之间静默切换。图片服务未返回图片不一定代表额度不足，需根据服务实际错误排查。
+设置 `provider:"doubao"` 可单独测试豆包；只有明确配置 `fallbackProvider:"doubao"` 且 GPT 返回明确额度限制时才走保底，其他网络错误不会立即切换。示例配置已填写该保底字段，未登录豆包时应先移除它或完成登录再启用绘图。图片服务未返回图片不一定代表额度不足，需根据服务实际错误排查。
 
 ## 场景一致性
 
