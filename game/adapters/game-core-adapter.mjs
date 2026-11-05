@@ -462,7 +462,7 @@ export function installGameCore(room, { root }) {
               await sendProgress(key, trip, text);
             } else {
               text =
-                current().world.photos.find((x) => x.photoId === trip.id)
+                current().public.photos.find((x) => x.photoId === trip.id)
                   ?.caption || "我回来啦，给你看看照片。";
               await sendPhoto(key, trip, text);
             }

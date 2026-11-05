@@ -493,22 +493,22 @@ export function publicWorld(w, now) {
     backpack: w.backpack,
     souvenirs: w.souvenirs,
     photos: w.photos.map(
-      ({ photoId, place, capturedAt, caption, assetVersion }) => ({
+      ({ photoId, place, capturedAt, caption, assetVersion, scene }) => ({
         photoId,
         assetVersion: assetVersion || "original",
         place,
         capturedAt,
-        caption: displayCaption(caption, place),
+        caption: displayCaption(caption, place, scene, photoId),
       }),
     ),
     travel: {
       photos: w.photos.map(
-        ({ photoId, place, capturedAt, caption, assetVersion }) => ({
+        ({ photoId, place, capturedAt, caption, assetVersion, scene }) => ({
           photoId,
           assetVersion: assetVersion || "original",
           place,
           capturedAt,
-          caption: displayCaption(caption, place),
+          caption: displayCaption(caption, place, scene, photoId),
         }),
       ),
       phase: trip ? "away" : "home",

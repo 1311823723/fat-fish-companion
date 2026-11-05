@@ -1,3 +1,4 @@
+import { albumCaption } from "./core/caption.mjs";
 import { drawTravelPhoto } from "./photo-router.mjs";
 import http from "node:http";
 import fs from "node:fs";
@@ -555,21 +556,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         args: {
           tripId: t.id,
           assetVersion,
-          caption:
-            "我在" +
-            t.place.label +
-            "，" +
-            ({
-              walk: "慢慢散了会儿步",
-              observe: "看了会儿风景",
-              rest: "歇了一会儿",
-              map: "看着地图找路",
-              souvenir: "挑了点小东西",
-              eat: "坐下来吃了点饭",
-              umbrella: "打着伞走了走",
-              shelter: "在屋檐下躲了会儿雨",
-            }[t.photoScene.activity] || "慢慢逛了逛") +
-            "。给你看看照片。",
+          caption: albumCaption(t.photoScene, t.place.label, t.id),
         },
       });
       store.enqueue("share-plan:" + t.id, "share", {
