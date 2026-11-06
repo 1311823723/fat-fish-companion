@@ -48,6 +48,7 @@ export class Room extends Phaser.Scene {
   preload() {
     this.load.image("room", "/assets/room-v5.webp");
     this.load.image("television", "/assets/television-v1.webp");
+    this.load.image("backpack-storybook", "/assets/backpack-storybook-v1.webp");
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
     this.load.json("room-layout", "/assets/room-layout-v5.json");
@@ -219,18 +220,11 @@ export class Room extends Phaser.Scene {
       .setVisible(false);
     const bag = this.layout.objects.find((o: any) => o.id === "backpack").bounds;
     this.backpackObject = this.add.container(bag.x, bag.y).setDepth(2);
-    const bagArt = this.add.graphics();
-    bagArt.fillStyle(0x684b37, 0.14).fillEllipse(26, 61, 48, 8);
-    bagArt.lineStyle(4, 0x5d7589, 0.9).strokeRoundedRect(16, 2, 20, 21, 8);
-    bagArt.fillStyle(0x5e7c91).fillRoundedRect(4, 10, 44, 49, 11);
-    bagArt.fillStyle(0x91acb8).fillRoundedRect(7, 11, 38, 44, 9);
-    bagArt.fillStyle(0xb8ccd0, 0.8).fillRoundedRect(11, 14, 30, 13, 6);
-    bagArt.lineStyle(1.5, 0x637f91).strokeRoundedRect(12, 32, 28, 16, 5);
-    bagArt.fillStyle(0xe6c894).fillCircle(26, 36, 2);
-    bagArt.lineStyle(1.1, 0xf3e9d2, 0.85).lineBetween(17, 51, 35, 51);
+    const bagShadow = this.add.ellipse(bag.width / 2, bag.height - 3, 42, 7, 0x684b37, 0.15);
+    const bagArt = this.add.image(bag.width / 2, bag.height / 2, "backpack-storybook").setDisplaySize(bag.width, bag.height);
     const bagHit = this.add.zone(bag.width / 2, bag.height / 2, bag.width, bag.height).setInteractive({ useHandCursor: true });
     this.bindTap(bagHit, () => this.onAction("backpack"));
-    this.backpackObject.add([bagArt, bagHit]);
+    this.backpackObject.add([bagShadow, bagArt, bagHit]);
     this.notePaper = this.add
       .container(this.layout.note.x, this.layout.note.y)
       .setScale(this.layout.note.scale)
