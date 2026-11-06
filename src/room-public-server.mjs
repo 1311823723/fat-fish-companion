@@ -41,6 +41,7 @@ export function createVisitorGateway({root=ROOT,secret,upstream='http://127.0.0.
    if(action==='chat'){
     if(typeof body.text!=='string'||body.text.length<1||body.text.length>500||! /^[a-zA-Z0-9-]{10,80}$/.test(String(body.requestId||''))){send({ok:false,error:'消息格式无效'},400);return;}clean.text=body.text;clean.requestId=body.requestId;
    }
+   if(action==='diary_list'){if(body.cursor!==undefined&&!/^(?:[a-f0-9]{20})?$/.test(String(body.cursor))){send({ok:false,error:'日记翻页位置无效'},400);return;}clean.cursor=String(body.cursor||'');}
    if(action==='diary_read'){if(!/^[a-f0-9]{20}$/.test(String(body.id||''))){send({ok:false,error:'日记编号无效'},400);return;}clean.id=body.id;}
    if(action==='pet_action')clean.name=typeof body.name==='string'?body.name:'';
    const result=await call(action,clean,id);

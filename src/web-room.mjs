@@ -44,7 +44,7 @@ export class WebRoom {
   if(action==='diary_list'||action==='diary_read'){
    if(!v.verifiedQQ||!this.ownerQQ||v.verifiedQQ!==this.ownerQQ)throw Error('仅已验证的主人可查看日记');
    if(typeof this.diaryList!=='function'||typeof this.diaryRead!=='function')throw Error('日记暂未接入');
-   if(action==='diary_list')return {ok:true,entries:await this.diaryList()};
+   if(action==='diary_list'){const cursor=String(args.cursor||'');if(cursor&&!/^[a-f0-9]{20}$/.test(cursor))throw Error('日记翻页位置无效');const result=await this.diaryList(cursor);return Array.isArray(result)?{ok:true,entries:result,nextCursor:null}:{ok:true,...result};}
    if(!/^[a-f0-9]{20}$/.test(String(args.id||'')))throw Error('日记编号无效');
    return {ok:true,entry:await this.diaryRead(args.id)};
   }

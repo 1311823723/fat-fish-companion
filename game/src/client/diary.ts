@@ -40,18 +40,20 @@ export async function openDiary({
     pageIndex = 0,
     pages: string[] = [""],
     busy = false,
+    nextCursor: string | null = null,
+    loadError = "",
     allText = "",
     lastSize = "";
   const cache = new Map<string, any>();
   const update = () => {
     copy.textContent = pages[pageIndex] || "";
-    count.textContent = entries.length
+    count.textContent = loadError || (entries.length
       ? entryIndex +
         1 +
         " / " +
-        entries.length +
+        entries.length + (nextCursor ? "+" : "") +
         (pages.length > 1 ? " · " + (pageIndex + 1) + "/" + pages.length : "")
-      : "";
+      : "");
     count.setAttribute(
       "aria-label",
       "第" +
@@ -65,7 +67,7 @@ export async function openDiary({
     prev.disabled = busy || (entryIndex === 0 && pageIndex === 0);
     next.disabled =
       busy ||
-      (entryIndex === entries.length - 1 && pageIndex === pages.length - 1) ||
+      (entryIndex === entries.length - 1 && pageIndex === pages.length - 1 && !nextCursor) ||
       !entries.length;
   };
   const paginate = (text: string) => {
@@ -143,6 +145,27 @@ export async function openDiary({
       entryIndex + direction < entries.length
     )
       await load(entryIndex + direction, direction < 0);
+    else if (direction > 0 && nextCursor) {
+      busy = true;
+      loadError = "";
+      update();
+      try {
+        const r = await api("diary-list", { cursor: nextCursor });
+        if (!isCurrent()) return;
+        const known = new Set(entries.map((e) => String(e.id)));
+        const more = (r.entries || []).filter((e: any) => !known.has(String(e.id)));
+        if (!more.length && r.nextCursor) throw Error("加载失败，点下一页重试");
+        nextCursor = r.nextCursor || null;
+        entries.push(...more);
+        busy = false;
+        if (more.length) await load(entryIndex + 1);
+      } catch {
+        if (isCurrent()) loadError = "加载失败，点下一页重试";
+      } finally {
+        busy = false;
+        if (isCurrent()) update();
+      }
+    }
   };
   prev.onclick = () => void turn(-1);
   next.onclick = () => void turn(1);
@@ -199,6 +222,7 @@ export async function openDiary({
     const r = await api("diary-list");
     if (!isCurrent()) return;
     entries = r.entries || [];
+    nextCursor = r.nextCursor || null;
     if (!entries.length) {
       copy.textContent = "还没有可翻看的日记。";
       return;

@@ -1382,15 +1382,15 @@ async function main() {
   const webRoom = new WebRoom(path.join(STATE_DIR,'room-web.json'),{
     botQQ:roomSettings(ROOT).botQQ,
     ownerQQ:cfg.ownerQQ,
-    diaryList:()=>{
+    diaryList:(cursor='')=>{
       const ownerKey='private:'+cfg.ownerQQ;
       livingSpace.syncDiary(loadDiary(diaryPathV2()),ownerKey);
-      return livingSpace.listDiary(ownerKey,'',Date.now(),10);
+      return livingSpace.listDiaryArchive(ownerKey,cursor);
     },
     diaryRead:(id)=>{
       const ownerKey='private:'+cfg.ownerQQ;
       livingSpace.syncDiary(loadDiary(diaryPathV2()),ownerKey);
-      const entry=livingSpace.diaryAction(ownerKey,'diary_open',{id});
+      const entry=livingSpace.readDiaryArchive(ownerKey,id);
       return {id:entry.id,date:entry['时间']||'',mood:entry['心情']||'',text:entry['内容']||''};
     },
     roomState:()=>({room:livingSpace.room(),self:companionMind.self('private:'+cfg.ownerQQ)}),

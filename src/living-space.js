@@ -67,6 +67,21 @@ export class LivingSpace {
       .filter(x=>!grams.length||x.score>=2).sort((a,b)=>b.score-a.score||b.r.createdAt-a.r.createdAt).slice(0,Math.min(10,count))
       .map(({r})=>{const remaining=this.effectiveExpiry(r,now)-now,ratio=remaining/((r.expiresAt-r.createdAt)||1);return {id:r.id,tier:r.tier,date:r.entry['时间'],mood:r.entry['心情']||'',hint:ratio>.5?text(r.entry['内容'].split(/[。！？]/)[0],16):'',remainingDays:Math.ceil(remaining/DAY),fuzzy:true};});
   }
+  listDiaryArchive(key,cursor='',limit=20){
+    if(this.error)throw Error(this.error);
+    if(cursor&&!/^[a-f0-9]{20}$/.test(cursor))throw Error('日记翻页位置无效');
+    const rows=Object.values(this.data.diary).filter(r=>r.scope===key&&!r.deletedAt).sort((a,b)=>b.createdAt-a.createdAt||String(b.id).localeCompare(String(a.id)));
+    const index=cursor?rows.findIndex(r=>r.id===cursor):-1;
+    if(cursor&&index<0)throw Error('日记位置已变化，请重新打开');
+    const size=Math.max(1,Math.min(50,Number(limit)||20)),page=rows.slice(index+1,index+1+size),hasMore=index+1+size<rows.length;
+    return {entries:page.map(r=>({id:r.id,date:r.entry['时间']||'',mood:r.entry['心情']||''})),nextCursor:hasMore?page.at(-1).id:null};
+  }
+  readDiaryArchive(key,id){
+    if(this.error)throw Error(this.error);
+    const row=this.data.diary[String(id)];
+    if(!row||row.scope!==key||row.deletedAt)throw Error('日记不存在');
+    return {id:row.id,...row.entry,subjective:true};
+  }
   diaryAction(key,action,args,now=Date.now()){
     if(this.error)throw Error(this.error);
     const r=this.data.diary[String(args.id)];if(!r||r.scope!==key)throw Error('日记不属于当前会话或不存在');
