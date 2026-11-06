@@ -380,6 +380,39 @@ export function installGameCore(room, { root }) {
         await refresh();
         const list = await call("outbox/list");
         for (const job of list.jobs) {
+          if (job.kind === 'return-care-plan') {
+            if (isBusy()) continue;
+            const claimed=(await call('outbox/claim',{kind:job.kind,id:job.id})).job;
+            if (!claimed) continue;
+            const w=current().world, trip=[...w.travel.pending,...w.travel.history].find(t=>t.id===job.payload.tripId);
+            if (trip && Date.now()-trip.returnedAt<24*3600000) {
+              const recipients=new Map();
+              for (const feed of w.feeding || []) {
+                if (feed.at < trip.departedAt || feed.at > trip.returnedAt || feed.actor?.type !== 'verified' || !/^[1-9]\d{4,11}$/.test(String(feed.actor.qq||''))) continue;
+                const key='private:'+feed.actor.qq;
+                if (isAllowed(key) && !recipients.has(key)) recipients.set(key,feed.item);
+              }
+              for (const [target,item] of [...recipients].slice(0,4)) await call('outbox/enqueue',{id:job.id+':'+target,kind:'return-care',payload:{target,item,tripId:trip.id,returnedAt:trip.returnedAt},due:Date.now()});
+            }
+            await call('outbox/finish',{id:job.id,status:'done'});
+            continue;
+          }
+          if (job.kind === 'return-care') {
+            const key=String(job.payload?.target||'');
+            if (!/^private:[1-9]\d{4,11}$/.test(key) || !isAllowed(key) || Date.now()-Number(job.payload.returnedAt)>24*3600000) {await call('outbox/claim',{kind:job.kind,id:job.id});await call('outbox/finish',{id:job.id,status:'skipped'});continue;}
+            if (current().world.travel.current) continue;
+            if (isBusy(key)) continue;
+            const claimed=(await call('outbox/claim',{kind:job.kind,id:job.id})).job;
+            if (!claimed) continue;
+            try {
+              const label=current().public.kitchen.items.find(x=>x.id===job.payload.item)?.label;
+              if (!label) throw Error('食物记录无效');
+              const result=String(await generate([{role:'system',content:'你是大肥鱼，沿用平时收敛自然的性格。刚回家，确认对方在你出门期间往冰箱放了食物。如果想感谢，就写一句简短自然的话；不想发就只写“不发”。只根据给出的食物，不编造已经吃了、对方心情或其他事实。'}, {role:'user',content:JSON.stringify({food:label})}])).trim().replace(/[\r\n]+/g,' ').slice(0,100);
+              if (!result || /^不发[。！!]*$/.test(result) || /吃了|吃完|吃过|吃掉|\d{5,}|https?:\/\//.test(result)) {await call('outbox/finish',{id:job.id,status:'skipped'});continue;}
+              await sendNotice(key,result); record(key,result);await call('outbox/finish',{id:job.id,status:'done'});
+            } catch {await call('outbox/finish',{id:job.id,status:'uncertain'});}
+            continue;
+          }
           if (job.kind === 'leave-notify') {
             const key = String(job.payload?.target || '');
             if (!/^private:[1-9]\d{4,11}$/.test(key) || !isAllowed(key)) {

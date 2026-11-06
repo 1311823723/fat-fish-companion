@@ -172,7 +172,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
           const last = b.payload?.target
             ? store.db
                 .prepare(
-                  "SELECT max(started) at FROM outbox WHERE kind='share' AND json_extract(payload,'$.target')=?",
+                  "SELECT max(started) at FROM outbox WHERE kind IN ('share','return-care') AND json_extract(payload,'$.target')=?",
                 )
                 .get(b.payload.target).at
             : 0;
@@ -186,7 +186,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
           return;
         }
         if (url.pathname === "/internal/outbox/claim") {
-          if (!["share", "decision", "photo", "arcade-review", "leave-notify"].includes(b.kind))
+          if (!["share", "decision", "photo", "arcade-review", "leave-notify", "return-care-plan", "return-care"].includes(b.kind))
             throw Error("类型错误");
           json({
             ok: true,

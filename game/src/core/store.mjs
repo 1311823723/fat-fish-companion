@@ -58,6 +58,7 @@ export class Store extends EventEmitter {
           if (e.type === "returned") {
             const trip = w.travel.pending.find((t) => t.id === e.data.tripId);
             this.enqueue("photo:" + trip.id, "photo", { tripId: trip.id }, now);
+            this.enqueue("return-care:" + trip.id, "return-care-plan", { tripId: trip.id }, now);
           }
         }
       }

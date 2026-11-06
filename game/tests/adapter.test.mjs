@@ -84,3 +84,16 @@ test("bridge adapter shares authoritative state, suppresses legacy writers, rout
     removeTestDirectory(dir);
   }
 });
+test('return care only considers verified feeding while away, rechecks allowlist and can send once',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'fatfish-care-'));fs.mkdirSync(path.join(dir,'state'));
+  const store=new Store(), secret='test-only-'.repeat(8), {server}=makeServer({allowedOrigins:[],adapterSecret:secret},{store});
+  await new Promise(r=>server.listen(0,'127.0.0.1',r));
+  fs.writeFileSync(path.join(dir,'state/game-core-link.json'),JSON.stringify({enabled:true,url:'http://127.0.0.1:'+server.address().port,secret}));
+  const room={data:{visitors:{}},roomState:()=>({room:{daysTogether:1}})};const adapter=installGameCore(room,{root:dir});
+  const now=Date.now(),trip={id:'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',place:{label:'公园'},departedAt:now-60000,returnedAt:now-1000};
+  const world=store.raw();world.travel.pending.push(trip);world.feeding.push({at:now-30000,item:'tomato',actor:{type:'verified',qq:'123456789'}},{at:now-30000,item:'wings',actor:{type:'guest',visitor:'x'}});
+  store.db.prepare('UPDATE world SET json=? WHERE id=1').run(JSON.stringify(world));store.enqueue('return-care:'+trip.id,'return-care-plan',{tripId:trip.id},now);
+  const sent=[], opts={generate:async()=> '番茄炒蛋我看到啦，谢谢你。',chooseTargets:async()=>[],isAllowed:key=>key==='private:123456789',isBusy:()=>false,sendProgress:async()=>{},sendPhoto:async()=>{},sendNotice:async(key,text)=>sent.push({key,text}),record:()=>{}};
+  try {await adapter.refresh();await adapter.tick(opts);await adapter.tick(opts);await adapter.tick(opts);assert.equal(sent.length,1);assert.equal(sent[0].key,'private:123456789');}
+  finally{adapter.stop();await new Promise(r=>server.close(r));store.close();removeTestDirectory(dir);}
+});
