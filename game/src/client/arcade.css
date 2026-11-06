@@ -144,6 +144,7 @@
   height: 24px;
   object-fit: contain;
 }
+.arcade-game-title img.handheld-title-icon { width: 32px; }
 .arcade-banner {
   display: flex;
   align-items: center;

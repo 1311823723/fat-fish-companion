@@ -242,7 +242,7 @@ export function installGameCore(room, { root }) {
           time: new Date(p.serverTime).toISOString(),
           location: p.location,
           room: p.room,
-          television: p.arcade,
+          gameConsole: p.arcade,
           homePage: entrance,
           atHome: !w.travel.current,
           activity: p.activity.name,

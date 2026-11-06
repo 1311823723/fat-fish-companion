@@ -47,11 +47,11 @@ export class Room extends Phaser.Scene {
   }
   preload() {
     this.load.image("room", "/assets/room-v5.webp");
-    this.load.image("television", "/assets/television-v1.webp");
+    this.load.image("television", "/assets/handheld-console-v1.webp");
     this.load.image("backpack-storybook", "/assets/backpack-storybook-v1.webp");
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
-    this.load.json("room-layout", "/assets/room-layout-v5.json");
+    this.load.json("room-layout", "/assets/room-layout-v6.json");
     this.load.json("manifest", "/assets/manifest-v4.json");
     this.load.atlas(
       "food-icons-v2",
@@ -77,9 +77,9 @@ export class Room extends Phaser.Scene {
       .setDisplaySize(tv.width, tv.height);
     this.tvScreen = this.add.graphics();
     this.tvLabel = this.add
-      .text(tv.x + tv.width / 2, tv.y + tv.height * 0.48, "来一局", {
+      .text(tv.x + tv.width / 2, tv.y + tv.height * 0.50, "来一局", {
         fontFamily: "Microsoft YaHei, sans-serif",
-        fontSize: "12px",
+        fontSize: "8px",
         color: "#f9edcd",
       })
       .setOrigin(0.5);
@@ -518,11 +518,11 @@ export class Room extends Phaser.Scene {
     this.tvScreen.clear().setDepth(playing ? 7 : 1);
     this.tvScreen.fillStyle(playing ? 0x294b61 : 0x111b32, 1);
     this.tvScreen.fillRoundedRect(
-      tv.x + tv.width * 0.087,
-      tv.y + tv.height * 0.17,
-      tv.width * 0.826,
-      tv.height * 0.64,
-      4,
+      tv.x + tv.width * 0.21,
+      tv.y + tv.height * 0.15,
+      tv.width * 0.58,
+      tv.height * 0.70,
+      2,
     );
     this.tvLabel
       .setText(playing ? "游戏中" : "来一局")

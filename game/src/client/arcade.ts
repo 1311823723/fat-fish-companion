@@ -157,7 +157,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
   }
   function top() {
     const nav = el("nav", "", "arcade-tabs");
-    nav.setAttribute("aria-label", "电视栏目");
+    nav.setAttribute("aria-label", "游戏栏目");
     for (const [id, label] of [
       ["play", "和肥鱼来一局"],
       ["watch", "对战记录"],
@@ -179,7 +179,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     surface.append(
       el(
         "h3",
-        tab === "watch" ? "留在这里的棋局" : "开电视，来一局",
+        tab === "watch" ? "留在这里的棋局" : "打开游戏机，来一局",
         "arcade-heading",
       ),
     );
@@ -530,7 +530,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
         surface.append(
           el(
             "p",
-            "她会在聊天空闲时复盘；可以先关电视，稍后再来看。",
+            "她会在聊天空闲时复盘；可以先收起游戏机，稍后再来看。",
             "arcade-muted",
           ),
         );
@@ -556,7 +556,7 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
           "arcade-record-back",
         ),
       );
-    actions.append(button("收起电视", () => panel.close()));
+    actions.append(button("收起游戏机", () => panel.close()));
     surface.append(actions, status());
   }
   function render() {
@@ -582,7 +582,10 @@ export function createArcadeUI({ panel, body, open, api, enter }: Options) {
     surface.append(face);
     surface = face;
     const badge = el("h3", "", "arcade-game-title");
-    badge.append(image("tv-mark"), el("span", "电视 · 四子棋"));
+    const consoleIcon = el("img", "", "handheld-title-icon");
+    consoleIcon.src = "/assets/handheld-console-v1.webp";
+    consoleIcon.alt = "";
+    badge.append(consoleIcon, el("span", "游戏机 · 四子棋"));
     surface.append(badge);
     if (match) game();
     else lobby();
