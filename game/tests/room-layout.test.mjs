@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import layout from "../public/assets/room-layout-v4.json" with { type: "json" };
+import layout from "../public/assets/room-layout-v5.json" with { type: "json" };
 import { Store } from "../src/core/store.mjs";
 test("fine room exposes the same machine-readable landmarks used by the renderer and keeps walking clear of furniture", () => {
   const store = new Store();
   try {
     const room = store.snapshot().room;
-    assert.equal(room.version, "storybook-v4");
+    assert.equal(room.version, "storybook-v5");
     assert.deepEqual(room, layout);
     for (const object of room.objects) {
       const b = object.bounds;
@@ -16,7 +16,7 @@ test("fine room exposes the same machine-readable landmarks used by the renderer
       assert.ok(object.name);
       assert.ok(Array.isArray(object.actions));
     }
-    for (const id of ["bed", "light", "fridge", "diary", "album", "curtain"])
+    for (const id of ["bed", "light", "fridge", "diary", "album", "curtain", "backpack"])
       assert.ok(room.objects.find((o) => o.id === id)?.actions.length);
     for (const p of room.walkPath)
       for (const o of room.objects.filter((o) =>

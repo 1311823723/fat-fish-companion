@@ -1,4 +1,4 @@
-import roomLayout from "../../public/assets/room-layout-v4.json" with { type: "json" };
+import roomLayout from "../../public/assets/room-layout-v5.json" with { type: "json" };
 import { randomUUID } from "node:crypto";
 import { freezeScene } from "./scene.mjs";
 import { departureNote } from "./note.mjs";
