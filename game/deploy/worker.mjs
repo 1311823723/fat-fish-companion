@@ -4,6 +4,8 @@ const api = new Set([
   "/api/room-identity",
   "/api/room-challenge",
   "/api/room-history",
+  "/api/room-visits",
+  "/api/room-messages",
   "/api/room-chat",
   "/api/room-action",
   "/api/room-logout",

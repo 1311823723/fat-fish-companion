@@ -18,8 +18,15 @@
         </div>
         <button id="settings" aria-label="小屋设置">设置</button>
       </header>
+      <form id="quickChatForm" class="quick-chat" aria-label="快捷聊天">
+        <input id="quickChatInput" maxlength="500" placeholder="和肥鱼说句话…" aria-label="快捷聊天内容" />
+        <button id="quickChatSend">发送</button>
+      </form>
+      <label id="notifyChoice" class="notify-choice" hidden><input type="checkbox" id="notifyMe" /> 回复后通过 QQ 提醒我（需在私聊白名单）</label>
       <section id="game" aria-label="互动小屋">
         <p class="loading">打开小屋…</p>
+        <div id="roomReply" class="room-reply" role="status" aria-live="polite" hidden></div>
+        <button id="memoryCorner" class="memory-corner" aria-label="看看旅行纪念" hidden><img id="memoryCornerPhoto" alt="" hidden /><span id="memoryCornerLabel">旅行纪念</span></button>
       </section>
       <div class="room-info">
         <span id="clock"></span><span id="weather"></span
@@ -56,7 +63,7 @@
       <section class="chat">
         <div class="chat-heading">
           <h2>和她说说话</h2>
-          <button id="identity">做客</button>
+          <div><button id="messageBoard">我的留言</button> <button id="identity">做客</button></div>
         </div>
         <div id="chatLog" aria-live="polite"></div>
         <form id="chatForm">

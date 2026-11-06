@@ -98,6 +98,17 @@ function render(w: World) {
     : joined
       ? "访客 · 验证QQ"
       : "做客";
+  $("notifyChoice").hidden = !(identity.verified && w.travel.phase === "away");
+  const souvenir = w.souvenirs?.at(-1), photo = souvenir ? w.photos?.find((p:any)=>p.photoId===souvenir.tripId) : w.photos?.at(-1);
+  $("memoryCorner").hidden = !souvenir && !photo;
+  $("memoryCornerLabel").textContent = souvenir?.label || "旅行留影";
+  const cornerImage = $<HTMLImageElement>("memoryCornerPhoto");
+  cornerImage.onerror = () => { cornerImage.hidden = true; };
+  cornerImage.hidden = !photo;
+  if (photo) {
+    const src = `/room-photo/${photo.photoId}/thumb?v=${encodeURIComponent(photo.assetVersion || "original")}`;
+    if (cornerImage.getAttribute("src") !== src) cornerImage.src = src;
+  }
   $("curtain").setAttribute(
     "aria-pressed",
     String(w.furnishings.curtainClosed),
@@ -204,7 +215,14 @@ const arcadeUI = createArcadeUI({
     return false;
   },
 });
-$("television").onclick = () => arcadeUI.open();
+$("television").onclick = () => {
+  if (world?.travel.phase === "away") {
+    notice("肥鱼出门玩啦，等她回来再一起玩。");
+    showRoomReply("出门玩啦，回来再一起玩！", 8000);
+    return;
+  }
+  arcadeUI.open();
+};
 game.events.once("room-ready", () => {
   document.querySelector(".loading")?.remove();
   if (world) room.sync(world);
@@ -402,17 +420,15 @@ $("souvenirs").onclick = () => {
     body.append(element("p", "还没有带回小东西。"));
     return;
   }
-  for (const s of [...world.souvenirs].reverse())
-    body.append(
-      element(
-        "p",
-        s.label +
-          " · " +
-          new Date(s.at).toLocaleDateString("zh-CN", {
-            timeZone: "Asia/Shanghai",
-          }),
-      ),
-    );
+  for (const s of [...world.souvenirs].reverse()) {
+    const card = element("article", "", "message-entry"), photo=world.photos?.find((p:any)=>p.photoId===s.tripId);
+    card.append(element("p", s.label), element("small", (s.place ? s.place+" · " : "")+new Date(s.at).toLocaleDateString("zh-CN", {timeZone:"Asia/Shanghai"}), "subtle"));
+    if (photo) { const image=element("img"); image.src=`/room-photo/${photo.photoId}/thumb?v=${encodeURIComponent(photo.assetVersion||"original")}`; image.alt="旅行照片"; image.loading="lazy"; image.className="souvenir-photo"; image.onerror=()=>{image.hidden=true;}; card.append(image,element("p",photo.caption||"")); }
+    body.append(card);
+  }
+};
+$("memoryCorner").onclick = () => {
+  if (world?.souvenirs?.length) $("souvenirs").click(); else $("album").click();
 };
 $("note")?.addEventListener("click", () => {});
 const noteButton = element("button");
@@ -547,11 +563,12 @@ async function identityPanel() {
     return;
   }
   const choices = element("div", "", "entry-choices"),
+    register = element("button", "登记QQ进入", "entry-primary"),
     verify = element("button", "QQ验证", "entry-primary"),
     guest = element("button", "访客进入");
-  choices.append(verify, guest);
+  choices.append(register, verify, guest);
   body.append(
-    element("p", "验证QQ，接上你们之前的聊天。也可以先来做客。", "subtle"),
+    element("p", "登记QQ可记录来访；验证后才能关联QQ的私人记忆。", "subtle"),
     choices,
   );
   const form = element("form", "", "verify-form"),
@@ -564,6 +581,7 @@ async function identityPanel() {
   input.pattern = "[1-9][0-9]{4,11}";
   input.required = true;
   const enter = element("button", "获取验证语句");
+  let registerOnly = false;
   enter.type = "submit";
   form.append(input, enter);
   const status = element("p", "", "subtle");
@@ -572,8 +590,17 @@ async function identityPanel() {
   instructions.hidden = true;
   body.append(form, instructions, status);
   verify.onclick = () => {
+    registerOnly = false;
+    enter.textContent = "获取验证语句";
     form.hidden = false;
     verify.setAttribute("aria-pressed", "true");
+    input.focus();
+  };
+  register.onclick = () => {
+    registerOnly = true;
+    enter.textContent = "登记并进入";
+    form.hidden = false;
+    register.setAttribute("aria-pressed", "true");
     input.focus();
   };
   guest.onclick = async () => {
@@ -602,6 +629,14 @@ async function identityPanel() {
       if (g !== generation) return;
       identity = r.identity;
       joined = true;
+      if (registerOnly) {
+        panel.close();
+        await sync();
+        await history();
+        render(world);
+        notice("已登记来访；QQ私人记忆仍需验证。 ");
+        return;
+      }
       const challenge = await api("challenge");
       if (g !== generation) return;
       instructions.replaceChildren();
@@ -661,47 +696,120 @@ async function identityPanel() {
   };
 }
 $("identity").onclick = () => void identityPanel();
+$("messageBoard").onclick = async () => {
+  if (!joined) { void identityPanel(); return; }
+  const g = open("我的留言");
+  const draw = async () => {
+    const data = await api("messages");
+    if (g !== generation) return;
+    body.replaceChildren();
+    if (!data.entries.length) body.append(element("p", "还没有留过言。", "subtle"));
+    for (const item of data.entries) {
+      const card=element("article", "", "message-entry");
+      const status: Record<string,string> = {pending:"等她回家",working:"她正在读",done:"已回复",failed:"回复失败",uncertain:"回复状态待确认"};
+      card.append(element("small", `${new Date(item.at).toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false})} · ${status[item.status] || "处理中"}`, "subtle"), element("p",item.text));
+      if (item.answer) card.append(element("p", "肥鱼：" + item.answer));
+      if (item.status === "failed") {
+        const retry=element("button","再试一次");
+        retry.onclick=async()=>{retry.disabled=true;try{await api("messages",{retryId:item.id});await draw();}catch(e){notice((e as Error).message);retry.disabled=false;}};
+        card.append(retry);
+      }
+      if (item.status === "uncertain") card.append(element("small", "回复可能已经送达，请先查看聊天记录。", "subtle"));
+      body.append(card);
+    }
+  };
+  try { await draw(); } catch(e) { if(g===generation) body.replaceChildren(element("p",(e as Error).message,"subtle")); }
+};
 function bubble(role: string, text: string) {
   $("chatLog").append(element("div", text, "bubble " + role));
   $("chatLog").scrollTop = $("chatLog").scrollHeight;
 }
+let hasQueuedMessages = false;
+let lastHistoryAnswer = "";
+let historyRefreshing = false;
 async function history() {
   try {
     const r = await api("history");
     identity = r.identity;
     joined = r.entered !== false;
     $("chatLog").replaceChildren();
-    for (const m of r.messages) bubble(m.role, m.text);
+    const latestAnswer = [...r.messages].reverse().find((m: any) => m.role === "assistant");
+    if (hasQueuedMessages && latestAnswer?.id && latestAnswer.id !== lastHistoryAnswer) showRoomReply(latestAnswer.text, 20000);
+    lastHistoryAnswer = latestAnswer?.id || "";
+    hasQueuedMessages = r.messages.some((m: any) => m.pending === "pending" || m.pending === "working");
+    for (const m of r.messages) bubble(m.role, m.text + (m.pending === "pending" || m.pending === "working" ? "（留言，等她回来）" : m.pending === "uncertain" ? "（暂未确认回复，请稍后查看）" : ""));
   } catch {
     joined = false;
   }
 }
+setInterval(() => {
+  if (!document.hidden && joined && hasQueuedMessages && world?.travel.phase !== "away" && !historyRefreshing) {
+    historyRefreshing = true;
+    void history().finally(() => { historyRefreshing = false; });
+  }
+}, 6000);
 let chatPending: { text: string; id: string } | null = null;
-$<HTMLFormElement>("chatForm").onsubmit = async (e) => {
-  e.preventDefault();
+let chatBusy = false;
+let replyTimer: ReturnType<typeof setTimeout> | undefined;
+const roomReply = $("roomReply");
+function positionReply() {
+  if (roomReply.hidden) return;
+  const gameBox = $("game");
+  const bounds = room.pet?.visible ? room.pet.getBounds() : null;
+  const x = bounds ? (bounds.centerX / 600) * gameBox.clientWidth : gameBox.clientWidth / 2;
+  const y = bounds ? (bounds.top / 800) * gameBox.clientHeight - 8 : gameBox.clientHeight * 0.2;
+  const half = roomReply.offsetWidth / 2 + 8;
+  roomReply.style.left = `${Math.max(half, Math.min(gameBox.clientWidth - half, x))}px`;
+  roomReply.style.top = `${Math.max(roomReply.offsetHeight + 8, y)}px`;
+  requestAnimationFrame(positionReply);
+}
+function showRoomReply(text: string, duration = 0) {
+  clearTimeout(replyTimer);
+  const wasHidden = roomReply.hidden;
+  roomReply.textContent = text;
+  roomReply.hidden = false;
+  if (wasHidden) requestAnimationFrame(positionReply);
+  if (duration) replyTimer = setTimeout(() => { roomReply.hidden = true; }, duration);
+}
+async function sendChat(input: HTMLInputElement) {
+  if (chatBusy) return;
   if (!joined) {
     void identityPanel();
     return;
   }
-  const input = $<HTMLInputElement>("chatInput"),
-    text = input.value.trim();
+  const text = input.value.trim();
   if (!text) return;
-  const b = $<HTMLButtonElement>("chatSend");
-  b.disabled = true;
+  chatBusy = true;
+  const buttons = [$<HTMLButtonElement>("chatSend"), $<HTMLButtonElement>("quickChatSend")];
+  buttons.forEach((b) => { b.disabled = true; });
   const id = chatPending?.text === text ? chatPending.id : newRequestId();
   if (!chatPending || chatPending.id !== id) bubble("user", text);
   chatPending = { text, id };
+  showRoomReply(world?.travel.phase === "away" ? "正在放好留言…" : "让我想想…");
   try {
-    const r = await api("chat", { text, requestId: id });
-    bubble("assistant", r.message.text);
-    input.value = "";
+    const r = await api("chat", { text, requestId: id, notifyMe: !!identity.verified && !$<HTMLElement>("notifyChoice").hidden && $<HTMLInputElement>("notifyMe").checked });
+    if (r.queued) {
+      hasQueuedMessages = true;
+      showRoomReply("留言放好了，等肥鱼回来再回复。", 10000);
+      void history();
+    } else {
+      bubble("assistant", r.message.text);
+      lastHistoryAnswer = r.message.id || lastHistoryAnswer;
+      showRoomReply(r.message.text, Math.max(12000, Math.min(45000, r.message.text.length * 500)));
+    }
+    if (input.value.trim() === text) input.value = "";
     chatPending = null;
   } catch (e) {
     notice((e as Error).message);
+    showRoomReply("刚才没听清，再发一次试试？", 10000);
   } finally {
-    b.disabled = false;
+    chatBusy = false;
+    buttons.forEach((b) => { b.disabled = false; });
   }
-};
+}
+for (const [form, input] of [["chatForm", "chatInput"], ["quickChatForm", "quickChatInput"]]) {
+  $<HTMLFormElement>(form).onsubmit = (e) => { e.preventDefault(); void sendChat($<HTMLInputElement>(input)); };
+}
 $("settings").onclick = () => {
   open("小屋设置");
   const line = element("label", "", "settings-row"),
@@ -717,4 +825,24 @@ $("settings").onclick = () => {
   };
   line.append(input, element("span", "30 FPS 节能模式"));
   body.append(line);
+  if (identity.canReadDiary) {
+    const visitButton = element("button", "来访记录");
+    visitButton.onclick = async () => {
+      const g = open("来访记录");
+      body.append(element("p", "正在翻找…", "subtle"));
+      try {
+        const data = await api("visits");
+        if (g !== generation) return;
+        body.replaceChildren(element("p", `今天 ${data.total} 次来访，其中 ${data.guests} 次访客`, "subtle"));
+        const list = element("div", "", "visit-list");
+        for (const visit of data.records) {
+          const time = new Date(visit.at).toLocaleString("zh-CN", {timeZone:"Asia/Shanghai",hour12:false});
+          list.append(element("p", `${time} · ${visit.qq ? `QQ ${visit.qq}${visit.verified ? "（已验证）" : "（自填，未验证）"}` : "访客"}`));
+        }
+        if (!data.records.length) list.append(element("p", "还没有来访记录。", "subtle"));
+        body.append(list);
+      } catch (e) { if (g === generation) body.replaceChildren(element("p", (e as Error).message, "subtle")); }
+    };
+    body.append(visitButton);
+  }
 };

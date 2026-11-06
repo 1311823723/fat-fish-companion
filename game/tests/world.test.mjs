@@ -37,6 +37,16 @@ test("offline settlement is capped to 8h, food restores hunger, no relation chan
   assert.ok(w.hunger > 60 && w.hunger < 62);
   assert.equal(w.feeding.length, 0);
 });
+test('old stock is not falsely attributed and new food retains its verified contributor',()=>{
+  const w=initial(noon), events=[];w.stock.tomato=1;
+  apply(w,{type:'restock',requestId:'food-request-1',args:{item:'tomato'}},{id:'v',verifiedQQ:'123456789'},noon,events);
+  apply(w,{type:'activity',args:{name:'eat'}},{id:'v'},noon+1,events);
+  assert.equal(w.mealHistory.at(-1).giver,undefined);
+  apply(w,{type:'activity',args:{name:'eat'}},{id:'v'},noon+2,events);
+  assert.equal(w.mealHistory.at(-1).giver.qq,'123456789');
+  assert.equal(w.foodPreferences.tomato,2);
+  assert.ok(!JSON.stringify(publicWorld(w,noon+3)).includes('123456789'));
+});
 test("invalid/missing intent stays home; travel needs food and has own intent", () => {
   const w = initial(noon),
     ev = [];

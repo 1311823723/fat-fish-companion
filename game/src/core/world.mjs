@@ -81,12 +81,27 @@ export function initial(now = Date.now()) {
 export function event(events, type, data, at) {
   events.push({ id: randomUUID(), type, at, data });
 }
+function takeGiver(w, item) {
+  w.foodLots ??= [];
+  w.foodUnattributed ??= { ...w.stock };
+  let giver = null;
+  if ((w.foodUnattributed[item] || 0) > 0) w.foodUnattributed[item]--;
+  else {
+    const index = w.foodLots.findIndex(x => x.item === item);
+    if (index >= 0) giver = w.foodLots.splice(index, 1)[0].giver || null;
+  }
+  return giver;
+}
 function consume(w, item, events, at, automatic = false) {
   const entry = MENU.find((x) => x[0] === item);
   if (!entry || !w.stock[item]) throw Error("没有可用的食物");
+  const giver = takeGiver(w, item);
   w.stock[item]--;
   w.hunger = clamp(w.hunger + entry[2]);
   w.lastMealAt = at;
+  w.foodPreferences ??= {};
+  w.foodPreferences[item] = Math.min(20, (w.foodPreferences[item] || 0) + 1);
+  w.mealHistory = [...(w.mealHistory || []), { item, label:entry[1], at, automatic, ...(giver ? {giver} : {}) }].slice(-50);
   event(events, "meal", { item, label: entry[1], automatic }, at);
 }
 function arrive(w, events, at) {
@@ -104,7 +119,7 @@ function arrive(w, events, at) {
     w.recentScenes = [...w.recentScenes, trip.photoScene].slice(-5);
   }
   if (trip.souvenir) {
-    const s = { ...trip.souvenir, tripId: trip.id, at };
+    const s = { ...trip.souvenir, tripId: trip.id, place:trip.place.label, at };
     if (!w.souvenirs.some((x) => x.tripId === trip.id)) w.souvenirs.push(s);
   }
   w.travel.pending.push(trip);
@@ -145,6 +160,9 @@ export function settle(w, now, events) {
     ) {
       trip.food.consumedAt = next;
       w.hunger = clamp(w.hunger + 30);
+      w.foodPreferences ??= {};
+      w.foodPreferences[trip.food.id] = Math.min(20,(w.foodPreferences[trip.food.id] || 0)+1);
+      w.mealHistory = [...(w.mealHistory || []),{item:trip.food.id,label:trip.food.label,at:next,automatic:true,...(trip.food.giver?{giver:trip.food.giver}:{})}].slice(-50);
       event(
         events,
         "travel_meal",
@@ -158,9 +176,10 @@ export function settle(w, now, events) {
       !(w.activity.manual && w.activity.until > cursor) &&
       w.hunger < 35
     ) {
-      const food =
-        MENU.find(([id, , gain]) => gain === 30 && w.stock[id] > 0) ||
-        MENU.find(([id, , gain]) => gain >= 10 && w.stock[id] > 0);
+      const meals = MENU.filter(([id, , gain]) => gain === 30 && w.stock[id] > 0);
+      const choices = meals.length ? meals : MENU.filter(([id, , gain]) => gain >= 10 && w.stock[id] > 0);
+      const weighted = choices.flatMap(item => Array(3 + Math.min(3, w.foodPreferences?.[item[0]] || 0)).fill(item));
+      const food = weighted.length ? weighted[Math.floor(next / 60000) % weighted.length] : null;
       if (food) {
         consume(w, food[0], events, next, true);
         w.activity = {
@@ -256,7 +275,10 @@ export function apply(w, command, actor, now, events) {
     }
     if (Object.values(w.stock).reduce((a, b) => a + b, 0) >= 12)
       throw Error("冰箱已经放满啦");
+    w.foodLots ??= [];
+    w.foodUnattributed ??= { ...w.stock };
     w.stock[args.item] = (w.stock[args.item] || 0) + 1;
+    w.foodLots.push({item:args.item, giver:actor.verifiedQQ ? {type:'verified',qq:actor.verifiedQQ} : {type:'guest'}});
     w.feeding.push({
       id: command.requestId,
       at: now,
@@ -394,6 +416,7 @@ export function apply(w, command, actor, now, events) {
         ? MENU.find(([id, , gain]) => gain === 30 && w.stock[id] > 0)
         : null;
     if (place.min >= 45 && !packed) return;
+    const packedGiver = packed ? takeGiver(w, packed[0]) : null;
     if (packed) w.stock[packed[0]]--;
     const id = randomUUID(),
       backpack = [...w.backpack];
@@ -420,7 +443,7 @@ export function apply(w, command, actor, now, events) {
       },
       backpack,
       food: packed
-        ? { id: packed[0], label: packed[1] }
+        ? { id: packed[0], label: packed[1], ...(packedGiver ? { giver: packedGiver } : {}) }
         : { id: "none", label: "没有带饭" },
       departedAt: now,
       returnAt: now + duration,

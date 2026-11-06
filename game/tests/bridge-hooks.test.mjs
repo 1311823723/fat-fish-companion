@@ -50,3 +50,9 @@ test("queued QQ transport rechecks whitelist after asynchronous state refresh", 
     hooks.stop();
   }
 });
+test('optional message notice rechecks whitelist when queued send executes',async()=>{
+  let allowed=true, send=0, queued;
+  const core={tick:async cb=>cb.sendNotice('private:123456789','我回来啦')};
+  const hooks=startGameBridge(core,{weather:{}},{cfg:{allow:{private:['123456789']}},active:()=>true,isAllowed:()=>allowed,isBusy:()=>false,lastIncomingAt:()=>0,generate:()=>'',enqueue:fn=>{queued=fn;return Promise.resolve();},captureGuard:()=>()=>{},record:()=>{},fetcher:async()=>{send++;return {ok:true,json:async()=>({status:'ok',retcode:0})};}});
+  try{await hooks.tick();allowed=false;await assert.rejects(queued);assert.equal(send,0);}finally{hooks.stop();}
+});

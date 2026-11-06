@@ -9,9 +9,12 @@ import { Store } from "./core/store.mjs";
 import { config, ROOT } from "./config.mjs";
 import { Weather } from "./weather.mjs";
 import { safeDrawingFailure } from "./drawing.mjs";
+import { LeaveMessages } from "./core/leave-messages.mjs";
+import { Visits } from "./core/visits.mjs";
 export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   fs.mkdirSync(path.join(ROOT, "state"), { recursive: true });
   store ??= new Store(path.resolve(ROOT, c.database || "state/world.db"));
+  const visits = new Visits(store);
   store.arcade.reviewAvailable = !!c.bridge?.enabled;
   store.drawingFallback =
     (c.drawing?.provider || "gpt") === "gpt" &&
@@ -42,6 +45,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
       headers: {
         "content-type": "application/json",
         cookie: req.headers.cookie || "",
+        ...(route === 'chat' || route === 'history' ? { 'x-game-legacy': c.relaySecret || '' } : {}),
       },
       body: JSON.stringify(body),
       redirect: "error",
@@ -85,6 +89,10 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
       ? { id: hash, identity: { verified: false } }
       : null;
   }
+  const leaveMessages = c.bridge?.enabled ? new LeaveMessages(store, c.adapterSecret, async (cookie, body) => {
+    const result = await legacy({ headers: { cookie } }, 'chat', body);
+    return result.body;
+  }) : null;
   const headers = {
     "cache-control": "no-store",
     "x-content-type-options": "nosniff",
@@ -130,6 +138,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
             world: { ...store.raw(), drawing: store.drawingState() },
             public: publicState,
             arcade: store.arcade.personal(),
+            visits: visits.recent(),
           });
           return;
         }
@@ -177,7 +186,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
           return;
         }
         if (url.pathname === "/internal/outbox/claim") {
-          if (!["share", "decision", "photo", "arcade-review"].includes(b.kind))
+          if (!["share", "decision", "photo", "arcade-review", "leave-notify"].includes(b.kind))
             throw Error("类型错误");
           json({
             ok: true,
@@ -234,10 +243,28 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         }
         const body = JSON.parse(raw || "{}");
         const route = url.pathname.slice("/api/room-".length);
+        if (route === 'messages') {
+          const a = await actor(req);
+          if (!a || !leaveMessages) {json({ok:false,error:'请先进入小屋'},401);return;}
+          const actorKey = a.verifiedQQ ? 'qq:' + a.verifiedQQ : 'guest:' + a.id;
+          if (body.retryId) leaveMessages.retry(actorKey,String(body.retryId));
+          json({ok:true,entries:leaveMessages.list(actorKey)});
+          return;
+        }
+        if (route === 'visits') {
+          const a = await actor(req);
+          if (!a?.identity?.canReadDiary) { json({ok:false,error:'仅已验证的主人可查看来访记录'},403); return; }
+          json({ok:true,...visits.recent()});
+          return;
+        }
         if (["arcade", "arcade-view", "arcade-action"].includes(route)) {
           const a = await actor(req);
           if (!a) {
             json({ ok: false, error: "先进入小屋，再来玩。" }, 401);
+            return;
+          }
+          if (store.snapshot().travel.phase === 'away') {
+            json({ok:false,error:'肥鱼出门玩啦，等她回来再一起玩。'}, 409);
             return;
           }
           json(
@@ -262,6 +289,22 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
           ].includes(route)
         ) {
           if (c.bridge?.enabled) {
+            if (route === 'chat' || route === 'history') {
+              const a = await actor(req);
+              if (!a) { json({ok:false,error:'先进入小屋'}, 401); return; }
+              const actorKey = a.verifiedQQ ? 'qq:' + a.verifiedQQ : 'guest:' + a.id;
+              if (route === 'chat' && store.snapshot().travel.phase === 'away') {
+                leaveMessages.add(actorKey, req.headers.cookie || '', body, a.verifiedQQ);
+                json({ok:true, queued:true, message:{role:'assistant',text:'留言收到啦，等肥鱼回来再回复。'}});
+                return;
+              }
+              if (route === 'history') {
+                const r = await legacy(req, route, body);
+                if (r.body.ok) r.body.messages = [...(r.body.messages || []), ...leaveMessages.waiting(actorKey)].sort((x,y) => (x.at || 0) - (y.at || 0)).slice(-30);
+                json(r.body, r.status, r.cookie ? {'set-cookie':r.cookie} : {});
+                return;
+              }
+            }
             if (
               ["history", "identity"].includes(route) &&
               !(await actor(req))
@@ -320,6 +363,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         }
         if (route === "state") {
           const a = await actor(req);
+          if (a) visits.record(a.id, a.identity);
           json({
             ...store.snapshot(),
             entered: !!a,
@@ -537,12 +581,15 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   const weather = new Weather(c.weather, store);
   const arcadeTimer = setInterval(() => {
     try {
-      store.arcade.settleDue();
+      const trip = store.raw().travel.current;
+      if (!trip || trip.returnAt <= store.clock()) store.arcade.settleDue();
     } catch {
       console.warn("[arcade] 回合恢复稍后重试");
     }
   }, 250);
   arcadeTimer.unref();
+  const leaveTimer = setInterval(() => { if (leaveMessages) void leaveMessages.process().catch(() => {}); }, 5000);
+  leaveTimer.unref();
   weather.start();
   let drawing = false;
   const photoTimer = setInterval(async () => {
@@ -601,6 +648,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   photoTimer.unref();
   server.on("close", () => {
     clearInterval(arcadeTimer);
+    clearInterval(leaveTimer);
     clearInterval(tick);
     clearInterval(photoTimer);
     weather.stop();

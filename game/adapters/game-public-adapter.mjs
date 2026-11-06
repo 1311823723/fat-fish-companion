@@ -34,6 +34,10 @@ export async function routeGame(req, res, { root }) {
   const c = settings(root);
   if (!c) return false;
   const u = new URL(req.url, "http://localhost");
+  if (['/api/room-chat', '/api/room-history'].includes(u.pathname) && req.headers['x-game-legacy']) {
+    const a = Buffer.from(String(req.headers['x-game-legacy'])), b = Buffer.from(c.relaySecret || '');
+    if (b.length >= 32 && a.length === b.length && crypto.timingSafeEqual(a, b)) return false;
+  }
   if (u.pathname === "/room-legacy") {
     req.url = "/room";
     return false;
@@ -45,6 +49,10 @@ export async function routeGame(req, res, { root }) {
     "/favicon.ico",
     "/api/room-state",
     "/api/room-action",
+    "/api/room-chat",
+    "/api/room-history",
+    "/api/room-visits",
+    "/api/room-messages",
     "/api/room-arcade",
     "/api/room-arcade-view",
     "/api/room-arcade-action",
