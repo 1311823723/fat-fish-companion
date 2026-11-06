@@ -53,6 +53,7 @@ export async function routeGame(req, res, { root }) {
     "/api/room-history",
     "/api/room-visits",
     "/api/room-messages",
+    "/api/room-board",
     "/api/room-arcade",
     "/api/room-arcade-view",
     "/api/room-arcade-action",

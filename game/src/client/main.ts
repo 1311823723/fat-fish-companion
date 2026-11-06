@@ -42,7 +42,7 @@ function element<K extends keyof HTMLElementTagNameMap>(
   return e;
 }
 function open(title: string) {
-  panel.classList.remove("diary-mode", "arcade-mode");
+  panel.classList.remove("diary-mode", "arcade-mode", "board-mode");
   generation++;
   $("panelTitle").textContent = title;
   body.replaceChildren();
@@ -689,6 +689,71 @@ async function identityPanel() {
   };
 }
 $("identity").onclick = () => void identityPanel();
+$("publicBoardButton").onclick = () => {
+  const g = open("小屋留言板");
+  panel.classList.add("board-mode");
+  const intro = element("p", "留言会公开给来小屋的人，请不要填写私人信息。", "board-intro"),
+    form = element("form", "", "board-compose"),
+    input = element("textarea"),
+    footer = element("div", "", "board-compose-footer"),
+    tip = element("small", "给肥鱼留句话吧"),
+    send = element("button", "公开留言"),
+    status = element("p", "", "board-notice"),
+    feed = element("div", "", "board-feed");
+  input.placeholder = "想说什么？"; input.maxLength = 240; input.setAttribute("aria-label", "公开留言内容");
+  send.type = "submit"; status.setAttribute("role", "status");
+  footer.append(tip, send); form.append(input, footer); body.append(intro, form, status, feed);
+  let entries:any[] = [], cursor:string|null = null, pages = 1, loading = false, pending:{text:string,id:string}|null = null;
+  const draw = () => {
+    feed.replaceChildren();
+    if (!entries.length) feed.append(element("p", "还没有留言，来坐坐吧。", "board-intro"));
+    for (const post of entries) {
+      const row=element("article", "", "board-post"), avatar=element("span", post.author === "访客" ? "客" : "Q", "board-avatar"), content=element("div");
+      const heading=element("div", "", "board-author"), time=element("time", new Date(post.at).toLocaleString("zh-CN", {timeZone:"Asia/Shanghai",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}), "board-time");
+      heading.append(document.createTextNode(post.author), time); content.append(heading, element("p", post.text, "board-text"));
+      if(post.replyStatus === "done") {
+        const reply=element("div", "", "board-reply");reply.append(element("strong", "大肥鱼："), document.createTextNode(post.reply));content.append(reply);
+      } else {
+        const state=post.replyStatus === "failed" ? "回复暂时没接上" : post.replyStatus === "working" ? "肥鱼正在回复…" : world?.travel.phase === "away" ? "等肥鱼回家后回复" : "等肥鱼来回复";
+        content.append(element("p", state, "board-reply pending"));
+      }
+      if(post.canManage) {
+        const actions=element("div", "", "board-actions");
+        if(post.replyStatus === "failed") {
+          const retry=element("button", "重试回复");retry.type="button";
+          retry.onclick=async()=>{retry.disabled=true;try{await api("board",{op:"retry",id:post.id});await refresh();}catch(e){status.textContent=(e as Error).message;retry.disabled=false;}};actions.append(retry);
+        }
+        const remove=element("button", "删除");remove.type="button";
+        remove.onclick=async()=>{if(!window.confirm("删除这条公开留言？"))return;remove.disabled=true;try{await api("board",{op:"delete",id:post.id});entries=entries.filter(x=>x.id!==post.id);draw();}catch(e){status.textContent=(e as Error).message;remove.disabled=false;}};
+        actions.append(remove);content.append(actions);
+      }
+      row.append(avatar,content);feed.append(row);
+    }
+    if(cursor){const more=element("button", "看看更早的留言", "board-more");more.type="button";more.onclick=()=>void loadMore();feed.append(more);}
+  };
+  const refresh = async () => {
+    if(loading || g!==generation || !panel.open)return;
+    loading=true;
+    try { const r=await api("board",{op:"list"});if(g!==generation)return;entries=r.entries||[];cursor=r.nextCursor||null;pages=1;draw(); }
+    catch(e){if(g===generation)status.textContent=(e as Error).message;}
+    finally{loading=false;}
+  };
+  const loadMore = async () => {
+    if(loading||!cursor)return;loading=true;
+    try {const r=await api("board",{op:"list",before:cursor});if(g!==generation)return;const seen=new Set(entries.map(x=>x.id));entries.push(...(r.entries||[]).filter((x:any)=>!seen.has(x.id)));cursor=r.nextCursor||null;pages++;draw();}
+    catch(e){status.textContent=(e as Error).message;}
+    finally{loading=false;}
+  };
+  form.onsubmit=async(e)=>{
+    e.preventDefault();if(!joined){void identityPanel();return;}const text=input.value.trim();if(!text)return;
+    const id=pending?.text===text?pending.id:newRequestId();pending={text,id};send.disabled=true;status.textContent="正在贴上留言…";
+    try {await api("board",{op:"post",text,requestId:id});if(g!==generation)return;if(input.value.trim()===text)input.value="";pending=null;status.textContent="留言已公开。";await refresh();}
+    catch(e){if(g===generation)status.textContent=(e as Error).message;}
+    finally{send.disabled=false;}
+  };
+  void refresh();
+  const timer=setInterval(()=>{if(g!==generation||!panel.open){clearInterval(timer);return;}if(pages===1)void refresh();},10000);
+};
 $("messageBoard").onclick = async () => {
   if (!joined) { void identityPanel(); return; }
   const g = open("我的留言");

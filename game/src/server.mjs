@@ -11,10 +11,12 @@ import { Weather } from "./weather.mjs";
 import { safeDrawingFailure } from "./drawing.mjs";
 import { LeaveMessages } from "./core/leave-messages.mjs";
 import { Visits } from "./core/visits.mjs";
+import { PublicBoard } from "./core/public-board.mjs";
 export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
   fs.mkdirSync(path.join(ROOT, "state"), { recursive: true });
   store ??= new Store(path.resolve(ROOT, c.database || "state/world.db"));
   const visits = new Visits(store);
+  const board = new PublicBoard(store);
   store.arcade.reviewAvailable = !!c.bridge?.enabled;
   store.drawingFallback =
     (c.drawing?.provider || "gpt") === "gpt" &&
@@ -161,7 +163,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
             ok: true,
             jobs: store.db
               .prepare(
-                "SELECT id,kind,payload,due FROM outbox WHERE status='pending' AND due<=? ORDER BY kind='arcade-review',due LIMIT 30",
+                "SELECT id,kind,payload,due FROM outbox WHERE status='pending' AND due<=? ORDER BY kind='board-reply',kind='arcade-review',due LIMIT 30",
               )
               .all(Date.now())
               .map((x) => ({ ...x, payload: JSON.parse(x.payload) })),
@@ -186,7 +188,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
           return;
         }
         if (url.pathname === "/internal/outbox/claim") {
-          if (!["share", "decision", "photo", "arcade-review", "leave-notify", "return-care-plan", "return-care"].includes(b.kind))
+          if (!["share", "decision", "photo", "arcade-review", "leave-notify", "return-care-plan", "return-care", "board-reply"].includes(b.kind))
             throw Error("类型错误");
           json({
             ok: true,
@@ -203,6 +205,8 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
           json({ ok: true, game: store.arcade.reviewJob(b.matchId) });
           return;
         }
+        if (url.pathname === '/internal/board/start') {json({ok:true,post:board.start(String(b.id||''),Number(b.attempt))});return;}
+        if (url.pathname === '/internal/board/finish') {board.finish(String(b.id||''),Number(b.attempt),b.reply);json({ok:true});return;}
         if (url.pathname === "/internal/arcade/review-finish") {
           store.arcade.finishReview(b.matchId, b.text);
           json({ ok: true });
@@ -243,6 +247,14 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
         }
         const body = JSON.parse(raw || "{}");
         const route = url.pathname.slice("/api/room-".length);
+        if (route === 'board') {
+          const a=await actor(req);
+          if(body.op==='list'){json({ok:true,...board.list(a,String(body.before||''))});return;}
+          if(!a){json({ok:false,error:'先进入小屋，再留言'},401);return;}
+          if(body.op==='post'){json({ok:true,id:board.post(a,body)});return;}
+          if(body.op==='delete'||body.op==='retry'){board.manage(a,body);json({ok:true});return;}
+          json({ok:false,error:'留言操作无效'},400);return;
+        }
         if (route === 'messages') {
           const a = await actor(req);
           if (!a || !leaveMessages) {json({ok:false,error:'请先进入小屋'},401);return;}
