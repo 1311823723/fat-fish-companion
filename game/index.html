@@ -14,7 +14,6 @@
       <header>
         <div>
           <h1>大肥鱼的小屋</h1>
-          <p id="place">在家 · 等她伸个懒腰</p>
         </div>
         <button id="settings" aria-label="小屋设置">设置</button>
       </header>
@@ -25,12 +24,17 @@
       <label id="notifyChoice" class="notify-choice" hidden><input type="checkbox" id="notifyMe" /> 回复后通过 QQ 提醒我（需在私聊白名单）</label>
       <section id="game" aria-label="互动小屋">
         <p class="loading">打开小屋…</p>
+        <div class="room-status" aria-label="小屋时间、天气与大肥鱼状态">
+          <time id="clock" class="room-status-clock"></time>
+          <span id="weather" class="room-status-weather">天气同步中</span>
+          <span id="place" class="room-status-place">位置同步中</span>
+          <span id="roomActivity" class="room-status-activity">状态同步中</span>
+        </div>
         <div id="roomReply" class="room-reply" role="status" aria-live="polite" hidden></div>
         <button id="memoryCorner" class="memory-corner" aria-label="看看旅行纪念" hidden><img id="memoryCornerPhoto" alt="" hidden /><span id="memoryCornerLabel">旅行纪念</span></button>
       </section>
       <div class="room-info">
-        <span id="clock"></span><span id="weather"></span
-        ><span id="connection" role="status">连接中</span>
+        <span id="connection" role="status">连接中</span>
       </div>
       <nav class="actions" aria-label="生活互动">
         <button data-activity="walk">走一走</button

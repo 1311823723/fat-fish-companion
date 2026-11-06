@@ -79,19 +79,12 @@ function render(w: World) {
   }
   $("place").textContent =
     w.travel.phase === "away"
-      ? "出门了 · " + w.travel.destination
-      : "在家 · " +
-        ({
-          sleep: "睡觉",
-          walk: "走一走",
-          rest: "歇一会儿",
-          eat: "吃饭",
-          tea: "喝奶茶",
-          read: "翻书",
-          sing: "哼歌",
-        }[w.activity.name as string] || "发呆");
+      ? "外出 · " + (w.travel.destination || w.location || "路上")
+      : "在家 · 小屋";
+  $("roomActivity").textContent = w.travel.phase === "away" ? "出游中" :
+    ({ sleep: "睡觉中", walk: "散步中", rest: "休息中", eat: "吃饭中", tea: "喝东西", read: "翻书中", sing: "哼歌中" }[w.activity.name as string] || "发呆中");
   $("weather").textContent = w.weather.available
-    ? w.weather.city + " " + w.weather.label + " " + w.weather.temperature + "℃"
+    ? w.weather.city + " · " + w.weather.label + " " + w.weather.temperature + "℃" + (w.weather.stale ? "（旧）" : "")
     : "天气暂不可用";
   $("identity").textContent = identity.verified
     ? "已验证QQ"
