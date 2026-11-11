@@ -1,0 +1,232 @@
+{
+  "id": "cream_hoodie",
+  "name": "奶油橙花连帽衫",
+  "photoReference": "reference.png",
+  "photoDescription": "cream zip-up hoodie with orange flower motifs and orange bow, caramel pleated skirt with white ruffle, cream leg warmers, tan shoes, orange flower hair clip and blank neck badge; no hat",
+  "actions": {
+    "eat_rice": {
+      "file": "eat_rice.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 22,
+        "rowStep": 599,
+        "width": 271,
+        "height": 599
+      }
+    },
+    "eat_taiyaki": {
+      "file": "eat_taiyaki.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 683,
+        "width": 271,
+        "height": 683
+      }
+    },
+    "expr_angry": {
+      "file": "expr_angry.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 675,
+        "width": 271,
+        "height": 675
+      }
+    },
+    "expr_sad": {
+      "file": "expr_sad.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 649,
+        "width": 271,
+        "height": 649
+      }
+    },
+    "expr_sleepy": {
+      "file": "expr_sleepy.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 624,
+        "width": 271,
+        "height": 624
+      }
+    },
+    "expr_smile": {
+      "file": "expr_smile.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 12,
+        "rowStep": 635,
+        "width": 271,
+        "height": 635
+      }
+    },
+    "headpat": {
+      "file": "headpat.png",
+      "frames": 8,
+      "fps": 4,
+      "once": true,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 646,
+        "width": 271,
+        "height": 646
+      }
+    },
+    "idle": {
+      "file": "idle.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 12,
+        "rowStep": 614,
+        "width": 271,
+        "height": 614
+      }
+    },
+    "read": {
+      "file": "read.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 666,
+        "width": 271,
+        "height": 666
+      }
+    },
+    "sing": {
+      "file": "sing.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 1,
+        "rowStep": 621,
+        "width": 271,
+        "height": 621
+      }
+    },
+    "sleep": {
+      "file": "sleep.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 59,
+        "rowStep": 534,
+        "width": 271,
+        "height": 534
+      }
+    },
+    "spin": {
+      "file": "spin.png",
+      "frames": 8,
+      "fps": 6,
+      "once": true,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 655,
+        "width": 271,
+        "height": 655
+      }
+    },
+    "tea": {
+      "file": "tea.png",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 656,
+        "width": 271,
+        "height": 656
+      }
+    },
+    "wake": {
+      "file": "wake.png",
+      "frames": 8,
+      "fps": 6,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 25,
+        "rowStep": 609,
+        "width": 271,
+        "height": 609
+      }
+    },
+    "walk_left": {
+      "file": "walk_left.png",
+      "frames": 8,
+      "fps": 8,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 89,
+        "rowStep": 504,
+        "width": 271,
+        "height": 504
+      }
+    },
+    "walk_right": {
+      "file": "walk_right.png",
+      "frames": 8,
+      "fps": 8,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 24,
+        "rowStep": 583,
+        "width": 271,
+        "height": 583
+      }
+    }
+  }
+}

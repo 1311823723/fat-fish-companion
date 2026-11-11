@@ -467,6 +467,238 @@
       },
       "photoDescription": "navy whale hood with water spout, white fur trim, blue and white striped scarf and navy winter coat with whale motifs",
       "photoReference": "/assets/outfits/whale_hood/reference.png"
+    },
+    {
+      "id": "cream_hoodie",
+      "name": "奶油橙花连帽衫",
+      "actions": {
+        "idle": {
+          "file": "/assets/outfits/cream_hoodie/idle.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 12,
+            "rowStep": 614,
+            "width": 271,
+            "height": 614
+          }
+        },
+        "walk_left": {
+          "file": "/assets/outfits/cream_hoodie/walk_left.png",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 89,
+            "rowStep": 504,
+            "width": 271,
+            "height": 504
+          }
+        },
+        "walk_right": {
+          "file": "/assets/outfits/cream_hoodie/walk_right.png",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 24,
+            "rowStep": 583,
+            "width": 271,
+            "height": 583
+          }
+        },
+        "sleep": {
+          "file": "/assets/outfits/cream_hoodie/sleep.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 59,
+            "rowStep": 534,
+            "width": 271,
+            "height": 534
+          }
+        },
+        "wake": {
+          "file": "/assets/outfits/cream_hoodie/wake.png",
+          "frames": 8,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 25,
+            "rowStep": 609,
+            "width": 271,
+            "height": 609
+          }
+        },
+        "tea": {
+          "file": "/assets/outfits/cream_hoodie/tea.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 0,
+            "rowStep": 656,
+            "width": 271,
+            "height": 656
+          }
+        },
+        "eat_taiyaki": {
+          "file": "/assets/outfits/cream_hoodie/eat_taiyaki.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 0,
+            "rowStep": 683,
+            "width": 271,
+            "height": 683
+          }
+        },
+        "expr_smile": {
+          "file": "/assets/outfits/cream_hoodie/expr_smile.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 12,
+            "rowStep": 635,
+            "width": 271,
+            "height": 635
+          }
+        },
+        "expr_sad": {
+          "file": "/assets/outfits/cream_hoodie/expr_sad.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 0,
+            "rowStep": 649,
+            "width": 271,
+            "height": 649
+          }
+        },
+        "expr_angry": {
+          "file": "/assets/outfits/cream_hoodie/expr_angry.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 0,
+            "rowStep": 675,
+            "width": 271,
+            "height": 675
+          }
+        },
+        "expr_sleepy": {
+          "file": "/assets/outfits/cream_hoodie/expr_sleepy.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 0,
+            "rowStep": 624,
+            "width": 271,
+            "height": 624
+          }
+        },
+        "read": {
+          "file": "/assets/outfits/cream_hoodie/read.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 0,
+            "rowStep": 666,
+            "width": 271,
+            "height": 666
+          }
+        },
+        "sing": {
+          "file": "/assets/outfits/cream_hoodie/sing.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 1,
+            "rowStep": 621,
+            "width": 271,
+            "height": 621
+          }
+        },
+        "eat_rice": {
+          "file": "/assets/outfits/cream_hoodie/eat_rice.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 22,
+            "rowStep": 599,
+            "width": 271,
+            "height": 599
+          }
+        },
+        "headpat": {
+          "file": "/assets/outfits/cream_hoodie/headpat.png",
+          "frames": 8,
+          "fps": 4,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 0,
+            "rowStep": 646,
+            "width": 271,
+            "height": 646
+          }
+        },
+        "spin": {
+          "file": "/assets/outfits/cream_hoodie/spin.png",
+          "frames": 8,
+          "fps": 6,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 0,
+            "rowStep": 655,
+            "width": 271,
+            "height": 655
+          }
+        }
+      },
+      "photoDescription": "cream zip-up hoodie with orange flower motifs and orange bow, caramel pleated skirt with white ruffle, cream leg warmers, tan shoes, orange flower hair clip and blank neck badge; no hat",
+      "photoReference": "/assets/outfits/cream_hoodie/reference.png"
     }
   ]
 }

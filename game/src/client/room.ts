@@ -819,7 +819,7 @@ export class Room extends Phaser.Scene {
       } else this.pet.play(key);
       document.getElementById("game")!.dataset.animation = key;
     }
-    this.pet.setPosition(this.x, this.y).setScale(scale*(this.manifest[key].grid?256/this.manifest[key].grid.width:1)).setDepth(4);
+    this.pet.setPosition(this.x, this.y).setScale(scale*(this.manifest[key].grid?256/this.manifest[key].grid.height:1)).setDepth(4);
     this.shadow.setPosition(this.x, this.y + 2).setDepth(3);
     if (Math.floor(_time / 60000) !== Number(this.lastLayout)) {
       this.lastLayout = String(Math.floor(_time / 60000));

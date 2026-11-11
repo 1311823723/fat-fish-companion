@@ -29,7 +29,7 @@ export async function checkOutfitPack(directory) {
       const image=await sharp(full,{limitInputPixels:256*256*60}).metadata();
       if(grid){
         const {columns,columnStep,offsetY,rowStep,width,height}=grid;
-        const valid=Number.isInteger(columns)&&columns>=1&&columns<=16&&Number.isFinite(columnStep)&&columnStep>=1&&Number.isInteger(offsetY)&&offsetY>=0&&Number.isInteger(rowStep)&&rowStep>=1&&Number.isInteger(width)&&width>=32&&width<=512&&height===width;
+        const valid=Number.isInteger(columns)&&columns>=1&&columns<=16&&Number.isFinite(columnStep)&&columnStep>=1&&Number.isInteger(offsetY)&&offsetY>=0&&Number.isInteger(rowStep)&&rowStep>=1&&Number.isInteger(width)&&width>=32&&width<=512&&Number.isInteger(height)&&height>=32&&height<=1024;
         if(!valid||Math.floor((columns-1)*columnStep)+width>image.width||offsetY+Math.floor((frames-1)/columns)*rowStep+height>image.height) errors.push(`${action}: grid 区域超出图片或参数无效`);
       } else {
         const columns=Math.min(8,frames), rows=Math.ceil(frames/columns);
