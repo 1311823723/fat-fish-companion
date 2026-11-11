@@ -23,9 +23,9 @@
 旅行背包 backpack-storybook-v1.webp：本项目使用内置 Image Gen 参考小屋环境生成并整理，按 MIT 许可提供，不包含角色动画。
 掌上游戏机 handheld-console-v1.webp：本项目使用内置 Image Gen 参考小屋环境生成并整理，按 MIT 许可提供，不包含角色动画或品牌标志。
 
-Claude 娘连帽衫 outfits/cream_hoodie：参考用户提供的角色服装图，用内置 Image Gen 制作立绘和16项动作。保留角色原有署名、CC BY-NC-SA 4.0非商业及相同方式共享要求；不代表原作者制作或审核。
+橙星奶油卫衣 outfits/cream_hoodie：参考用户提供的角色服装图，用内置 Image Gen 制作立绘和16项动作。保留角色原有署名、CC BY-NC-SA 4.0非商业及相同方式共享要求；不代表原作者制作或审核。
 
-怪猎呆猫 COS 服 outfits/cat_paw：参考用户提供的角色服装图，用内置 Image Gen 制作立绘和16项动作，保留角色原有署名、CC BY-NC-SA 4.0非商业及相同方式共享要求；不代表原作者制作或审核。
+蓝绒猫爪套装 outfits/cat_paw：参考用户提供的角色服装图，用内置 Image Gen 制作立绘和16项动作，保留角色原有署名、CC BY-NC-SA 4.0非商业及相同方式共享要求；不代表原作者制作或审核。
 
 浅蓝鲸鱼睡衣 outfits/whale_pajamas：本项目使用内置 Image Gen 参考既有角色生成，包含独立立绘和16项动作。保留角色原有署名、CC BY-NC-SA 4.0非商业与相同方式共享要求，不代表原作者制作或审核。WebP运行图及缩略图为同源素材的编码优化版本，原始参考保留。
 

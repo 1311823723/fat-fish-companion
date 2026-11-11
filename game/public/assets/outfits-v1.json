@@ -473,7 +473,7 @@
     },
     {
       "id": "cream_hoodie",
-      "name": "Claude 娘连帽衫",
+      "name": "橙星奶油卫衣",
       "inspiration": "Claude 娘服装 COS",
       "photoDescription": "Claude-girl cosplay: cream hood-down zip hoodie, orange asterisk hair clip and sleeve emblems, orange bow, wood-edge Claude name badge, tan lion patch, caramel pleated skirt white ruffle, cream leg warmers and tan shoes; match reference",
       "photoReference": "/assets/outfits/cream_hoodie/reference.png",
@@ -707,83 +707,83 @@
     },
     {
       "id": "cat_paw",
-      "name": "怪猎呆猫 COS 服",
+      "name": "蓝绒猫爪套装",
       "inspiration": "《怪物猎人》呆猫 COS",
-      "photoDescription": "Monster Hunter 呆猫 cosplay: blue raised cat-ear hood, cream oval forehead face with round black eyes and W mouth, matching face belly patch, oversized cream paw mittens with blue pads, navy skirt cream hem stripes, fluffy blue-white paw boots; match reference",
+      "photoDescription": "Blue plush Monster Hunter 呆猫 cosplay: cat-ear hood and cream chest face with large black circular eyes, thick black outline and broad ivory crescent eye rings, rounded W mouth; cream paw mittens, navy skirt and fluffy paw boots; match reference",
       "photoReference": "/assets/outfits/cat_paw/reference.png",
       "actions": {
         "idle": {
-          "file": "/assets/outfits/cat_paw/idle-runtime-dc4755eb52a4.webp",
+          "file": "/assets/outfits/cat_paw/idle-runtime-50aa6dc3222b.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 22,
-            "rowStep": 581,
+            "offsetY": 23,
+            "rowStep": 580,
             "width": 271,
-            "height": 581
+            "height": 580
           }
         },
         "walk_left": {
-          "file": "/assets/outfits/cat_paw/walk_left-runtime-5162b662f502.webp",
+          "file": "/assets/outfits/cat_paw/walk_left-runtime-f020aff160f5.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 29,
-            "rowStep": 610,
+            "offsetY": 25,
+            "rowStep": 617,
             "width": 271,
-            "height": 610
+            "height": 617
           }
         },
         "walk_right": {
-          "file": "/assets/outfits/cat_paw/walk_right-runtime-343b56418387.webp",
+          "file": "/assets/outfits/cat_paw/walk_right-runtime-6bf57416f3e6.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 29,
-            "rowStep": 606,
+            "offsetY": 25,
+            "rowStep": 615,
             "width": 271,
-            "height": 606
+            "height": 615
           }
         },
         "sleep": {
-          "file": "/assets/outfits/cat_paw/sleep-runtime-13ef4911f52d.webp",
+          "file": "/assets/outfits/cat_paw/sleep-runtime-5ea94e46f2c1.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 181,
-            "rowStep": 377,
+            "offsetY": 177,
+            "rowStep": 383,
             "width": 271,
-            "height": 377
+            "height": 383
           }
         },
         "wake": {
-          "file": "/assets/outfits/cat_paw/wake-runtime-cc313ff105c4.webp",
+          "file": "/assets/outfits/cat_paw/wake-runtime-d866011ccbed.webp",
           "frames": 8,
           "fps": 6,
           "once": false,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 0,
-            "rowStep": 699,
+            "offsetY": 39,
+            "rowStep": 587,
             "width": 271,
-            "height": 699
+            "height": 587
           }
         },
         "tea": {
-          "file": "/assets/outfits/cat_paw/tea-runtime-11546c4163d7.webp",
+          "file": "/assets/outfits/cat_paw/tea-runtime-18d8693b677d.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -791,13 +791,13 @@
             "columns": 8,
             "columnStep": 271.5,
             "offsetY": 0,
-            "rowStep": 659,
+            "rowStep": 665,
             "width": 271,
-            "height": 659
+            "height": 665
           }
         },
         "eat_taiyaki": {
-          "file": "/assets/outfits/cat_paw/eat_taiyaki-runtime-247c98b7344d.webp",
+          "file": "/assets/outfits/cat_paw/eat_taiyaki-runtime-daa46b9a50e1.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -805,13 +805,13 @@
             "columns": 8,
             "columnStep": 271.5,
             "offsetY": 0,
-            "rowStep": 662,
+            "rowStep": 665,
             "width": 271,
-            "height": 662
+            "height": 665
           }
         },
         "expr_smile": {
-          "file": "/assets/outfits/cat_paw/expr_smile-runtime-82696146fe4b.webp",
+          "file": "/assets/outfits/cat_paw/expr_smile-runtime-5cf8386385fb.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -819,13 +819,13 @@
             "columns": 8,
             "columnStep": 271.5,
             "offsetY": 4,
-            "rowStep": 629,
+            "rowStep": 630,
             "width": 271,
-            "height": 629
+            "height": 630
           }
         },
         "expr_sad": {
-          "file": "/assets/outfits/cat_paw/expr_sad-runtime-97dcbad82518.webp",
+          "file": "/assets/outfits/cat_paw/expr_sad-runtime-a0e1a85b3d94.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -833,41 +833,41 @@
             "columns": 8,
             "columnStep": 271.5,
             "offsetY": 0,
-            "rowStep": 615,
+            "rowStep": 617,
             "width": 271,
-            "height": 615
+            "height": 617
           }
         },
         "expr_angry": {
-          "file": "/assets/outfits/cat_paw/expr_angry-runtime-42bc1dbb504a.webp",
+          "file": "/assets/outfits/cat_paw/expr_angry-runtime-f14d3d255e3b.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 10,
-            "rowStep": 597,
+            "offsetY": 9,
+            "rowStep": 600,
             "width": 271,
-            "height": 597
+            "height": 600
           }
         },
         "expr_sleepy": {
-          "file": "/assets/outfits/cat_paw/expr_sleepy-runtime-4908403ed41f.webp",
+          "file": "/assets/outfits/cat_paw/expr_sleepy-runtime-55237b7c6400.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 14,
-            "rowStep": 596,
+            "offsetY": 16,
+            "rowStep": 593,
             "width": 271,
-            "height": 596
+            "height": 593
           }
         },
         "read": {
-          "file": "/assets/outfits/cat_paw/read-runtime-624d3a595ad6.webp",
+          "file": "/assets/outfits/cat_paw/read-runtime-36df455da654.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -875,27 +875,27 @@
             "columns": 8,
             "columnStep": 271.5,
             "offsetY": 0,
-            "rowStep": 672,
+            "rowStep": 671,
             "width": 271,
-            "height": 672
+            "height": 671
           }
         },
         "sing": {
-          "file": "/assets/outfits/cat_paw/sing-runtime-55e606697139.webp",
+          "file": "/assets/outfits/cat_paw/sing-runtime-bf657d584dac.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 18,
-            "rowStep": 587,
+            "offsetY": 16,
+            "rowStep": 589,
             "width": 271,
-            "height": 587
+            "height": 589
           }
         },
         "eat_rice": {
-          "file": "/assets/outfits/cat_paw/eat_rice-runtime-45a9c41967f3.webp",
+          "file": "/assets/outfits/cat_paw/eat_rice-runtime-833cc6138b7b.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -903,41 +903,41 @@
             "columns": 8,
             "columnStep": 271.5,
             "offsetY": 10,
-            "rowStep": 620,
+            "rowStep": 621,
             "width": 271,
-            "height": 620
+            "height": 621
           }
         },
         "headpat": {
-          "file": "/assets/outfits/cat_paw/headpat-runtime-dc72b17ab35d.webp",
+          "file": "/assets/outfits/cat_paw/headpat-runtime-146e9577ee56.webp",
           "frames": 8,
           "fps": 4,
           "once": true,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 6,
-            "rowStep": 635,
+            "offsetY": 5,
+            "rowStep": 636,
             "width": 271,
-            "height": 635
+            "height": 636
           }
         },
         "spin": {
-          "file": "/assets/outfits/cat_paw/spin-runtime-b717dca92fb9.webp",
+          "file": "/assets/outfits/cat_paw/spin-runtime-1583f13d5d02.webp",
           "frames": 8,
           "fps": 6,
           "once": true,
           "grid": {
             "columns": 8,
             "columnStep": 271.5,
-            "offsetY": 21,
+            "offsetY": 20,
             "rowStep": 611,
             "width": 271,
             "height": 611
           }
         }
       },
-      "preview": "/assets/outfits/cat_paw/preview-44ecac5e8abc.webp"
+      "preview": "/assets/outfits/cat_paw/preview-1560ba678cec.webp"
     },
     {
       "id": "whale_pajamas",

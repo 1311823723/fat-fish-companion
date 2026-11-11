@@ -43,7 +43,7 @@ Windows 可以将 `/path/to/your-outfit` 换成素材目录的实际路径并加
 
 ## 矩形动作帧
 
-Claude 娘连帽衫使用矩形帧示例。grid.width 为每帧宽度（32～512），grid.height 为高度（32～1024），可以不相等；加载器按帧高度归一化显示，避免拉伸和裁切。仍须逐帧核对脚底位置、左右分隔和循环接缝。矩形帧包需要同时更新检查脚本和前端加载器，旧版不支持。示例见 public/assets/outfits/cream_hoodie/outfit.json。立绘和16项动作由内置 Image Gen 生成，所有动作均为独立图集。
+橙星奶油卫衣使用矩形帧示例。grid.width 为每帧宽度（32～512），grid.height 为高度（32～1024），可以不相等；加载器按帧高度归一化显示，避免拉伸和裁切。仍须逐帧核对脚底位置、左右分隔和循环接缝。矩形帧包需要同时更新检查脚本和前端加载器，旧版不支持。示例见 public/assets/outfits/cream_hoodie/outfit.json。立绘和16项动作由内置 Image Gen 生成，所有动作均为独立图集。
 
 ## 轻量预览与运行图
 

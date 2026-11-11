@@ -1,4 +1,10 @@
-# 怪猎呆猫 COS 服制作记录
+# 蓝绒猫爪套装制作记录
+
+## 猫脸图案修订
+
+猫脸采用用户补充的呆猫参考：大黑色圆瞳、黑色外圈、沿下方和两侧包围瞳孔的米白月牙眼圈，以及连接的圆弧 W 嘴；不能简化成带白色高光的小圆点眼睛。兜帽及胸口可见猫脸均使用同一标准，肥鱼本人的蓝色眼睛保持原样。
+
+使用内置 Image Gen 先局部编辑 reference.png，再以现有每项八帧图集作为编辑目标、修正版立绘作为图案参考，保留动作、比例、帧位置、脚底基线和道具。提示词：Change only printed hood/chest mascot faces: large circular black pupils, thick black outer circles, broad ivory crescent rings along bottom and sides, thin rounded connected W mouth. Preserve girl's own blue anime eyes, eight poses, scale, positions and baseline. True transparent RGBA background, remove exterior haze and speckles. 生成后重新测量帧边界并检查，不直接沿用旧图集坐标。
 
 使用内置 Image Gen，根据用户提供的服装三视图制作立绘和16项独立动作图集。固定蓝色猫耳兜帽、米白猫脸额头及腹部贴布、猫爪袖口、蓝色短裙和毛绒猫爪靴，保留角色蓝发、鱼鳍和鲸鱼尾巴。保留角色原有署名和非商业限制。
 
