@@ -5,7 +5,7 @@
   "photoDescription": "cream whale sweater and blue plaid skirt",
   "actions": {
     "idle": {
-      "file": "idle.png",
+      "file": "idle-runtime-850169151466.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -19,7 +19,7 @@
       }
     },
     "walk_left": {
-      "file": "walk_left.png",
+      "file": "walk_left-runtime-d795f261f9c8.webp",
       "frames": 8,
       "fps": 8,
       "once": false,
@@ -33,7 +33,7 @@
       }
     },
     "walk_right": {
-      "file": "walk_right.png",
+      "file": "walk_right-runtime-085118a2171f.webp",
       "frames": 8,
       "fps": 8,
       "once": false,
@@ -47,7 +47,7 @@
       }
     },
     "sleep": {
-      "file": "sleep.png",
+      "file": "sleep-runtime-f23d4d2d20eb.webp",
       "frames": 16,
       "fps": 6,
       "once": false,
@@ -61,7 +61,7 @@
       }
     },
     "wake": {
-      "file": "wake.png",
+      "file": "wake-runtime-eb77a6ff0e87.webp",
       "frames": 11,
       "fps": 8,
       "once": false,
@@ -75,7 +75,7 @@
       }
     },
     "tea": {
-      "file": "tea.png",
+      "file": "tea-runtime-75fc999d634b.webp",
       "frames": 16,
       "fps": 8,
       "once": false,
@@ -89,7 +89,7 @@
       }
     },
     "eat_taiyaki": {
-      "file": "eat_taiyaki.png",
+      "file": "eat_taiyaki-runtime-6665c0465cfe.webp",
       "frames": 9,
       "fps": 8,
       "once": false,
@@ -103,7 +103,7 @@
       }
     },
     "expr_smile": {
-      "file": "expr_smile.png",
+      "file": "expr_smile-runtime-45140cc5e62f.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -117,7 +117,7 @@
       }
     },
     "expr_sad": {
-      "file": "expr_sad.png",
+      "file": "expr_sad-runtime-4e197798fa7e.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -131,7 +131,7 @@
       }
     },
     "expr_angry": {
-      "file": "expr_angry.png",
+      "file": "expr_angry-runtime-18a89e404d0f.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -145,7 +145,7 @@
       }
     },
     "expr_sleepy": {
-      "file": "expr_sleepy.png",
+      "file": "expr_sleepy-runtime-512d3c617dd6.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -159,7 +159,7 @@
       }
     },
     "read": {
-      "file": "read.png",
+      "file": "read-runtime-c65dfeb29d49.webp",
       "frames": 12,
       "fps": 3,
       "once": false,
@@ -173,7 +173,7 @@
       }
     },
     "sing": {
-      "file": "sing.png",
+      "file": "sing-runtime-961567db815f.webp",
       "frames": 9,
       "fps": 3,
       "once": false,
@@ -187,7 +187,7 @@
       }
     },
     "eat_rice": {
-      "file": "eat_rice.png",
+      "file": "eat_rice-runtime-6665c0465cfe.webp",
       "frames": 9,
       "fps": 3,
       "once": false,
@@ -201,7 +201,7 @@
       }
     },
     "headpat": {
-      "file": "headpat.png",
+      "file": "headpat-runtime-b73b739085e6.webp",
       "frames": 7,
       "fps": 4,
       "once": true,
@@ -215,7 +215,7 @@
       }
     },
     "spin": {
-      "file": "spin.png",
+      "file": "spin-runtime-e0b6d8472ed8.webp",
       "frames": 9,
       "fps": 8,
       "once": true,
@@ -228,5 +228,6 @@
         "height": 271
       }
     }
-  }
+  },
+  "preview": "preview-08f679ecc24b.webp"
 }

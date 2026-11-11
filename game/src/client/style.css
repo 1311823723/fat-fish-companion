@@ -845,7 +845,43 @@ dialog header {
   font-size: 11px;
 }
 .wardrobe-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;margin:12px 0 18px;max-height:min(52vh,480px);overflow-y:auto;overscroll-behavior:contain;padding:2px}
+.legacy-controls[hidden] { display:none !important; }
+.primary-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:4px 0 12px; }
+.primary-actions button { min-height:52px; padding:10px 4px; font-size:14px; font-weight:600; border-radius:15px; background:#fff9ee; box-shadow:0 2px 4px #6c54300a; }
+.primary-actions #feed { background:#5f7a94; border-color:#5f7a94; color:#fffaf0; }
+.primary-actions button:hover { background:#eae4d8; }
+.primary-actions #feed:hover { background:#516d87; }
+.life-card { position:absolute; bottom:12px; left:12px; z-index:4; max-width:calc(100% - 24px); border:1px solid #e3d3b9; border-radius:14px; background:#fffaf0ef; box-shadow:0 3px 12px #56402c12; color:#596f80; font-size:12px; }
+.life-card summary { cursor:pointer; padding:10px 12px; display:flex; gap:10px; align-items:center; list-style:none; min-height:40px; }
+.life-card summary::-webkit-details-marker { display:none; }
+.life-card summary::after { content:'⌄'; padding-left:2px; color:#8b9b9b; }
+.life-card[open] summary::after { content:'⌃'; }
+.life-card summary span+span { border-left:1px solid #dfd7c8; padding-left:10px; }
+.life-card .needs { margin:0; border:0; border-top:1px solid #e5dccd; border-radius:0 0 14px 14px; padding:12px; background:transparent; gap:12px; }
+.life-card[open] { width:min(340px,calc(100% - 24px)); }
+.menu-heading { font-size:14px; color:#7b806f; margin:20px 0 10px; font-weight:500; }
+.menu-heading:first-child { margin-top:4px; }
+.menu-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
+.menu-grid button { min-height:50px; font-size:14px; padding:8px 4px; }
+.menu-furniture { grid-template-columns:repeat(2,minmax(0,1fr)); }
+@media(min-width:960px) {
+  main { grid-template-rows:auto 62px 64px min-content min-content 1fr auto auto; }
+  #game { grid-row:2/7; }
+  .quick-chat { grid-row:2; }
+  .primary-actions { grid-row:3; }
+  #notice { grid-row:4; }
+  .chat { grid-row:5/7; align-self:start; }
+  .room-info { grid-row:7; }
+  footer { grid-row:8; }
+}
+@media(max-width:700px) {
+  #panel.menu-mode { position:fixed; inset:auto 0 0; margin:0; width:100%; max-width:none; max-height:85dvh; padding:20px 18px max(20px,env(safe-area-inset-bottom)); border-radius:24px 24px 0 0; border-bottom:0; }
+  .menu-mode .menu-heading { margin-top:18px; }
+}
+button:focus-visible,summary:focus-visible { outline:3px solid #7b9bb1; outline-offset:3px; }
+@media(min-width:960px) { .primary-actions { grid-column:2; align-self:start; } .quick-chat { grid-column:2; align-self:start; } }
+@media(max-width:380px) { .primary-actions { gap:5px; } .primary-actions button { font-size:13px; } .life-card summary { gap:7px; padding:8px 10px; font-size:11px; } .life-card summary span+span { padding-left:7px; } }
 .wardrobe-card {display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;border:2px solid #e3d7be;border-radius:16px;background:#fff9ea;color:#4f6b59}
 .wardrobe-card[aria-pressed="true"] {border-color:#6d9277;background:#edf3e8}
-.wardrobe-preview {display:block;width:100%;height:150px;border-radius:11px;background-color:#f5efdf;background-position:center;background-repeat:no-repeat;background-size:contain}
+.wardrobe-preview {display:block;width:100%;height:150px;object-fit:contain;border-radius:11px;background-color:#f5efdf}
 .wardrobe-preview.wardrobe-original {background-size:800% 200%;background-position:left top}

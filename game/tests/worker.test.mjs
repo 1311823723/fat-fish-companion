@@ -26,3 +26,10 @@ test("Worker never proxies management APIs, DSH or arbitrary paths", async () =>
   );
   assert.equal(r.status, 403);
 });
+test('only content-versioned outfit images receive immutable caching',async()=>{
+ const env={ASSETS:{fetch:async()=>new Response('image',{headers:{'cache-control':'public,max-age=0','content-type':'image/webp'}})}};
+ const r=await worker.fetch(new Request('https://game.example/assets/outfits/sample/preview-abcdef123456.webp'),env);
+ assert.match(r.headers.get('cache-control'),/immutable/);
+ const unchanged=await worker.fetch(new Request('https://game.example/assets/outfits/sample/reference.png'),env);
+ assert.equal(unchanged.headers.get('cache-control'),'public,max-age=0');
+});

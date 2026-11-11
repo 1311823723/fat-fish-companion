@@ -42,7 +42,7 @@ function element<K extends keyof HTMLElementTagNameMap>(
   return e;
 }
 function open(title: string) {
-  panel.classList.remove("diary-mode", "arcade-mode", "board-mode");
+  panel.classList.remove("diary-mode", "arcade-mode", "board-mode", "menu-mode");
   generation++;
   $("panelTitle").textContent = title;
   body.replaceChildren();
@@ -107,6 +107,17 @@ function render(w: World) {
     String(w.furnishings.curtainClosed),
   );
   $("light").setAttribute("aria-pressed", String(w.furnishings.lightOn));
+  $("curtain").textContent = w.furnishings.curtainClosed ? "拉开窗帘" : "拉上窗帘";
+  $("light").textContent = w.furnishings.lightOn ? "关灯" : "开灯";
+  $("hungerHint").textContent = w.hunger < 35 ? "肚子饿了" : w.hunger < 70 ? "还不太饱" : "饱饱的";
+  $("energyHint").textContent = w.energy < 35 ? "有点困了" : w.energy < 70 ? "精神还好" : "精神不错";
+  $("moodHint").textContent = w.mood.label || "心情平静";
+  $<HTMLInputElement>("quickChatInput").placeholder = w.travel.phase === "away" ? "给肥鱼留句话…" : "和肥鱼说句话…";
+  for (const b of document.querySelectorAll<HTMLButtonElement>("[data-menu-furniture]")) {
+    b.textContent = $(b.dataset.menuFurniture!).textContent;
+    b.setAttribute("aria-pressed", $(b.dataset.menuFurniture!).getAttribute("aria-pressed") || "false");
+  }
+  for (const b of document.querySelectorAll<HTMLButtonElement>("[data-menu-rest]")) b.textContent = w.activity.name === "sleep" ? "轻轻叫醒" : "休息一下";
 }
 async function sync() {
   if (syncing) return;
@@ -167,21 +178,26 @@ const sceneAction = (name: string) => {
     const cards:HTMLButtonElement[]=[];
     for(const item of world.wardrobe?.outfits || []) {
       const card=element('button','','wardrobe-card');card.type='button';
-      const art=element('span','','wardrobe-preview '+(item.id==='original'?'wardrobe-original':''));
-      if(item.id==='original') art.style.backgroundImage="url('/assets/idle-v1.webp')";
-      else if(/^\/assets\/outfits\/[a-z0-9_-]+\/[a-zA-Z0-9_-]+\.png$/.test(item.photoReference||'')) art.style.backgroundImage=`url('${item.photoReference}')`;
+      const art=element('img','','wardrobe-preview');
+      art.alt='';art.width=132;art.height=150;art.loading='lazy';art.decoding='async';
+      const preview=item.preview || (item.id==='original'?'/assets/reference-v1.png':item.photoReference);
+      if(/^\/assets\/(?:outfits\/[a-z0-9_-]+\/)?[a-zA-Z0-9_-]+\.(png|webp)$/.test(preview||'')) art.src=preview;
       const label=element('span',item.name.replace('（试验）',''));
       card.append(art,label);card.setAttribute('aria-pressed',String(item.id===selected));
       card.onclick=()=>{selected=item.id;for(const b of cards)b.setAttribute('aria-pressed',String(b===card));};
       cards.push(card);grid.append(card);
     }
     const change=element('button','立即换装');
+    change.disabled=selected===world.wardrobe.outfit;
+    for(const card of cards)card.addEventListener('click',()=>{change.disabled=selected===world.wardrobe.outfit;});
     change.onclick=async()=>{
+      const next=selected;
+      for(const card of cards)card.disabled=true;
       change.disabled=true;change.textContent='准备衣服中…';
       try {
-        await room.prepareOutfit(selected);
-        if(await command('outfit_set',{id:selected},change)){room.warmOutfit(selected);panel.close();}
-      } catch(e) {notice((e as Error).message);} finally {change.disabled=false;change.textContent='立即换装';}
+        await room.prepareOutfit(next);
+        if(await command('outfit_set',{id:next},change)){room.warmOutfit(next);panel.close();}
+      } catch(e) {notice((e as Error).message);} finally {for(const card of cards)card.disabled=false;change.disabled=selected===world.wardrobe.outfit;change.textContent='立即换装';}
     };
     body.append(grid,change);
     return;
@@ -200,17 +216,6 @@ const room = new Room(sceneAction),
   mobile = matchMedia("(max-width:700px)").matches,
   savedPower = localStorage.getItem("powerSave"),
   power = savedPower === null ? mobile : savedPower === "true";
-for (const b of document.querySelectorAll<HTMLButtonElement>(
-  ".actions button",
-)) {
-  const name = b.dataset.activity || (b.id === "feed" ? "eat" : "tea"),
-    icon = element("img");
-  icon.src = "/assets/action-" + name + "-v1.svg";
-  icon.alt = "";
-  icon.width = 26;
-  icon.height = 26;
-  b.prepend(icon);
-}
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: "game",
@@ -244,6 +249,39 @@ $("television").onclick = () => {
   }
   arcadeUI.open();
 };
+$("playShortcut").onclick = () => $("television").click();
+$("albumShortcut").onclick = () => $("album").click();
+$("moreActions").onclick = () => {
+  open("小屋里的事");
+  panel.classList.add("menu-mode");
+  const away = world?.travel.phase === "away";
+  if (away) body.append(element("p", "肥鱼出门啦，回来再一起玩。", "subtle"));
+  const group = (title: string) => { body.append(element("h3", title, "menu-heading")); const grid=element("div", "", "menu-grid"); body.append(grid); return grid; };
+  const activityGrid=group("陪伴互动");
+  const activities: [string,string][] = [["walk","走一走"],["rest","休息一下"],["read","翻翻书"],["sing","哼首歌"],["eat","吃点饭"],["tea","喝点东西"]];
+  for (const [name,label] of activities) {
+    const b=element("button",label); b.type="button";
+    if(name==='rest'){b.dataset.menuRest='true';b.textContent=world?.activity.name==='sleep'?'轻轻叫醒':'休息一下';}
+    b.disabled=away;
+    b.onclick=async()=>{const action=name==='rest'?(world?.activity.name==='sleep'?'wake':'sleep'):name; if(await command('activity',{name:action},b)) panel.close();};
+    activityGrid.append(b);
+  }
+  const furnitureGrid=group("小屋物件");
+  furnitureGrid.classList.add("menu-furniture");
+  for(const [id,label] of [["curtain",$("curtain").textContent||"窗帘"],["light",$("light").textContent||"灯光"],["fridge","打开冰箱"],["wardrobe","衣柜"]]) {
+    const b=element("button",label);b.type='button';
+    if(id==='curtain'||id==='light'){
+      b.dataset.menuFurniture=id;b.setAttribute('aria-pressed',$(id).getAttribute('aria-pressed')||'false');
+      b.onclick=()=>{if(!world)return;const key=id==='curtain'?'curtainClosed':'lightOn';void command('furniture',{key,value:!world.furnishings[key]},b);};
+    } else b.onclick=()=>{panel.close();sceneAction(id);};
+    furnitureGrid.append(b);
+  }
+  const memories=group("记录与准备");
+  for(const [id,label] of [["diary","肥鱼的日记"],["album","旅行相册"],["backpack","背包"],["souvenirs","旅行收藏"],["publicBoardButton","公共留言"],["identity","做客身份"]]) {
+    const b=element('button',label);b.type='button';b.onclick=()=>{panel.close();$(id).click();};memories.append(b);
+  }
+};
+
 game.events.once("room-ready", () => {
   document.querySelector(".loading")?.remove();
   if (world) room.sync(world);

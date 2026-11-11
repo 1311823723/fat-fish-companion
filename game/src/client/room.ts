@@ -370,7 +370,9 @@ export class Room extends Phaser.Scene {
     }
   }
   async prepareOutfit(outfit: string) {
-    const names=['idle','walk_left','walk_right'].map(n=>this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n);
+    const activity=this.world?.activity?.name;
+    const needed=activity==='walk'?['idle','walk_left','walk_right']:['idle',({sleep:'sleep',read:'read',tea:'tea',eat:'eat_rice',sing:'sing'} as Record<string,string>)[activity] || 'idle'];
+    const names=[...new Set(needed)].map(n=>this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n);
     for(const name of names)this.ensureAnim(name);
     if(names.some(n=>!this.textures.exists(n)||this.loading.has(n))) await new Promise<void>((resolve,reject)=>{
       const timer=window.setTimeout(()=>{this.load.off('complete',finish);reject(Error('服装素材加载超时，请检查网络后重试'));},30000);
@@ -381,9 +383,13 @@ export class Room extends Phaser.Scene {
     for(const name of names)this.ensureAnim(name);
   }
   warmOutfit(outfit: string) {
-    const names=['idle','walk_left','walk_right','sleep','read','tea','eat_rice','sing','headpat','spin','expr_smile','expr_sad','expr_angry','expr_sleepy'];
-    const run=()=>{for(const n of names){const key=this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n;this.ensureAnim(key);}};
-    window.setTimeout(run,500);
+    // Only warm essentials; do not download an entire wardrobe during a card preview.
+    const run=()=>{
+      if(document.hidden || (this.world?.wardrobe?.outfit || 'original')!==outfit)return;
+      if(document.querySelector('dialog[open]')){window.setTimeout(run,1500);return;}
+      for(const n of ['idle','walk_left','walk_right']){const key=this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n;this.ensureAnim(key);}
+    };
+    window.setTimeout(run,1500);
   }
   toggleFridge() {
     this.fridgeOpen = !this.fridgeOpen;
@@ -674,7 +680,9 @@ export class Room extends Phaser.Scene {
   }
   ensureAnim(name: string) {
     if (!this.manifest[name]) name = "idle";
-    if (this.loading.has(name)) return "idle";
+    const idleKey=name.includes('--')?name.split('--')[0]+'--idle':'idle';
+    const fallback=this.anims.exists(idleKey)?idleKey:'idle';
+    if (this.loading.has(name)) return fallback;
     if (!this.textures.exists(name)) {
       if (!this.loading.has(name)) {
         this.loading.add(name);
@@ -690,7 +698,7 @@ export class Room extends Phaser.Scene {
         });
         this.load.start();
       }
-      return "idle";
+      return fallback;
     }
     if (!this.anims.exists(name))
       this.anims.create({

@@ -2,14 +2,15 @@
   "outfits": [
     {
       "id": "original",
-      "name": "经典女仆装"
+      "name": "经典女仆装",
+      "preview": "/assets/wardrobe-original-447459e03fc3.webp"
     },
     {
       "id": "whale_knit",
       "name": "鲸鱼针织套装（试验）",
       "actions": {
         "idle": {
-          "file": "/assets/outfits/whale_knit/idle.png",
+          "file": "/assets/outfits/whale_knit/idle-runtime-850169151466.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -23,7 +24,7 @@
           }
         },
         "walk_left": {
-          "file": "/assets/outfits/whale_knit/walk_left.png",
+          "file": "/assets/outfits/whale_knit/walk_left-runtime-d795f261f9c8.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
@@ -37,7 +38,7 @@
           }
         },
         "walk_right": {
-          "file": "/assets/outfits/whale_knit/walk_right.png",
+          "file": "/assets/outfits/whale_knit/walk_right-runtime-085118a2171f.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
@@ -51,7 +52,7 @@
           }
         },
         "sleep": {
-          "file": "/assets/outfits/whale_knit/sleep.png",
+          "file": "/assets/outfits/whale_knit/sleep-runtime-f23d4d2d20eb.webp",
           "frames": 16,
           "fps": 6,
           "once": false,
@@ -65,7 +66,7 @@
           }
         },
         "wake": {
-          "file": "/assets/outfits/whale_knit/wake.png",
+          "file": "/assets/outfits/whale_knit/wake-runtime-eb77a6ff0e87.webp",
           "frames": 11,
           "fps": 8,
           "once": false,
@@ -79,7 +80,7 @@
           }
         },
         "tea": {
-          "file": "/assets/outfits/whale_knit/tea.png",
+          "file": "/assets/outfits/whale_knit/tea-runtime-75fc999d634b.webp",
           "frames": 16,
           "fps": 8,
           "once": false,
@@ -93,7 +94,7 @@
           }
         },
         "eat_taiyaki": {
-          "file": "/assets/outfits/whale_knit/eat_taiyaki.png",
+          "file": "/assets/outfits/whale_knit/eat_taiyaki-runtime-6665c0465cfe.webp",
           "frames": 9,
           "fps": 8,
           "once": false,
@@ -107,7 +108,7 @@
           }
         },
         "expr_smile": {
-          "file": "/assets/outfits/whale_knit/expr_smile.png",
+          "file": "/assets/outfits/whale_knit/expr_smile-runtime-45140cc5e62f.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -121,7 +122,7 @@
           }
         },
         "expr_sad": {
-          "file": "/assets/outfits/whale_knit/expr_sad.png",
+          "file": "/assets/outfits/whale_knit/expr_sad-runtime-4e197798fa7e.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -135,7 +136,7 @@
           }
         },
         "expr_angry": {
-          "file": "/assets/outfits/whale_knit/expr_angry.png",
+          "file": "/assets/outfits/whale_knit/expr_angry-runtime-18a89e404d0f.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -149,7 +150,7 @@
           }
         },
         "expr_sleepy": {
-          "file": "/assets/outfits/whale_knit/expr_sleepy.png",
+          "file": "/assets/outfits/whale_knit/expr_sleepy-runtime-512d3c617dd6.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -163,7 +164,7 @@
           }
         },
         "read": {
-          "file": "/assets/outfits/whale_knit/read.png",
+          "file": "/assets/outfits/whale_knit/read-runtime-c65dfeb29d49.webp",
           "frames": 12,
           "fps": 3,
           "once": false,
@@ -177,7 +178,7 @@
           }
         },
         "sing": {
-          "file": "/assets/outfits/whale_knit/sing.png",
+          "file": "/assets/outfits/whale_knit/sing-runtime-961567db815f.webp",
           "frames": 9,
           "fps": 3,
           "once": false,
@@ -191,7 +192,7 @@
           }
         },
         "eat_rice": {
-          "file": "/assets/outfits/whale_knit/eat_rice.png",
+          "file": "/assets/outfits/whale_knit/eat_rice-runtime-6665c0465cfe.webp",
           "frames": 9,
           "fps": 3,
           "once": false,
@@ -205,7 +206,7 @@
           }
         },
         "headpat": {
-          "file": "/assets/outfits/whale_knit/headpat.png",
+          "file": "/assets/outfits/whale_knit/headpat-runtime-b73b739085e6.webp",
           "frames": 7,
           "fps": 4,
           "once": true,
@@ -219,7 +220,7 @@
           }
         },
         "spin": {
-          "file": "/assets/outfits/whale_knit/spin.png",
+          "file": "/assets/outfits/whale_knit/spin-runtime-e0b6d8472ed8.webp",
           "frames": 9,
           "fps": 8,
           "once": true,
@@ -234,14 +235,15 @@
         }
       },
       "photoReference": "/assets/outfits/whale_knit/reference.png",
-      "photoDescription": "cream whale sweater and blue plaid skirt"
+      "photoDescription": "cream whale sweater and blue plaid skirt",
+      "preview": "/assets/outfits/whale_knit/preview-08f679ecc24b.webp"
     },
     {
       "id": "whale_hood",
       "name": "鲸鱼兜帽冬装",
       "actions": {
         "idle": {
-          "file": "/assets/outfits/whale_hood/idle.png",
+          "file": "/assets/outfits/whale_hood/idle-runtime-6e0d4877b5a0.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -255,7 +257,7 @@
           }
         },
         "walk_left": {
-          "file": "/assets/outfits/whale_hood/walk_left.png",
+          "file": "/assets/outfits/whale_hood/walk_left-runtime-d584ca603653.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
@@ -269,7 +271,7 @@
           }
         },
         "walk_right": {
-          "file": "/assets/outfits/whale_hood/walk_right.png",
+          "file": "/assets/outfits/whale_hood/walk_right-runtime-404350532f22.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
@@ -283,7 +285,7 @@
           }
         },
         "sleep": {
-          "file": "/assets/outfits/whale_hood/sleep.png",
+          "file": "/assets/outfits/whale_hood/sleep-runtime-8d92a83c4c18.webp",
           "frames": 16,
           "fps": 6,
           "once": false,
@@ -297,7 +299,7 @@
           }
         },
         "wake": {
-          "file": "/assets/outfits/whale_hood/wake.png",
+          "file": "/assets/outfits/whale_hood/wake-runtime-63d2a479e95e.webp",
           "frames": 11,
           "fps": 8,
           "once": false,
@@ -311,7 +313,7 @@
           }
         },
         "tea": {
-          "file": "/assets/outfits/whale_hood/tea.png",
+          "file": "/assets/outfits/whale_hood/tea-runtime-5aaffb4a4ae5.webp",
           "frames": 16,
           "fps": 8,
           "once": false,
@@ -325,7 +327,7 @@
           }
         },
         "eat_taiyaki": {
-          "file": "/assets/outfits/whale_hood/eat_rice.png",
+          "file": "/assets/outfits/whale_hood/eat_taiyaki-runtime-2291f38c5d6d.webp",
           "frames": 9,
           "fps": 3,
           "once": false,
@@ -339,7 +341,7 @@
           }
         },
         "expr_smile": {
-          "file": "/assets/outfits/whale_hood/expr_smile.png",
+          "file": "/assets/outfits/whale_hood/expr_smile-runtime-360427710afc.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -353,7 +355,7 @@
           }
         },
         "expr_sad": {
-          "file": "/assets/outfits/whale_hood/expr_sad.png",
+          "file": "/assets/outfits/whale_hood/expr_sad-runtime-b569616bd636.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -367,7 +369,7 @@
           }
         },
         "expr_angry": {
-          "file": "/assets/outfits/whale_hood/expr_angry.png",
+          "file": "/assets/outfits/whale_hood/expr_angry-runtime-0a1d24cd50c0.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -381,7 +383,7 @@
           }
         },
         "expr_sleepy": {
-          "file": "/assets/outfits/whale_hood/expr_sleepy.png",
+          "file": "/assets/outfits/whale_hood/expr_sleepy-runtime-d8e6def2efc5.webp",
           "frames": 12,
           "fps": 6,
           "once": false,
@@ -395,7 +397,7 @@
           }
         },
         "read": {
-          "file": "/assets/outfits/whale_hood/read.png",
+          "file": "/assets/outfits/whale_hood/read-runtime-6054d314bef5.webp",
           "frames": 12,
           "fps": 3,
           "once": false,
@@ -409,7 +411,7 @@
           }
         },
         "sing": {
-          "file": "/assets/outfits/whale_hood/sing.png",
+          "file": "/assets/outfits/whale_hood/sing-runtime-ba9bc5e74c8d.webp",
           "frames": 9,
           "fps": 3,
           "once": false,
@@ -423,7 +425,7 @@
           }
         },
         "eat_rice": {
-          "file": "/assets/outfits/whale_hood/eat_rice.png",
+          "file": "/assets/outfits/whale_hood/eat_rice-runtime-2291f38c5d6d.webp",
           "frames": 9,
           "fps": 3,
           "once": false,
@@ -437,7 +439,7 @@
           }
         },
         "headpat": {
-          "file": "/assets/outfits/whale_hood/headpat.png",
+          "file": "/assets/outfits/whale_hood/headpat-runtime-97f41d9211e2.webp",
           "frames": 7,
           "fps": 4,
           "once": true,
@@ -451,7 +453,7 @@
           }
         },
         "spin": {
-          "file": "/assets/outfits/whale_hood/spin.png",
+          "file": "/assets/outfits/whale_hood/spin-runtime-0b8c4852547f.webp",
           "frames": 9,
           "fps": 8,
           "once": true,
@@ -466,14 +468,15 @@
         }
       },
       "photoDescription": "navy whale hood with water spout, white fur trim, blue and white striped scarf and navy winter coat with whale motifs",
-      "photoReference": "/assets/outfits/whale_hood/reference.png"
+      "photoReference": "/assets/outfits/whale_hood/reference.png",
+      "preview": "/assets/outfits/whale_hood/preview-8b2234ee2774.webp"
     },
     {
       "id": "cream_hoodie",
       "name": "奶油橙花连帽衫",
       "actions": {
         "idle": {
-          "file": "/assets/outfits/cream_hoodie/idle.png",
+          "file": "/assets/outfits/cream_hoodie/idle-runtime-2b389a2fe3cb.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -487,7 +490,7 @@
           }
         },
         "walk_left": {
-          "file": "/assets/outfits/cream_hoodie/walk_left.png",
+          "file": "/assets/outfits/cream_hoodie/walk_left-runtime-929751af394c.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
@@ -501,7 +504,7 @@
           }
         },
         "walk_right": {
-          "file": "/assets/outfits/cream_hoodie/walk_right.png",
+          "file": "/assets/outfits/cream_hoodie/walk_right-runtime-d2e5310143e4.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
@@ -515,7 +518,7 @@
           }
         },
         "sleep": {
-          "file": "/assets/outfits/cream_hoodie/sleep.png",
+          "file": "/assets/outfits/cream_hoodie/sleep-runtime-b93b17ad5722.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -529,7 +532,7 @@
           }
         },
         "wake": {
-          "file": "/assets/outfits/cream_hoodie/wake.png",
+          "file": "/assets/outfits/cream_hoodie/wake-runtime-e59ac37a6151.webp",
           "frames": 8,
           "fps": 6,
           "once": false,
@@ -543,7 +546,7 @@
           }
         },
         "tea": {
-          "file": "/assets/outfits/cream_hoodie/tea.png",
+          "file": "/assets/outfits/cream_hoodie/tea-runtime-a9249f2bc541.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -557,7 +560,7 @@
           }
         },
         "eat_taiyaki": {
-          "file": "/assets/outfits/cream_hoodie/eat_taiyaki.png",
+          "file": "/assets/outfits/cream_hoodie/eat_taiyaki-runtime-734a93c60f0f.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -571,7 +574,7 @@
           }
         },
         "expr_smile": {
-          "file": "/assets/outfits/cream_hoodie/expr_smile.png",
+          "file": "/assets/outfits/cream_hoodie/expr_smile-runtime-e9965a8bb1ef.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -585,7 +588,7 @@
           }
         },
         "expr_sad": {
-          "file": "/assets/outfits/cream_hoodie/expr_sad.png",
+          "file": "/assets/outfits/cream_hoodie/expr_sad-runtime-e2f072567e93.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -599,7 +602,7 @@
           }
         },
         "expr_angry": {
-          "file": "/assets/outfits/cream_hoodie/expr_angry.png",
+          "file": "/assets/outfits/cream_hoodie/expr_angry-runtime-445f48bec06b.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -613,7 +616,7 @@
           }
         },
         "expr_sleepy": {
-          "file": "/assets/outfits/cream_hoodie/expr_sleepy.png",
+          "file": "/assets/outfits/cream_hoodie/expr_sleepy-runtime-1aca95a740d4.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -627,7 +630,7 @@
           }
         },
         "read": {
-          "file": "/assets/outfits/cream_hoodie/read.png",
+          "file": "/assets/outfits/cream_hoodie/read-runtime-a5bf654a6ddd.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -641,7 +644,7 @@
           }
         },
         "sing": {
-          "file": "/assets/outfits/cream_hoodie/sing.png",
+          "file": "/assets/outfits/cream_hoodie/sing-runtime-50da7ad5c756.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -655,7 +658,7 @@
           }
         },
         "eat_rice": {
-          "file": "/assets/outfits/cream_hoodie/eat_rice.png",
+          "file": "/assets/outfits/cream_hoodie/eat_rice-runtime-9a5b32647d41.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -669,7 +672,7 @@
           }
         },
         "headpat": {
-          "file": "/assets/outfits/cream_hoodie/headpat.png",
+          "file": "/assets/outfits/cream_hoodie/headpat-runtime-3f319724a9c8.webp",
           "frames": 8,
           "fps": 4,
           "once": true,
@@ -683,7 +686,7 @@
           }
         },
         "spin": {
-          "file": "/assets/outfits/cream_hoodie/spin.png",
+          "file": "/assets/outfits/cream_hoodie/spin-runtime-38f7f7ebc04a.webp",
           "frames": 8,
           "fps": 6,
           "once": true,
@@ -698,14 +701,15 @@
         }
       },
       "photoDescription": "cream zip-up hoodie with orange flower motifs and orange bow, caramel pleated skirt with white ruffle, cream leg warmers, tan shoes, orange flower hair clip and blank neck badge; no hat",
-      "photoReference": "/assets/outfits/cream_hoodie/reference.png"
+      "photoReference": "/assets/outfits/cream_hoodie/reference.png",
+      "preview": "/assets/outfits/cream_hoodie/preview-811802b6a1bb.webp"
     },
     {
       "id": "cat_paw",
       "name": "蓝莓猫爪卫衣",
       "actions": {
         "idle": {
-          "file": "/assets/outfits/cat_paw/idle.png",
+          "file": "/assets/outfits/cat_paw/idle-runtime-9069da364899.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -719,7 +723,7 @@
           }
         },
         "walk_left": {
-          "file": "/assets/outfits/cat_paw/walk_left.png",
+          "file": "/assets/outfits/cat_paw/walk_left-runtime-ade6ab51099a.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
@@ -733,7 +737,7 @@
           }
         },
         "walk_right": {
-          "file": "/assets/outfits/cat_paw/walk_right.png",
+          "file": "/assets/outfits/cat_paw/walk_right-runtime-b4831f508ca6.webp",
           "frames": 8,
           "fps": 8,
           "once": false,
@@ -747,7 +751,7 @@
           }
         },
         "sleep": {
-          "file": "/assets/outfits/cat_paw/sleep.png",
+          "file": "/assets/outfits/cat_paw/sleep-runtime-e600461b0782.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -761,7 +765,7 @@
           }
         },
         "wake": {
-          "file": "/assets/outfits/cat_paw/wake.png",
+          "file": "/assets/outfits/cat_paw/wake-runtime-34c489963109.webp",
           "frames": 8,
           "fps": 6,
           "once": false,
@@ -775,7 +779,7 @@
           }
         },
         "tea": {
-          "file": "/assets/outfits/cat_paw/tea.png",
+          "file": "/assets/outfits/cat_paw/tea-runtime-6f780ecc65f8.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -789,7 +793,7 @@
           }
         },
         "eat_taiyaki": {
-          "file": "/assets/outfits/cat_paw/eat_taiyaki.png",
+          "file": "/assets/outfits/cat_paw/eat_taiyaki-runtime-db82657afacd.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -803,7 +807,7 @@
           }
         },
         "expr_smile": {
-          "file": "/assets/outfits/cat_paw/expr_smile.png",
+          "file": "/assets/outfits/cat_paw/expr_smile-runtime-6bfdca646650.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -817,7 +821,7 @@
           }
         },
         "expr_sad": {
-          "file": "/assets/outfits/cat_paw/expr_sad.png",
+          "file": "/assets/outfits/cat_paw/expr_sad-runtime-a3fb8899a155.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -831,7 +835,7 @@
           }
         },
         "expr_angry": {
-          "file": "/assets/outfits/cat_paw/expr_angry.png",
+          "file": "/assets/outfits/cat_paw/expr_angry-runtime-ed01205bec12.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -845,7 +849,7 @@
           }
         },
         "expr_sleepy": {
-          "file": "/assets/outfits/cat_paw/expr_sleepy.png",
+          "file": "/assets/outfits/cat_paw/expr_sleepy-runtime-73a1c4dfdf55.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -859,7 +863,7 @@
           }
         },
         "read": {
-          "file": "/assets/outfits/cat_paw/read.png",
+          "file": "/assets/outfits/cat_paw/read-runtime-a2669791a3d9.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -873,7 +877,7 @@
           }
         },
         "sing": {
-          "file": "/assets/outfits/cat_paw/sing.png",
+          "file": "/assets/outfits/cat_paw/sing-runtime-92766a6b05fd.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -887,7 +891,7 @@
           }
         },
         "eat_rice": {
-          "file": "/assets/outfits/cat_paw/eat_rice.png",
+          "file": "/assets/outfits/cat_paw/eat_rice-runtime-0cff1b3df699.webp",
           "frames": 8,
           "fps": 4,
           "once": false,
@@ -901,7 +905,7 @@
           }
         },
         "headpat": {
-          "file": "/assets/outfits/cat_paw/headpat.png",
+          "file": "/assets/outfits/cat_paw/headpat-runtime-cc87a06bf64f.webp",
           "frames": 8,
           "fps": 4,
           "once": true,
@@ -915,7 +919,7 @@
           }
         },
         "spin": {
-          "file": "/assets/outfits/cat_paw/spin.png",
+          "file": "/assets/outfits/cat_paw/spin-runtime-213b3405018a.webp",
           "frames": 8,
           "fps": 6,
           "once": true,
@@ -930,7 +934,241 @@
         }
       },
       "photoDescription": "blue cat-ear hood raised with cream cat-face forehead patch; blue zip hoodie with cream cat-face belly patch and large cream paw cuffs with blue pads; navy pleated skirt; cream fur-trim blue paw boots",
-      "photoReference": "/assets/outfits/cat_paw/reference.png"
+      "photoReference": "/assets/outfits/cat_paw/reference.png",
+      "preview": "/assets/outfits/cat_paw/preview-fa2a1ac4460f.webp"
+    },
+    {
+      "id": "whale_pajamas",
+      "name": "浅蓝鲸鱼睡衣",
+      "actions": {
+        "idle": {
+          "file": "/assets/outfits/whale_pajamas/idle-runtime-99de30dbfab7.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 22,
+            "rowStep": 558,
+            "width": 271,
+            "height": 558
+          }
+        },
+        "walk_left": {
+          "file": "/assets/outfits/whale_pajamas/walk_left-runtime-ac82126ea38b.webp",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 29,
+            "rowStep": 555,
+            "width": 271,
+            "height": 555
+          }
+        },
+        "walk_right": {
+          "file": "/assets/outfits/whale_pajamas/walk_right-runtime-18a4a1a35c61.webp",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 53,
+            "rowStep": 571,
+            "width": 271,
+            "height": 571
+          }
+        },
+        "sleep": {
+          "file": "/assets/outfits/whale_pajamas/sleep-runtime-4af5e6f77ce6.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 135,
+            "rowStep": 425,
+            "width": 271,
+            "height": 425
+          }
+        },
+        "wake": {
+          "file": "/assets/outfits/whale_pajamas/wake-runtime-c8960b0d2bea.webp",
+          "frames": 8,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 28,
+            "rowStep": 568,
+            "width": 271,
+            "height": 568
+          }
+        },
+        "tea": {
+          "file": "/assets/outfits/whale_pajamas/tea-runtime-3091d2cd49b7.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 34,
+            "rowStep": 553,
+            "width": 271,
+            "height": 553
+          }
+        },
+        "eat_taiyaki": {
+          "file": "/assets/outfits/whale_pajamas/eat_taiyaki-runtime-41267f43807b.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 27,
+            "rowStep": 578,
+            "width": 271,
+            "height": 578
+          }
+        },
+        "expr_smile": {
+          "file": "/assets/outfits/whale_pajamas/expr_smile-runtime-c063aa4b4e7b.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 36,
+            "rowStep": 545,
+            "width": 271,
+            "height": 545
+          }
+        },
+        "expr_sad": {
+          "file": "/assets/outfits/whale_pajamas/expr_sad-runtime-b18b002f47af.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 52,
+            "rowStep": 535,
+            "width": 271,
+            "height": 535
+          }
+        },
+        "expr_angry": {
+          "file": "/assets/outfits/whale_pajamas/expr_angry-runtime-b3af2b12dd5d.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 56,
+            "rowStep": 530,
+            "width": 271,
+            "height": 530
+          }
+        },
+        "expr_sleepy": {
+          "file": "/assets/outfits/whale_pajamas/expr_sleepy-runtime-d2bb9b0cb405.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 31,
+            "rowStep": 559,
+            "width": 271,
+            "height": 559
+          }
+        },
+        "read": {
+          "file": "/assets/outfits/whale_pajamas/read-runtime-e7b2a8590cfc.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 35,
+            "rowStep": 584,
+            "width": 271,
+            "height": 584
+          }
+        },
+        "sing": {
+          "file": "/assets/outfits/whale_pajamas/sing-runtime-02c82705a800.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 28,
+            "rowStep": 558,
+            "width": 271,
+            "height": 558
+          }
+        },
+        "eat_rice": {
+          "file": "/assets/outfits/whale_pajamas/eat_rice-runtime-18d4cd80bf80.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 9,
+            "rowStep": 589,
+            "width": 271,
+            "height": 589
+          }
+        },
+        "headpat": {
+          "file": "/assets/outfits/whale_pajamas/headpat-runtime-e3ac90afc863.webp",
+          "frames": 8,
+          "fps": 4,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 60,
+            "rowStep": 530,
+            "width": 271,
+            "height": 530
+          }
+        },
+        "spin": {
+          "file": "/assets/outfits/whale_pajamas/spin-runtime-0a99d1042309.webp",
+          "frames": 8,
+          "fps": 6,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 62,
+            "rowStep": 533,
+            "width": 271,
+            "height": 533
+          }
+        }
+      },
+      "photoDescription": "pale powder-blue button-up pajama shirt with white piping and small whale chest pocket motif, matching loose full-length whale print trousers, cream plush whale slippers and blue bow hair clip; no hood or hat",
+      "photoReference": "/assets/outfits/whale_pajamas/reference.png",
+      "preview": "/assets/outfits/whale_pajamas/preview-91793fbcb98d.webp"
     }
   ]
 }

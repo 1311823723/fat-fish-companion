@@ -44,3 +44,7 @@ Windows 可以将 `/path/to/your-outfit` 换成素材目录的实际路径并加
 ## 矩形动作帧
 
 奶油橙花连帽衫使用矩形帧示例。grid.width 为每帧宽度（32～512），grid.height 为高度（32～1024），可以不相等；加载器按帧高度归一化显示，避免拉伸和裁切。仍须逐帧核对脚底位置、左右分隔和循环接缝。矩形帧包需要同时更新检查脚本和前端加载器，旧版不支持。示例见 public/assets/outfits/cream_hoodie/outfit.json。立绘和16项动作由内置 Image Gen 生成，所有动作均为独立图集。
+
+## 轻量预览与运行图
+
+清单可增加 preview，填写包内PNG或WebP文件名。衣柜使用专用缩略图，不使用原始立绘。npm run build 自动生成保留原帧尺寸和透明通道的WebP运行版及最大280×320预览，原始PNG与旅行参考保留；文件名含内容版本，可长期缓存。安装器兼容已有preview和仅WebP的优化素材包。详细原理与睡衣示例见 WHALE_PAJAMAS.md。

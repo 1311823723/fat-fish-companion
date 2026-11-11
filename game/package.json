@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5174",
     "core": "node src/server.mjs",
-    "build": "tsc --noEmit && vite build && node scripts/compress.mjs",
+    "build": "node scripts/optimize-outfits.mjs && tsc --noEmit && vite build && node scripts/compress.mjs",
     "test": "node --test tests/*.test.mjs",
     "doctor": "node scripts/doctor.mjs",
     "setup": "node scripts/setup.mjs",

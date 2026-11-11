@@ -30,20 +30,7 @@
           <span id="place" class="room-status-place">位置同步中</span>
           <span id="roomActivity" class="room-status-activity">状态同步中</span>
         </div>
-        <button id="publicBoardButton" class="board-room-entry" aria-label="打开公共留言板"><span aria-hidden="true">✉</span> 留言板</button>
-        <div id="roomReply" class="room-reply" role="status" aria-live="polite" hidden></div>
-        <button id="memoryCorner" class="memory-corner" aria-label="看看旅行纪念" hidden><img id="memoryCornerPhoto" alt="" hidden /><span id="memoryCornerLabel">旅行纪念</span></button>
-      </section>
-      <div class="room-info">
-        <span id="connection" role="status">连接中</span>
-      </div>
-      <nav class="actions" aria-label="生活互动">
-        <button data-activity="walk">走一走</button
-        ><button data-activity="sleep">睡觉</button
-        ><button data-activity="wake">叫醒</button
-        ><button id="feed">放食物</button><button id="tea">喝奶茶</button>
-      </nav>
-      <section class="needs" aria-label="生活状态">
+        <details class="life-card"><summary aria-label="展开生活状态"><span id="hungerHint">饱食同步中</span><span id="energyHint">精力同步中</span><span id="moodHint">心情同步中</span></summary>      <section class="needs" aria-label="生活状态">
         <label
           >饱食 <meter id="hunger" max="100"></meter
           ><span id="hungerValue"></span></label
@@ -53,8 +40,20 @@
         ><label
           >心情 <meter id="mood" max="100"></meter><span id="moodValue"></span
         ></label>
+      </section></details>
+        <button id="publicBoardButton" class="board-room-entry" aria-label="打开公共留言板"><span aria-hidden="true">✉</span> 留言板</button>
+        <div id="roomReply" class="room-reply" role="status" aria-live="polite" hidden></div>
+        <button id="memoryCorner" class="memory-corner" aria-label="看看旅行纪念" hidden><img id="memoryCornerPhoto" alt="" hidden /><span id="memoryCornerLabel">旅行纪念</span></button>
       </section>
-      <nav class="tools">
+      <div class="room-info">
+        <span id="connection" role="status">连接中</span>
+      </div>
+      <nav class="primary-actions" aria-label="小屋常用入口">
+        <button id="feed">放食物</button><button id="playShortcut">陪她玩</button><button id="albumShortcut">旅行相册</button><button id="moreActions" aria-haspopup="dialog">更多</button>
+      </nav>
+      <div class="legacy-controls" hidden><button data-activity="walk">走一走</button><button data-activity="sleep">睡觉</button><button data-activity="wake">叫醒</button><button id="tea">喝点东西</button></div>
+
+      <nav class="tools legacy-controls" hidden>
         <button id="curtain">窗帘</button><button id="light">灯光</button
         ><button id="fridge">冰箱</button><button id="diary">日记</button
         ><button id="album">相册</button><button id="backpack">背包</button

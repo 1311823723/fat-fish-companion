@@ -77,6 +77,11 @@ export default {
       return new Response("Not found", { status: 404 });
     if (["/", "/room", "/game"].includes(url.pathname))
       return env.ASSETS.fetch(new Request(new URL("/", url), request));
-    return env.ASSETS.fetch(request);
+    const response=await env.ASSETS.fetch(request);
+    if(response.ok && /^\/assets\/(?:outfits\/[a-z0-9_-]+\/)?[a-z0-9_-]+-[a-f0-9]{12}\.webp$/.test(url.pathname)){
+      const headers=new Headers(response.headers);headers.set('cache-control','public, max-age=31536000, immutable');
+      return new Response(response.body,{status:response.status,headers});
+    }
+    return response;
   },
 };

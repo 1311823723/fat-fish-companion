@@ -15,11 +15,12 @@ export async function installOutfitPack(source,publicRoot) {
   await fs.mkdir(packRoot,{recursive:true});
   const target=path.join(packRoot,id);
   await fs.mkdir(target); // Reject an existing folder; do not overwrite any installed assets.
-  const files=[...new Set([...ACTIONS.map(a=>actions[a].file),...(checked.manifest.photoReference?[checked.manifest.photoReference]:[])])];
+  const files=[...new Set([...ACTIONS.map(a=>actions[a].file),...(checked.manifest.photoReference?[checked.manifest.photoReference]:[]),...(checked.manifest.preview?[checked.manifest.preview]:[])])];
   for(const file of files) await fs.copyFile(path.join(source,file),path.join(target,file));
   const installed={id,name,actions:Object.fromEntries(ACTIONS.map(a=>[a,{...actions[a],file:`/assets/outfits/${id}/${actions[a].file}`}]))};
   if(checked.manifest.photoDescription) installed.photoDescription=checked.manifest.photoDescription;
   if(checked.manifest.photoReference) installed.photoReference=`/assets/outfits/${id}/${checked.manifest.photoReference}`;
+  if(checked.manifest.preview) installed.preview=`/assets/outfits/${id}/${checked.manifest.preview}`;
   await fs.writeFile(path.join(target,'outfit.json'),JSON.stringify(checked.manifest,null,2));
   const tmp=catalogPath+'.new';
   await fs.writeFile(tmp,JSON.stringify({...catalog,outfits:[...catalog.outfits,installed]},null,2)+'\n',{flag:'wx'});

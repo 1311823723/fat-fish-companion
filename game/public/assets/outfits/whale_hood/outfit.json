@@ -5,7 +5,7 @@
   "photoDescription": "navy whale hood with water spout, white fur trim, blue and white striped scarf and navy winter coat with whale motifs",
   "actions": {
     "idle": {
-      "file": "idle.png",
+      "file": "idle-runtime-6e0d4877b5a0.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -19,7 +19,7 @@
       }
     },
     "walk_left": {
-      "file": "walk_left.png",
+      "file": "walk_left-runtime-d584ca603653.webp",
       "frames": 8,
       "fps": 8,
       "once": false,
@@ -33,7 +33,7 @@
       }
     },
     "walk_right": {
-      "file": "walk_right.png",
+      "file": "walk_right-runtime-404350532f22.webp",
       "frames": 8,
       "fps": 8,
       "once": false,
@@ -47,7 +47,7 @@
       }
     },
     "sleep": {
-      "file": "sleep.png",
+      "file": "sleep-runtime-8d92a83c4c18.webp",
       "frames": 16,
       "fps": 6,
       "once": false,
@@ -61,7 +61,7 @@
       }
     },
     "wake": {
-      "file": "wake.png",
+      "file": "wake-runtime-63d2a479e95e.webp",
       "frames": 11,
       "fps": 8,
       "once": false,
@@ -75,7 +75,7 @@
       }
     },
     "tea": {
-      "file": "tea.png",
+      "file": "tea-runtime-5aaffb4a4ae5.webp",
       "frames": 16,
       "fps": 8,
       "once": false,
@@ -89,7 +89,7 @@
       }
     },
     "eat_taiyaki": {
-      "file": "eat_rice.png",
+      "file": "eat_taiyaki-runtime-2291f38c5d6d.webp",
       "frames": 9,
       "fps": 3,
       "once": false,
@@ -103,7 +103,7 @@
       }
     },
     "expr_smile": {
-      "file": "expr_smile.png",
+      "file": "expr_smile-runtime-360427710afc.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -117,7 +117,7 @@
       }
     },
     "expr_sad": {
-      "file": "expr_sad.png",
+      "file": "expr_sad-runtime-b569616bd636.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -131,7 +131,7 @@
       }
     },
     "expr_angry": {
-      "file": "expr_angry.png",
+      "file": "expr_angry-runtime-0a1d24cd50c0.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -145,7 +145,7 @@
       }
     },
     "expr_sleepy": {
-      "file": "expr_sleepy.png",
+      "file": "expr_sleepy-runtime-d8e6def2efc5.webp",
       "frames": 12,
       "fps": 6,
       "once": false,
@@ -159,7 +159,7 @@
       }
     },
     "read": {
-      "file": "read.png",
+      "file": "read-runtime-6054d314bef5.webp",
       "frames": 12,
       "fps": 3,
       "once": false,
@@ -173,7 +173,7 @@
       }
     },
     "sing": {
-      "file": "sing.png",
+      "file": "sing-runtime-ba9bc5e74c8d.webp",
       "frames": 9,
       "fps": 3,
       "once": false,
@@ -187,7 +187,7 @@
       }
     },
     "eat_rice": {
-      "file": "eat_rice.png",
+      "file": "eat_rice-runtime-2291f38c5d6d.webp",
       "frames": 9,
       "fps": 3,
       "once": false,
@@ -201,7 +201,7 @@
       }
     },
     "headpat": {
-      "file": "headpat.png",
+      "file": "headpat-runtime-97f41d9211e2.webp",
       "frames": 7,
       "fps": 4,
       "once": true,
@@ -215,7 +215,7 @@
       }
     },
     "spin": {
-      "file": "spin.png",
+      "file": "spin-runtime-0b8c4852547f.webp",
       "frames": 9,
       "fps": 8,
       "once": true,
@@ -228,5 +228,6 @@
         "height": 271
       }
     }
-  }
+  },
+  "preview": "preview-8b2234ee2774.webp"
 }

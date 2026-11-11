@@ -5,7 +5,7 @@
   "photoDescription": "blue cat-ear hood raised with cream cat-face forehead patch; blue zip hoodie with cream cat-face belly patch and large cream paw cuffs with blue pads; navy pleated skirt; cream fur-trim blue paw boots",
   "actions": {
     "eat_rice": {
-      "file": "eat_rice.png",
+      "file": "eat_rice-runtime-0cff1b3df699.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -19,7 +19,7 @@
       }
     },
     "eat_taiyaki": {
-      "file": "eat_taiyaki.png",
+      "file": "eat_taiyaki-runtime-db82657afacd.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -33,7 +33,7 @@
       }
     },
     "expr_angry": {
-      "file": "expr_angry.png",
+      "file": "expr_angry-runtime-ed01205bec12.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -47,7 +47,7 @@
       }
     },
     "expr_sad": {
-      "file": "expr_sad.png",
+      "file": "expr_sad-runtime-a3fb8899a155.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -61,7 +61,7 @@
       }
     },
     "expr_sleepy": {
-      "file": "expr_sleepy.png",
+      "file": "expr_sleepy-runtime-73a1c4dfdf55.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -75,7 +75,7 @@
       }
     },
     "expr_smile": {
-      "file": "expr_smile.png",
+      "file": "expr_smile-runtime-6bfdca646650.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -89,7 +89,7 @@
       }
     },
     "headpat": {
-      "file": "headpat.png",
+      "file": "headpat-runtime-cc87a06bf64f.webp",
       "frames": 8,
       "fps": 4,
       "once": true,
@@ -103,7 +103,7 @@
       }
     },
     "idle": {
-      "file": "idle.png",
+      "file": "idle-runtime-9069da364899.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -117,7 +117,7 @@
       }
     },
     "read": {
-      "file": "read.png",
+      "file": "read-runtime-a2669791a3d9.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -131,7 +131,7 @@
       }
     },
     "sing": {
-      "file": "sing.png",
+      "file": "sing-runtime-92766a6b05fd.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -145,7 +145,7 @@
       }
     },
     "sleep": {
-      "file": "sleep.png",
+      "file": "sleep-runtime-e600461b0782.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -159,7 +159,7 @@
       }
     },
     "spin": {
-      "file": "spin.png",
+      "file": "spin-runtime-213b3405018a.webp",
       "frames": 8,
       "fps": 6,
       "once": true,
@@ -173,7 +173,7 @@
       }
     },
     "tea": {
-      "file": "tea.png",
+      "file": "tea-runtime-6f780ecc65f8.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -187,7 +187,7 @@
       }
     },
     "wake": {
-      "file": "wake.png",
+      "file": "wake-runtime-34c489963109.webp",
       "frames": 8,
       "fps": 6,
       "once": false,
@@ -201,7 +201,7 @@
       }
     },
     "walk_left": {
-      "file": "walk_left.png",
+      "file": "walk_left-runtime-ade6ab51099a.webp",
       "frames": 8,
       "fps": 8,
       "once": false,
@@ -215,7 +215,7 @@
       }
     },
     "walk_right": {
-      "file": "walk_right.png",
+      "file": "walk_right-runtime-b4831f508ca6.webp",
       "frames": 8,
       "fps": 8,
       "once": false,
@@ -228,5 +228,6 @@
         "height": 560
       }
     }
-  }
+  },
+  "preview": "preview-fa2a1ac4460f.webp"
 }

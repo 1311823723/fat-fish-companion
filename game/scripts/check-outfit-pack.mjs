@@ -12,6 +12,10 @@ export async function checkOutfitPack(directory) {
   if(!/^[a-z][a-z0-9_-]{0,39}$/.test(manifest.id||'')) errors.push('id 应为 1～40 位小写字母、数字、下划线或短横线，且以字母开头');
   if(typeof manifest.name!=='string'||!manifest.name.trim()||manifest.name.length>40) errors.push('name 应为 1～40 个字符');
   if(manifest.photoDescription !== undefined && (typeof manifest.photoDescription !== 'string' || manifest.photoDescription.length > 300)) errors.push('photoDescription 应为 300 字以内的文字');
+  if(manifest.preview !== undefined){
+    if(typeof manifest.preview!=='string'||!/^[-a-zA-Z0-9_]+\.(png|webp)$/.test(manifest.preview))errors.push('preview 必须是包内 PNG 或 WebP 文件');
+    else try{const p=path.join(dir,manifest.preview),st=await fs.lstat(p),m=await sharp(p).metadata();if(!st.isFile()||st.isSymbolicLink()||!['png','webp'].includes(m.format))throw Error();}catch{errors.push('preview 不是有效的包内图片');}
+  }
   if(manifest.photoReference !== undefined) {
     if(typeof manifest.photoReference!=='string'||!/^[-a-zA-Z0-9_]+\.png$/.test(manifest.photoReference)) errors.push('photoReference 必须是包内 PNG 文件名');
     else try {const p=path.join(dir,manifest.photoReference),st=await fs.lstat(p),meta=await sharp(p,{limitInputPixels:16000000}).metadata();if(!st.isFile()||st.isSymbolicLink()||meta.format!=='png')throw Error();} catch {errors.push('photoReference 不是有效的包内 PNG 文件');}
