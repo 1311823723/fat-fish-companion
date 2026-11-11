@@ -1,0 +1,232 @@
+{
+  "id": "whale_knit",
+  "name": "鲸鱼针织套装（试验）",
+  "photoReference": "reference.png",
+  "photoDescription": "cream whale sweater and blue plaid skirt",
+  "actions": {
+    "idle": {
+      "file": "idle.png",
+      "frames": 12,
+      "fps": 6,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 275,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "walk_left": {
+      "file": "walk_left.png",
+      "frames": 8,
+      "fps": 8,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 240,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "walk_right": {
+      "file": "walk_right.png",
+      "frames": 8,
+      "fps": 8,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 225,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "sleep": {
+      "file": "sleep.png",
+      "frames": 16,
+      "fps": 6,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 272,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "wake": {
+      "file": "wake.png",
+      "frames": 11,
+      "fps": 8,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 313,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "tea": {
+      "file": "tea.png",
+      "frames": 16,
+      "fps": 8,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 315,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "eat_taiyaki": {
+      "file": "eat_taiyaki.png",
+      "frames": 9,
+      "fps": 8,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "expr_smile": {
+      "file": "expr_smile.png",
+      "frames": 12,
+      "fps": 6,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "expr_sad": {
+      "file": "expr_sad.png",
+      "frames": 12,
+      "fps": 6,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "expr_angry": {
+      "file": "expr_angry.png",
+      "frames": 12,
+      "fps": 6,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "expr_sleepy": {
+      "file": "expr_sleepy.png",
+      "frames": 12,
+      "fps": 6,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 317,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "read": {
+      "file": "read.png",
+      "frames": 12,
+      "fps": 3,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "sing": {
+      "file": "sing.png",
+      "frames": 9,
+      "fps": 3,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 318,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "eat_rice": {
+      "file": "eat_rice.png",
+      "frames": 9,
+      "fps": 3,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "headpat": {
+      "file": "headpat.png",
+      "frames": 7,
+      "fps": 4,
+      "once": true,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 250,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    },
+    "spin": {
+      "file": "spin.png",
+      "frames": 9,
+      "fps": 8,
+      "once": true,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 88,
+        "rowStep": 271,
+        "width": 271,
+        "height": 271
+      }
+    }
+  }
+}

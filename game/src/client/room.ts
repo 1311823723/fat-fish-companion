@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import outfitCatalog from "../../public/assets/outfits-v1.json";
 export type World = any;
 type Action = (name: string) => void;
 export class Room extends Phaser.Scene {
@@ -32,6 +33,7 @@ export class Room extends Phaser.Scene {
   onAction: Action;
   lastLayout = "";
   loading = new Set<string>();
+  lastWarmedOutfit = '';
   tapLoading = false;
   petPressPointer: number | null = null;
   groundPressPointer: number | null = null;
@@ -49,6 +51,7 @@ export class Room extends Phaser.Scene {
     this.load.image("room", "/assets/room-v5.webp");
     this.load.image("television", "/assets/handheld-console-v1.webp");
     this.load.image("backpack-storybook", "/assets/backpack-storybook-v1.webp");
+    this.load.image("wardrobe-v1", "/assets/wardrobe-v1.png");
     this.load.image("door", "/assets/fridge-door-v3.webp");
     this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
     this.load.json("room-layout", "/assets/room-layout-v6.json");
@@ -66,6 +69,7 @@ export class Room extends Phaser.Scene {
   }
   create() {
     this.manifest = this.cache.json.get("manifest");
+    for(const outfit of outfitCatalog.outfits as any[]) for(const [name, info] of Object.entries(outfit.actions || {}) as [string,any][]) this.manifest[`${outfit.id}--${name}`]=info;
     this.layout = this.cache.json.get("room-layout");
     this.add.image(0, 0, "room").setOrigin(0).setDisplaySize(600, 800);
     const tv = this.layout.objects.find(
@@ -157,6 +161,9 @@ export class Room extends Phaser.Scene {
       .sprite(300, 710, "idle")
       .setOrigin(0.5, 244 / 256)
       .setScale(0.82);
+    this.add.image(375, 429, 'wardrobe-v1').setDisplaySize(82,180).setDepth(1);
+    const wardrobe = this.add.zone(375,429,82,180).setDepth(1).setInteractive({useHandCursor:true});
+    this.bindTap(wardrobe,()=>this.onAction('wardrobe'));
     this.pet
       .setInteractive({
         useHandCursor: true,
@@ -314,8 +321,10 @@ export class Room extends Phaser.Scene {
     if (this.tapLoading || !allowed()) return;
     this.tapLoading = true;
     try {
-      for (const name of ["headpat", "spin"]) this.ensureAnim(name);
-      if (!this.textures.exists("headpat") || !this.textures.exists("spin"))
+      const outfit=this.world?.wardrobe?.outfit;
+      const names=["headpat", "spin"].map(n=>this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n);
+      for (const name of names) this.ensureAnim(name);
+      if (names.some(n=>!this.anims.exists(n)))
         await new Promise<void>((resolve) => {
           const finish = () => {
             clearTimeout(timer);
@@ -327,8 +336,7 @@ export class Room extends Phaser.Scene {
         });
       if (
         allowed() &&
-        this.textures.exists("headpat") &&
-        this.textures.exists("spin")
+        names.every(n=>this.textures.exists(n) && !this.loading.has(n))
       )
         this.onAction("pet_interact");
     } finally {
@@ -355,7 +363,27 @@ export class Room extends Phaser.Scene {
     }
     this.world = w;
     this.offset = w.serverTime - Date.now();
-    if (this.pet) this.drawEnvironment();
+    if (this.pet) {
+      this.drawEnvironment();
+      const outfit=w.wardrobe?.outfit || 'original';
+      if(this.lastWarmedOutfit!==outfit){this.lastWarmedOutfit=outfit;this.warmOutfit(outfit);}
+    }
+  }
+  async prepareOutfit(outfit: string) {
+    const names=['idle','walk_left','walk_right'].map(n=>this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n);
+    for(const name of names)this.ensureAnim(name);
+    if(names.some(n=>!this.textures.exists(n)||this.loading.has(n))) await new Promise<void>((resolve,reject)=>{
+      const timer=window.setTimeout(()=>{this.load.off('complete',finish);reject(Error('服装素材加载超时，请检查网络后重试'));},30000);
+      const finish=()=>{clearTimeout(timer);resolve();};
+      this.load.once('complete',finish);
+    });
+    if(names.some(n=>!this.textures.exists(n)||this.loading.has(n))) throw Error('服装素材加载失败，请检查网络后重试');
+    for(const name of names)this.ensureAnim(name);
+  }
+  warmOutfit(outfit: string) {
+    const names=['idle','walk_left','walk_right','sleep','read','tea','eat_rice','sing','headpat','spin','expr_smile','expr_sad','expr_angry','expr_sleepy'];
+    const run=()=>{for(const n of names){const key=this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n;this.ensureAnim(key);}};
+    window.setTimeout(run,500);
   }
   toggleFridge() {
     this.fridgeOpen = !this.fridgeOpen;
@@ -646,14 +674,20 @@ export class Room extends Phaser.Scene {
   }
   ensureAnim(name: string) {
     if (!this.manifest[name]) name = "idle";
+    if (this.loading.has(name)) return "idle";
     if (!this.textures.exists(name)) {
       if (!this.loading.has(name)) {
         this.loading.add(name);
-        this.load.spritesheet(name, this.manifest[name].file, {
-          frameWidth: 256,
-          frameHeight: 256,
+        const info=this.manifest[name];
+        if(info.grid) this.load.image(name,info.file);
+        else this.load.spritesheet(name,info.file,{frameWidth:256,frameHeight:256});
+        this.load.once("complete", () => {
+          this.loading.delete(name);
+          if(info.grid && this.textures.exists(name)) {
+            const texture=this.textures.get(name),grid=info.grid;
+            for(let frame=0;frame<info.frames;frame++) texture.add(String(frame),0,Math.floor(frame%grid.columns*grid.columnStep),grid.offsetY+Math.floor(frame/grid.columns)*grid.rowStep,grid.width,grid.height);
+          }
         });
-        this.load.once("complete", () => this.loading.delete(name));
         this.load.start();
       }
       return "idle";
@@ -661,10 +695,9 @@ export class Room extends Phaser.Scene {
     if (!this.anims.exists(name))
       this.anims.create({
         key: name,
-        frames: this.anims.generateFrameNumbers(name, {
-          start: 0,
-          end: this.manifest[name].frames - 1,
-        }),
+        frames: this.manifest[name].grid
+          ? Array.from({length:this.manifest[name].frames},(_,i)=>({key:name,frame:String(i)}))
+          : this.anims.generateFrameNumbers(name, {start:0,end:this.manifest[name].frames - 1}),
         frameRate: this.manifest[name].fps,
         repeat: this.manifest[name].once ? 0 : -1,
       });
@@ -765,14 +798,15 @@ export class Room extends Phaser.Scene {
     const factor = 1 - Math.exp(-Math.min(delta, 100) / 190);
     this.x += (tx - this.x) * factor;
     this.y += (ty - this.y) * factor;
-    const key = this.ensureAnim(name);
+    const dressed = w.wardrobe?.outfit && w.wardrobe.outfit !== 'original' ? `${w.wardrobe.outfit}--${name}` : name;
+    const key = this.ensureAnim(this.manifest[dressed] ? dressed : name);
     if (
       this.pet.anims.currentAnim?.key !== key ||
       (reaction &&
-        key === reaction.kind &&
+        name === reaction.kind &&
         this.playingReactionId !== reaction.id)
     ) {
-      if (reaction && key === reaction.kind) {
+      if (reaction && name === reaction.kind) {
         const startFrame = Math.min(
           this.manifest[key].frames - 1,
           Math.floor(
@@ -785,7 +819,7 @@ export class Room extends Phaser.Scene {
       } else this.pet.play(key);
       document.getElementById("game")!.dataset.animation = key;
     }
-    this.pet.setPosition(this.x, this.y).setScale(scale).setDepth(4);
+    this.pet.setPosition(this.x, this.y).setScale(scale*(this.manifest[key].grid?256/this.manifest[key].grid.width:1)).setDepth(4);
     this.shadow.setPosition(this.x, this.y + 2).setDepth(3);
     if (Math.floor(_time / 60000) !== Number(this.lastLayout)) {
       this.lastLayout = String(Math.floor(_time / 60000));

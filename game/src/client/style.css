@@ -844,3 +844,8 @@ dialog header {
 .pack-grid .pack-item small {
   font-size: 11px;
 }
+.wardrobe-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;margin:12px 0 18px;max-height:min(52vh,480px);overflow-y:auto;overscroll-behavior:contain;padding:2px}
+.wardrobe-card {display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;border:2px solid #e3d7be;border-radius:16px;background:#fff9ea;color:#4f6b59}
+.wardrobe-card[aria-pressed="true"] {border-color:#6d9277;background:#edf3e8}
+.wardrobe-preview {display:block;width:100%;height:150px;border-radius:11px;background-color:#f5efdf;background-position:center;background-repeat:no-repeat;background-size:contain}
+.wardrobe-preview.wardrobe-original {background-size:800% 200%;background-position:left top}

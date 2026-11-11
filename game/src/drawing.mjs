@@ -1,4 +1,6 @@
 import fs from "node:fs/promises";
+import path from "node:path";
+import { ROOT } from "./config.mjs";
 import { providerPhotoPrompt, saveTravelImage } from "./photo-presentation.mjs";
 import { imagePrompt } from "./core/scene.mjs";
 export async function drawScene(
@@ -31,6 +33,15 @@ export async function drawScene(
       })
     ).json();
   if (!ref.ok || !ref.attachment) throw Error("参考图导入失败");
+  const references=[ref.attachment];
+  if (scene.outfitReference) {
+    if(!/^\/assets\/outfits\/[a-z][a-z0-9_-]{0,39}\/[a-zA-Z0-9_-]+\.png$/.test(scene.outfitReference)) throw Error('衣服参考图路径无效');
+    const assetPath=path.join(ROOT,'public',scene.outfitReference.slice(1));
+    const data=await fs.readFile(assetPath);
+    const clothing=await (await post('import',{name:'outfit-reference.png',dataUrl:'data:image/png;base64,'+data.toString('base64')})).json();
+    if(!clothing.ok||!clothing.attachment) throw Error('衣服参考图导入失败');
+    references.push(clothing.attachment);
+  }
   const r = await (
     await post(
       "regenerate",
@@ -38,7 +49,7 @@ export async function drawScene(
         provider,
         mode: "edit",
         ratio: "1:1",
-        references: [ref.attachment],
+        references,
         prompt: providerPhotoPrompt(imagePrompt(scene), provider),
       },
       240000,

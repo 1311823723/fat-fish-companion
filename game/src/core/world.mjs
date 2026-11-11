@@ -1,4 +1,5 @@
 import roomLayout from "../../public/assets/room-layout-v6.json" with { type: "json" };
+import outfitCatalog from "../../public/assets/outfits-v1.json" with { type: "json" };
 import { randomUUID } from "node:crypto";
 import { freezeScene } from "./scene.mjs";
 import { departureNote } from "./note.mjs";
@@ -61,6 +62,7 @@ export function initial(now = Date.now()) {
     location: "home",
     activity: { name: "idle", startedAt: now, until: now },
     furnishings: { curtainClosed: false, lightOn: true },
+    wardrobe: {outfit:'original',morning:new Date(now+28800000-(new Date(now+28800000).getUTCHours()<7?86400000:0)).toISOString().slice(0,10)},
     stock: Object.fromEntries(MENU.map(([id]) => [id, 0])),
     capacity: 12,
     backpack: ["camera", "map"],
@@ -131,6 +133,14 @@ function arrive(w, events, at) {
   event(events, "returned", { tripId: trip.id, place: trip.place.label }, at);
 }
 export function settle(w, now, events) {
+  const local = new Date(now + 28800000), today=local.toISOString().slice(0,10);
+  w.wardrobe ??= {outfit:'original',morning:today};
+  if (!w.travel.current && w.activity?.name !== 'sleep' && local.getUTCHours() >= 7 && w.wardrobe.morning !== today) {
+    const outfits=outfitCatalog.outfits.filter(x=>x.id!==w.wardrobe.outfit);
+    if(outfits.length) w.wardrobe.outfit=outfits[Math.floor(Math.random()*outfits.length)].id;
+    w.wardrobe.morning=today;
+    event(events,'outfit_changed',{outfit:w.wardrobe.outfit,automatic:true},now);
+  }
   const begin = Math.max(w.settledAt, now - 8 * 3600000);
   let cursor = begin;
   while (cursor < now) {
@@ -237,7 +247,14 @@ export function settle(w, now, events) {
 }
 export function apply(w, command, actor, now, events) {
   const { type, args = {} } = command;
-  if (type === "pet_interact") {
+  if (type === 'outfit_set') {
+    if(w.travel.current) throw Error('肥鱼出门啦，回来后再换衣服');
+    if(!outfitCatalog.outfits.some(x=>x.id===args.id)) throw Error('没有这套衣服');
+    w.wardrobe ??= {outfit:'original',morning:''};
+    w.wardrobe.outfit=args.id;
+    w.wardrobe.morning=new Date(now+28800000).toISOString().slice(0,10);
+    event(events,'outfit_changed',{outfit:args.id,automatic:false},now);
+  } else if (type === "pet_interact") {
     if (
       w.travel.current ||
       ["sleep", "eat", "tea"].includes(w.activity.name) ||
@@ -381,18 +398,28 @@ export function apply(w, command, actor, now, events) {
     delete w.petReaction;
     if (args.name === "sing") w.lastHumAt = now;
     event(events, "activity_started", { name: args.name }, now);
-  } else if (type === "travel_decision") {
+  } else if (type === "travel_decision" || type === "qq_travel") {
+    const requested = type === "qq_travel";
+    const reject = reason => { if (requested) throw Error(reason); };
     if (!actor.system) throw Error("仅内部意愿适配器可决定出游");
     w.travel.nextDecisionAt = now + 30 * 60000;
     const d = args.intent;
-    if (!d || d.action === "stay") return;
+    if (!d || d.action === "stay" || (requested && d.action !== "go")) { reject("没有可执行的出游意愿"); return; }
     if (
       w.travel.current ||
       now - w.travel.lastReturnedAt < 20 * 60000 ||
       (w.activity.manual && w.activity.until > now)
-    )
-      return;
-    const place = PLACES.find((x) => x.id === d.destination);
+    ) { reject("正在外出、刚回家或正在进行手动活动，请稍后再试"); return; }
+    let place = PLACES.find((x) => x.id === d.destination);
+    if (!place && typeof d.destination === 'string') {
+      const name=d.destination.trim(), city=String(d.city||'').trim();
+      const tier=['near','city','far'].includes(d.distanceTier)?d.distanceTier:'city';
+      if (/^[\p{L}\p{N}\s·・（）()\-]{2,45}$/u.test(name) && (!city || /^[\p{L}\p{N}\s·（）()\-]{2,24}$/u.test(city))) {
+        const ranges={near:[5,25],city:[45,100],far:[150,270]},[min,max]=ranges[tier];
+        const label=city&&!name.includes(city)?city+'·'+name:name;
+        place={id:'named',label,scene:`${name}${city?', '+city:''}`,min,max,local:!!city && city===w.weather?.city && tier!=='far',distanceTier:tier,verification:'unverified'};
+      }
+    }
     if (
       !place ||
       typeof d.reason !== "string" ||
@@ -401,21 +428,18 @@ export function apply(w, command, actor, now, events) {
       typeof d.wish !== "string" ||
       d.wish.length < 2 ||
       d.wish.length > 80
-    )
-      return;
+    ) { reject("目的地或出游意愿不完整"); return; }
     if (
       w.energy < 25 ||
       w.hunger < 30 ||
       /被.{0,8}(丢|安排|扔)|系统.{0,8}(分配|安排)/.test(d.reason + d.wish)
-    )
-      return;
-    if (w.weather.available && w.weather.kind === "thunder" && place.min >= 45)
-      return;
+    ) { reject("饱食度或精力不足，或出游意愿无效"); return; }
+    if (w.weather.available && w.weather.kind === "thunder" && place.min >= 45) { reject("雷雨天气暂不适合远行"); return; }
     const packed =
       place.min >= 45
         ? MENU.find(([id, , gain]) => gain === 30 && w.stock[id] > 0)
         : null;
-    if (place.min >= 45 && !packed) return;
+    if (place.min >= 45 && !packed) { reject("远行需要带一份饭，冰箱里没有可用的饭菜"); return; }
     const packedGiver = packed ? takeGiver(w, packed[0]) : null;
     if (packed) w.stock[packed[0]]--;
     const id = randomUUID(),
@@ -433,6 +457,9 @@ export function apply(w, command, actor, now, events) {
     const trip = {
       id,
       phase: "away",
+      outfit: w.wardrobe?.outfit || 'original',
+      outfitPhoto: outfitCatalog.outfits.find(o=>o.id===w.wardrobe?.outfit)?.photoDescription || '',
+      outfitReference: outfitCatalog.outfits.find(o=>o.id===w.wardrobe?.outfit)?.photoReference || '',
       place,
       intent: {
         reason: d.reason,
@@ -604,6 +631,7 @@ export function publicWorld(w, now) {
         : null,
     petTapReadyAt: w.petTapReadyAt || 0,
     furnishings: w.furnishings,
+    wardrobe: {outfit:w.wardrobe?.outfit || 'original',outfits:outfitCatalog.outfits},
     weather: w.weather,
     backpack: w.backpack,
     packing: {

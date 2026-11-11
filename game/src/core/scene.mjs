@@ -109,6 +109,9 @@ export function freezeScene(
     props: trip.backpack || [],
     composition,
     referenceVersion: "original-v1",
+    outfit: trip.outfit || 'original',
+    outfitPhoto: trip.outfitPhoto || '',
+    outfitReference: trip.outfitReference || '',
     combination: activity + "|" + [pose, composition].join("|"),
   };
 }
@@ -117,7 +120,7 @@ export function imagePrompt(scene) {
     ? "Weather: " + scene.weather.kind + "."
     : "Weather unknown: sheltered indoor or covered scene, no claims about outdoor weather.";
   return [
-    "请直接调用图像生成功能，编辑所附参考图并输出一张新的图片，不要只写描述、不要询问确认。Use the attached reference as the ONLY character identity. Same blue-haired chibi whale maid, blue eyes, ahoge, fin ornaments, bows, white whale apron, blue whale tail; identical outfit and proportions. No costume changes.",
+    "请直接调用图像生成功能，编辑所附参考图并输出一张新的图片，不要只写描述、不要询问确认。First reference defines character identity: same blue-haired chibi whale, blue eyes, ahoge, fins, blue whale tail and proportions. " + (scene.outfitReference ? 'Second reference defines her outfit; match the clothing closely. ' : '') + (scene.outfitPhoto ? 'Clothing: '+scene.outfitPhoto : 'Keep the reference outfit unchanged.'),
     "Warm hand-painted storybook travel photograph. Location: " +
       scene.place.scene +
       ".",

@@ -158,6 +158,34 @@ async function command(type: string, args: any, button?: HTMLButtonElement) {
   }
 }
 const sceneAction = (name: string) => {
+  if (name === 'wardrobe') {
+    if (!world) return;
+    open('肥鱼的衣柜');
+    body.append(element('p',`衣柜里有 ${world.wardrobe?.outfits?.length || 0} 套衣服，选一套再换上。`,'subtle'));
+    const grid=element('div','','wardrobe-grid');
+    let selected=world.wardrobe.outfit;
+    const cards:HTMLButtonElement[]=[];
+    for(const item of world.wardrobe?.outfits || []) {
+      const card=element('button','','wardrobe-card');card.type='button';
+      const art=element('span','','wardrobe-preview '+(item.id==='original'?'wardrobe-original':''));
+      if(item.id==='original') art.style.backgroundImage="url('/assets/idle-v1.webp')";
+      else if(/^\/assets\/outfits\/[a-z0-9_-]+\/[a-zA-Z0-9_-]+\.png$/.test(item.photoReference||'')) art.style.backgroundImage=`url('${item.photoReference}')`;
+      const label=element('span',item.name.replace('（试验）',''));
+      card.append(art,label);card.setAttribute('aria-pressed',String(item.id===selected));
+      card.onclick=()=>{selected=item.id;for(const b of cards)b.setAttribute('aria-pressed',String(b===card));};
+      cards.push(card);grid.append(card);
+    }
+    const change=element('button','立即换装');
+    change.onclick=async()=>{
+      change.disabled=true;change.textContent='准备衣服中…';
+      try {
+        await room.prepareOutfit(selected);
+        if(await command('outfit_set',{id:selected},change)){room.warmOutfit(selected);panel.close();}
+      } catch(e) {notice((e as Error).message);} finally {change.disabled=false;change.textContent='立即换装';}
+    };
+    body.append(grid,change);
+    return;
+  }
   if (name === "pet_interact") {
     void command("pet_interact", {});
     return;

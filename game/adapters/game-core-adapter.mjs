@@ -75,7 +75,7 @@ export function installGameCore(room, { root }) {
       signal: AbortSignal.timeout(10000),
     });
     const v = await r.json();
-    if (!r.ok || !v.ok) throw Error("游戏核心暂不可用");
+    if (!r.ok || !v.ok) throw Error(typeof v.error === "string" ? v.error : "游戏核心暂不可用");
     return v;
   }
   async function refresh() {
@@ -247,6 +247,7 @@ export function installGameCore(room, { root }) {
           homePage: entrance,
           atHome: !w.travel.current,
           activity: p.activity.name,
+          wardrobe: p.wardrobe,
           recentPetReaction:
             w.petReaction && p.serverTime - w.petReaction.startedAt < 5 * 60000
               ? {
@@ -293,7 +294,7 @@ export function installGameCore(room, { root }) {
             })),
           souvenirs: p.souvenirs.slice(-3),
         }) +
-        "。状态优先于旧聊天；已回家不要说还在路上。foodChoices仅是实际吃过的统计，不等于永久喜好；可以自然提及最近吃的，但不能凭空说是谁放的。有值得记住的真实来访、用餐、留言或旅行经历时，可以自愿写日记，别每日强制总结；相册文案依据同一真实事件。出门由自己的意愿决定，没有真实邀请就不要说被人丢去或安排过去。精力低也应正常回应私聊和艾特。哼歌活动不代表已发送语音，QQ语音是否发出只看已确认的发送记录。拍照事件不代表照片已发送，发没发只按已确认的发送记录判断。homePage是你现在正式的小屋入口，分享时用这个地址，优先于记忆中的旧地址。有合适缘由时，可以自然邀请别人来放吃的、看旅行相册、和你玩游戏；沿用现有白名单和分享频率，不固定刷屏宣传。不为访客透露熟人的私人资料，主人日记不向访客开放。未配置入口时不要编造链接。"
+        "。状态优先于旧聊天；已回家不要说还在路上。聊天中想去哪里只是意愿，必须调用 qq_cottage 的 travel 并得到成功确认，才能说已出发或正在路上；未调用、失败或状态不可用时只能说想去、还没出发，不要承诺已执行。foodChoices仅是实际吃过的统计，不等于永久喜好；可以自然提及最近吃的，但不能凭空说是谁放的。有值得记住的真实来访、用餐、留言或旅行经历时，可以自愿写日记，别每日强制总结；相册文案依据同一真实事件。出门由自己的意愿决定，没有真实邀请就不要说被人丢去或安排过去。精力低也应正常回应私聊和艾特。哼歌活动不代表已发送语音，QQ语音是否发出只看已确认的发送记录。拍照事件不代表照片已发送，发没发只按已确认的发送记录判断。homePage是你现在正式的小屋入口，分享时用这个地址，优先于记忆中的旧地址。有合适缘由时，可以自然邀请别人来放吃的、看旅行相册、和你玩游戏；沿用现有白名单和分享频率，不固定刷屏宣传。不为访客透露熟人的私人资料，主人日记不向访客开放。未配置入口时不要编造链接。"
       );
     } catch {
       return "【小屋状态暂不可用】不能推测正在出游或回家，正常回应聊天。";
@@ -364,6 +365,24 @@ export function installGameCore(room, { root }) {
     refresh,
     context: room.travelContext,
     photoDirectory: settings.photoDirectory,
+    async qqAction(body) {
+      await refresh();
+      if (body.action !== "status") {
+        let type, args;
+        if (body.action === "travel") {
+          type = "qq_travel";
+          args = {intent: {action:"go", destination:body.destination, city:body.city, distanceTier:body.distanceTier, wish:body.wish, reason:body.reason}};
+        } else if (body.action === "activity") {
+          type = "activity"; args = {name:body.activity};
+        } else if (body.action === "furniture") {
+          type = "furniture"; args = {key:body.setting, value:body.value};
+        } else throw Error("不支持的小屋动作");
+        await call("command", {command:{type,args,requestId:crypto.randomUUID()}});
+        await refresh();
+      }
+      const {world:w, public:p}=current();
+      return {ok:true, serverTime:p.serverTime, phase:w.travel.current?"away":"home", destination:w.travel.current?.place?.label || null, returnAt:w.travel.current?.returnAt || null, activity:p.activity?.name, hunger:p.hunger, energy:p.energy, furnishings:w.furnishings};
+    },
     async tick({
       generate,
       chooseTargets,
@@ -499,7 +518,7 @@ export function installGameCore(room, { root }) {
                 {
                   role: "system",
                   content:
-                    '你是大肥鱼，按自己当前意愿决定留家或出门。只输出JSON：{"action":"stay"} 或 {"action":"go","destination":"候选id","wish":"想做的事","reason":"自己想去的具体缘由"}。没有想做的事就留家；不要被安排或被丢去。候选地点可选doorstep（家附近5~15分）、neighborhood（附近小公园12~25分）、park（市内公园45~90分）、old_street（老街60~100分）、mountain（山间小镇150~270分）。远处需要饭，雷雨不远行。',
+                    '你是大肥鱼，按自己当前意愿决定留家或出门。只输出JSON：{"action":"stay"} 或 {"action":"go","destination":"具体地点名称","city":"所在城市","distanceTier":"near或city或far","wish":"想做的事","reason":"自己想去的具体缘由"}。可以选择任何想去的真实地点，不限景点，也可以是具体街道；没有想做的事就留家。near是家附近，city是所在城市，far是远途；远处需要饭，雷雨不远行。你提出的地点尚未联网验证，不能说自己已查到资料。',
                 },
                 { role: "user", content: room.travelContext() },
               ]);

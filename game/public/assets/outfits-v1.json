@@ -1,0 +1,472 @@
+{
+  "outfits": [
+    {
+      "id": "original",
+      "name": "经典女仆装"
+    },
+    {
+      "id": "whale_knit",
+      "name": "鲸鱼针织套装（试验）",
+      "actions": {
+        "idle": {
+          "file": "/assets/outfits/whale_knit/idle.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 275,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "walk_left": {
+          "file": "/assets/outfits/whale_knit/walk_left.png",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 240,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "walk_right": {
+          "file": "/assets/outfits/whale_knit/walk_right.png",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 225,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "sleep": {
+          "file": "/assets/outfits/whale_knit/sleep.png",
+          "frames": 16,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 272,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "wake": {
+          "file": "/assets/outfits/whale_knit/wake.png",
+          "frames": 11,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 313,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "tea": {
+          "file": "/assets/outfits/whale_knit/tea.png",
+          "frames": 16,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 315,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "eat_taiyaki": {
+          "file": "/assets/outfits/whale_knit/eat_taiyaki.png",
+          "frames": 9,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "expr_smile": {
+          "file": "/assets/outfits/whale_knit/expr_smile.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "expr_sad": {
+          "file": "/assets/outfits/whale_knit/expr_sad.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "expr_angry": {
+          "file": "/assets/outfits/whale_knit/expr_angry.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "expr_sleepy": {
+          "file": "/assets/outfits/whale_knit/expr_sleepy.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 317,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "read": {
+          "file": "/assets/outfits/whale_knit/read.png",
+          "frames": 12,
+          "fps": 3,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "sing": {
+          "file": "/assets/outfits/whale_knit/sing.png",
+          "frames": 9,
+          "fps": 3,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 318,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "eat_rice": {
+          "file": "/assets/outfits/whale_knit/eat_rice.png",
+          "frames": 9,
+          "fps": 3,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "headpat": {
+          "file": "/assets/outfits/whale_knit/headpat.png",
+          "frames": 7,
+          "fps": 4,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 250,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "spin": {
+          "file": "/assets/outfits/whale_knit/spin.png",
+          "frames": 9,
+          "fps": 8,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        }
+      },
+      "photoReference": "/assets/outfits/whale_knit/reference.png",
+      "photoDescription": "cream whale sweater and blue plaid skirt"
+    },
+    {
+      "id": "whale_hood",
+      "name": "鲸鱼兜帽冬装",
+      "actions": {
+        "idle": {
+          "file": "/assets/outfits/whale_hood/idle.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 78,
+            "rowStep": 318,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "walk_left": {
+          "file": "/assets/outfits/whale_hood/walk_left.png",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 240,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "walk_right": {
+          "file": "/assets/outfits/whale_hood/walk_right.png",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 238,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "sleep": {
+          "file": "/assets/outfits/whale_hood/sleep.png",
+          "frames": 16,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 120,
+            "rowStep": 306,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "wake": {
+          "file": "/assets/outfits/whale_hood/wake.png",
+          "frames": 11,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 119,
+            "rowStep": 264,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "tea": {
+          "file": "/assets/outfits/whale_hood/tea.png",
+          "frames": 16,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 91,
+            "rowStep": 319,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "eat_taiyaki": {
+          "file": "/assets/outfits/whale_hood/eat_rice.png",
+          "frames": 9,
+          "fps": 3,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 86,
+            "rowStep": 361,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "expr_smile": {
+          "file": "/assets/outfits/whale_hood/expr_smile.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 102,
+            "rowStep": 319,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "expr_sad": {
+          "file": "/assets/outfits/whale_hood/expr_sad.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 89,
+            "rowStep": 362,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "expr_angry": {
+          "file": "/assets/outfits/whale_hood/expr_angry.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 88,
+            "rowStep": 314,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "expr_sleepy": {
+          "file": "/assets/outfits/whale_hood/expr_sleepy.png",
+          "frames": 12,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 82,
+            "rowStep": 360,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "read": {
+          "file": "/assets/outfits/whale_hood/read.png",
+          "frames": 12,
+          "fps": 3,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 83,
+            "rowStep": 317,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "sing": {
+          "file": "/assets/outfits/whale_hood/sing.png",
+          "frames": 9,
+          "fps": 3,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 76,
+            "rowStep": 363,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "eat_rice": {
+          "file": "/assets/outfits/whale_hood/eat_rice.png",
+          "frames": 9,
+          "fps": 3,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 86,
+            "rowStep": 361,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "headpat": {
+          "file": "/assets/outfits/whale_hood/headpat.png",
+          "frames": 7,
+          "fps": 4,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 245,
+            "rowStep": 271,
+            "width": 271,
+            "height": 271
+          }
+        },
+        "spin": {
+          "file": "/assets/outfits/whale_hood/spin.png",
+          "frames": 9,
+          "fps": 8,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 100,
+            "rowStep": 314,
+            "width": 271,
+            "height": 271
+          }
+        }
+      },
+      "photoDescription": "navy whale hood with water spout, white fur trim, blue and white striped scarf and navy winter coat with whale motifs",
+      "photoReference": "/assets/outfits/whale_hood/reference.png"
+    }
+  ]
+}

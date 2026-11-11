@@ -61,6 +61,7 @@ export async function routeGame(req, res, { root }) {
   const game =
     publicRoutes.has(u.pathname) ||
     /^\/assets\/[a-zA-Z0-9_.-]+$/.test(u.pathname) ||
+    /^\/assets\/outfits\/[a-z][a-z0-9_-]{0,39}\/[a-zA-Z0-9_-]+\.(?:png|webp)$/.test(u.pathname) ||
     /^\/room-photo\/[a-f0-9-]{36}(\/thumb)?$/.test(u.pathname);
   let from;
   try {
