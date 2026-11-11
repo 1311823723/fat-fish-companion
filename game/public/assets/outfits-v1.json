@@ -699,6 +699,238 @@
       },
       "photoDescription": "cream zip-up hoodie with orange flower motifs and orange bow, caramel pleated skirt with white ruffle, cream leg warmers, tan shoes, orange flower hair clip and blank neck badge; no hat",
       "photoReference": "/assets/outfits/cream_hoodie/reference.png"
+    },
+    {
+      "id": "cat_paw",
+      "name": "蓝莓猫爪卫衣",
+      "actions": {
+        "idle": {
+          "file": "/assets/outfits/cat_paw/idle.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 54,
+            "rowStep": 543,
+            "width": 271,
+            "height": 543
+          }
+        },
+        "walk_left": {
+          "file": "/assets/outfits/cat_paw/walk_left.png",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 72,
+            "rowStep": 546,
+            "width": 271,
+            "height": 546
+          }
+        },
+        "walk_right": {
+          "file": "/assets/outfits/cat_paw/walk_right.png",
+          "frames": 8,
+          "fps": 8,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 68,
+            "rowStep": 560,
+            "width": 271,
+            "height": 560
+          }
+        },
+        "sleep": {
+          "file": "/assets/outfits/cat_paw/sleep.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 237,
+            "rowStep": 224,
+            "width": 271,
+            "height": 224
+          }
+        },
+        "wake": {
+          "file": "/assets/outfits/cat_paw/wake.png",
+          "frames": 8,
+          "fps": 6,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 48,
+            "rowStep": 573,
+            "width": 271,
+            "height": 573
+          }
+        },
+        "tea": {
+          "file": "/assets/outfits/cat_paw/tea.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 39,
+            "rowStep": 591,
+            "width": 271,
+            "height": 591
+          }
+        },
+        "eat_taiyaki": {
+          "file": "/assets/outfits/cat_paw/eat_taiyaki.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 13,
+            "rowStep": 609,
+            "width": 271,
+            "height": 609
+          }
+        },
+        "expr_smile": {
+          "file": "/assets/outfits/cat_paw/expr_smile.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 26,
+            "rowStep": 560,
+            "width": 271,
+            "height": 560
+          }
+        },
+        "expr_sad": {
+          "file": "/assets/outfits/cat_paw/expr_sad.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 61,
+            "rowStep": 573,
+            "width": 271,
+            "height": 573
+          }
+        },
+        "expr_angry": {
+          "file": "/assets/outfits/cat_paw/expr_angry.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 54,
+            "rowStep": 575,
+            "width": 271,
+            "height": 575
+          }
+        },
+        "expr_sleepy": {
+          "file": "/assets/outfits/cat_paw/expr_sleepy.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 41,
+            "rowStep": 565,
+            "width": 271,
+            "height": 565
+          }
+        },
+        "read": {
+          "file": "/assets/outfits/cat_paw/read.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 27,
+            "rowStep": 612,
+            "width": 271,
+            "height": 612
+          }
+        },
+        "sing": {
+          "file": "/assets/outfits/cat_paw/sing.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 34,
+            "rowStep": 556,
+            "width": 271,
+            "height": 556
+          }
+        },
+        "eat_rice": {
+          "file": "/assets/outfits/cat_paw/eat_rice.png",
+          "frames": 8,
+          "fps": 4,
+          "once": false,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 54,
+            "rowStep": 560,
+            "width": 271,
+            "height": 560
+          }
+        },
+        "headpat": {
+          "file": "/assets/outfits/cat_paw/headpat.png",
+          "frames": 8,
+          "fps": 4,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 58,
+            "rowStep": 547,
+            "width": 271,
+            "height": 547
+          }
+        },
+        "spin": {
+          "file": "/assets/outfits/cat_paw/spin.png",
+          "frames": 8,
+          "fps": 6,
+          "once": true,
+          "grid": {
+            "columns": 8,
+            "columnStep": 271.5,
+            "offsetY": 59,
+            "rowStep": 546,
+            "width": 271,
+            "height": 546
+          }
+        }
+      },
+      "photoDescription": "blue cat-ear hood raised with cream cat-face forehead patch; blue zip hoodie with cream cat-face belly patch and large cream paw cuffs with blue pads; navy pleated skirt; cream fur-trim blue paw boots",
+      "photoReference": "/assets/outfits/cat_paw/reference.png"
     }
   ]
 }
