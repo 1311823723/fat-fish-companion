@@ -1,233 +1,234 @@
 {
   "id": "cat_paw",
-  "name": "蓝莓猫爪卫衣",
+  "name": "怪猎呆猫 COS 服",
+  "inspiration": "《怪物猎人》呆猫 COS",
+  "photoDescription": "Monster Hunter 呆猫 cosplay: blue raised cat-ear hood, cream oval forehead face with round black eyes and W mouth, matching face belly patch, oversized cream paw mittens with blue pads, navy skirt cream hem stripes, fluffy blue-white paw boots; match reference",
   "photoReference": "reference.png",
-  "photoDescription": "blue cat-ear hood raised with cream cat-face forehead patch; blue zip hoodie with cream cat-face belly patch and large cream paw cuffs with blue pads; navy pleated skirt; cream fur-trim blue paw boots",
   "actions": {
-    "eat_rice": {
-      "file": "eat_rice-runtime-0cff1b3df699.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 54,
-        "rowStep": 560,
-        "width": 271,
-        "height": 560
-      }
-    },
-    "eat_taiyaki": {
-      "file": "eat_taiyaki-runtime-db82657afacd.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 13,
-        "rowStep": 609,
-        "width": 271,
-        "height": 609
-      }
-    },
-    "expr_angry": {
-      "file": "expr_angry-runtime-ed01205bec12.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 54,
-        "rowStep": 575,
-        "width": 271,
-        "height": 575
-      }
-    },
-    "expr_sad": {
-      "file": "expr_sad-runtime-a3fb8899a155.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 61,
-        "rowStep": 573,
-        "width": 271,
-        "height": 573
-      }
-    },
-    "expr_sleepy": {
-      "file": "expr_sleepy-runtime-73a1c4dfdf55.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 41,
-        "rowStep": 565,
-        "width": 271,
-        "height": 565
-      }
-    },
-    "expr_smile": {
-      "file": "expr_smile-runtime-6bfdca646650.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 26,
-        "rowStep": 560,
-        "width": 271,
-        "height": 560
-      }
-    },
-    "headpat": {
-      "file": "headpat-runtime-cc87a06bf64f.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": true,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 58,
-        "rowStep": 547,
-        "width": 271,
-        "height": 547
-      }
-    },
     "idle": {
-      "file": "idle-runtime-9069da364899.webp",
+      "file": "idle-runtime-dc4755eb52a4.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
       "grid": {
         "columns": 8,
         "columnStep": 271.5,
-        "offsetY": 54,
-        "rowStep": 543,
+        "offsetY": 22,
+        "rowStep": 581,
         "width": 271,
-        "height": 543
-      }
-    },
-    "read": {
-      "file": "read-runtime-a2669791a3d9.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 27,
-        "rowStep": 612,
-        "width": 271,
-        "height": 612
-      }
-    },
-    "sing": {
-      "file": "sing-runtime-92766a6b05fd.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 34,
-        "rowStep": 556,
-        "width": 271,
-        "height": 556
-      }
-    },
-    "sleep": {
-      "file": "sleep-runtime-e600461b0782.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 237,
-        "rowStep": 224,
-        "width": 271,
-        "height": 224
-      }
-    },
-    "spin": {
-      "file": "spin-runtime-213b3405018a.webp",
-      "frames": 8,
-      "fps": 6,
-      "once": true,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 59,
-        "rowStep": 546,
-        "width": 271,
-        "height": 546
-      }
-    },
-    "tea": {
-      "file": "tea-runtime-6f780ecc65f8.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 39,
-        "rowStep": 591,
-        "width": 271,
-        "height": 591
-      }
-    },
-    "wake": {
-      "file": "wake-runtime-34c489963109.webp",
-      "frames": 8,
-      "fps": 6,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 48,
-        "rowStep": 573,
-        "width": 271,
-        "height": 573
+        "height": 581
       }
     },
     "walk_left": {
-      "file": "walk_left-runtime-ade6ab51099a.webp",
+      "file": "walk_left-runtime-5162b662f502.webp",
       "frames": 8,
       "fps": 8,
       "once": false,
       "grid": {
         "columns": 8,
         "columnStep": 271.5,
-        "offsetY": 72,
-        "rowStep": 546,
+        "offsetY": 29,
+        "rowStep": 610,
         "width": 271,
-        "height": 546
+        "height": 610
       }
     },
     "walk_right": {
-      "file": "walk_right-runtime-b4831f508ca6.webp",
+      "file": "walk_right-runtime-343b56418387.webp",
       "frames": 8,
       "fps": 8,
       "once": false,
       "grid": {
         "columns": 8,
         "columnStep": 271.5,
-        "offsetY": 68,
-        "rowStep": 560,
+        "offsetY": 29,
+        "rowStep": 606,
         "width": 271,
-        "height": 560
+        "height": 606
+      }
+    },
+    "sleep": {
+      "file": "sleep-runtime-13ef4911f52d.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 181,
+        "rowStep": 377,
+        "width": 271,
+        "height": 377
+      }
+    },
+    "wake": {
+      "file": "wake-runtime-cc313ff105c4.webp",
+      "frames": 8,
+      "fps": 6,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 699,
+        "width": 271,
+        "height": 699
+      }
+    },
+    "tea": {
+      "file": "tea-runtime-11546c4163d7.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 659,
+        "width": 271,
+        "height": 659
+      }
+    },
+    "eat_taiyaki": {
+      "file": "eat_taiyaki-runtime-247c98b7344d.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 662,
+        "width": 271,
+        "height": 662
+      }
+    },
+    "expr_smile": {
+      "file": "expr_smile-runtime-82696146fe4b.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 4,
+        "rowStep": 629,
+        "width": 271,
+        "height": 629
+      }
+    },
+    "expr_sad": {
+      "file": "expr_sad-runtime-97dcbad82518.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 615,
+        "width": 271,
+        "height": 615
+      }
+    },
+    "expr_angry": {
+      "file": "expr_angry-runtime-42bc1dbb504a.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 10,
+        "rowStep": 597,
+        "width": 271,
+        "height": 597
+      }
+    },
+    "expr_sleepy": {
+      "file": "expr_sleepy-runtime-4908403ed41f.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 14,
+        "rowStep": 596,
+        "width": 271,
+        "height": 596
+      }
+    },
+    "read": {
+      "file": "read-runtime-624d3a595ad6.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 672,
+        "width": 271,
+        "height": 672
+      }
+    },
+    "sing": {
+      "file": "sing-runtime-55e606697139.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 18,
+        "rowStep": 587,
+        "width": 271,
+        "height": 587
+      }
+    },
+    "eat_rice": {
+      "file": "eat_rice-runtime-45a9c41967f3.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 10,
+        "rowStep": 620,
+        "width": 271,
+        "height": 620
+      }
+    },
+    "headpat": {
+      "file": "headpat-runtime-dc72b17ab35d.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": true,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 6,
+        "rowStep": 635,
+        "width": 271,
+        "height": 635
+      }
+    },
+    "spin": {
+      "file": "spin-runtime-b717dca92fb9.webp",
+      "frames": 8,
+      "fps": 6,
+      "once": true,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 21,
+        "rowStep": 611,
+        "width": 271,
+        "height": 611
       }
     }
   },
-  "preview": "preview-fa2a1ac4460f.webp"
+  "preview": "preview-44ecac5e8abc.webp"
 }

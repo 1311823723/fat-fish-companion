@@ -631,7 +631,7 @@ export function publicWorld(w, now) {
         : null,
     petTapReadyAt: w.petTapReadyAt || 0,
     furnishings: w.furnishings,
-    wardrobe: {outfit:w.wardrobe?.outfit || 'original',outfits:outfitCatalog.outfits.map(({id,name,preview,photoReference})=>({id,name,preview,photoReference}))},
+    wardrobe: {outfit:w.wardrobe?.outfit || 'original',outfits:outfitCatalog.outfits.map(({id,name,preview,photoReference,inspiration})=>({id,name,preview,photoReference,inspiration}))},
     weather: w.weather,
     backpack: w.backpack,
     packing: {

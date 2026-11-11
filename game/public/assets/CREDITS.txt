@@ -23,8 +23,10 @@
 旅行背包 backpack-storybook-v1.webp：本项目使用内置 Image Gen 参考小屋环境生成并整理，按 MIT 许可提供，不包含角色动画。
 掌上游戏机 handheld-console-v1.webp：本项目使用内置 Image Gen 参考小屋环境生成并整理，按 MIT 许可提供，不包含角色动画或品牌标志。
 
-奶油橙花连帽衫 outfits/cream_hoodie：参考用户提供的角色服装图，用内置 Image Gen 制作立绘和16项动作。保留角色原有署名、CC BY-NC-SA 4.0非商业及相同方式共享要求；不代表原作者制作或审核。
+Claude 娘连帽衫 outfits/cream_hoodie：参考用户提供的角色服装图，用内置 Image Gen 制作立绘和16项动作。保留角色原有署名、CC BY-NC-SA 4.0非商业及相同方式共享要求；不代表原作者制作或审核。
 
-蓝莓猫爪卫衣 outfits/cat_paw：参考用户提供的角色服装图，用内置 Image Gen 制作立绘和16项动作，保留角色原有署名、CC BY-NC-SA 4.0非商业及相同方式共享要求；不代表原作者制作或审核。
+怪猎呆猫 COS 服 outfits/cat_paw：参考用户提供的角色服装图，用内置 Image Gen 制作立绘和16项动作，保留角色原有署名、CC BY-NC-SA 4.0非商业及相同方式共享要求；不代表原作者制作或审核。
 
 浅蓝鲸鱼睡衣 outfits/whale_pajamas：本项目使用内置 Image Gen 参考既有角色生成，包含独立立绘和16项动作。保留角色原有署名、CC BY-NC-SA 4.0非商业与相同方式共享要求，不代表原作者制作或审核。WebP运行图及缩略图为同源素材的编码优化版本，原始参考保留。
+
+服装来源修正：cream_hoodie 为用户指认的 Claude 娘服装 COS；cat_paw 为用户指认的《怪物猎人》呆猫 COS。两套服装的具体参考画作者未提供，不能将服装设计本身写成本项目原创。游戏角色原有署名及限制保留；生成的动作图集不代表原角色或服装作者制作或审核。

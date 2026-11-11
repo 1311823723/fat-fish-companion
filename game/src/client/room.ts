@@ -808,6 +808,8 @@ export class Room extends Phaser.Scene {
     this.y += (ty - this.y) * factor;
     const dressed = w.wardrobe?.outfit && w.wardrobe.outfit !== 'original' ? `${w.wardrobe.outfit}--${name}` : name;
     const key = this.ensureAnim(this.manifest[dressed] ? dressed : name);
+    // The first fallback may still be loading; keep the last frame until it exists.
+    if (!this.anims.exists(key)) return;
     if (
       this.pet.anims.currentAnim?.key !== key ||
       (reaction &&

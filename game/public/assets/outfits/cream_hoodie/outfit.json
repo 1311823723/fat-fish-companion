@@ -1,123 +1,12 @@
 {
   "id": "cream_hoodie",
-  "name": "奶油橙花连帽衫",
+  "name": "Claude 娘连帽衫",
+  "inspiration": "Claude 娘服装 COS",
+  "photoDescription": "Claude-girl cosplay: cream hood-down zip hoodie, orange asterisk hair clip and sleeve emblems, orange bow, wood-edge Claude name badge, tan lion patch, caramel pleated skirt white ruffle, cream leg warmers and tan shoes; match reference",
   "photoReference": "reference.png",
-  "photoDescription": "cream zip-up hoodie with orange flower motifs and orange bow, caramel pleated skirt with white ruffle, cream leg warmers, tan shoes, orange flower hair clip and blank neck badge; no hat",
   "actions": {
-    "eat_rice": {
-      "file": "eat_rice-runtime-9a5b32647d41.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 22,
-        "rowStep": 599,
-        "width": 271,
-        "height": 599
-      }
-    },
-    "eat_taiyaki": {
-      "file": "eat_taiyaki-runtime-734a93c60f0f.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 0,
-        "rowStep": 683,
-        "width": 271,
-        "height": 683
-      }
-    },
-    "expr_angry": {
-      "file": "expr_angry-runtime-445f48bec06b.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 0,
-        "rowStep": 675,
-        "width": 271,
-        "height": 675
-      }
-    },
-    "expr_sad": {
-      "file": "expr_sad-runtime-e2f072567e93.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 0,
-        "rowStep": 649,
-        "width": 271,
-        "height": 649
-      }
-    },
-    "expr_sleepy": {
-      "file": "expr_sleepy-runtime-1aca95a740d4.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 0,
-        "rowStep": 624,
-        "width": 271,
-        "height": 624
-      }
-    },
-    "expr_smile": {
-      "file": "expr_smile-runtime-e9965a8bb1ef.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 12,
-        "rowStep": 635,
-        "width": 271,
-        "height": 635
-      }
-    },
-    "headpat": {
-      "file": "headpat-runtime-3f319724a9c8.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": true,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 0,
-        "rowStep": 646,
-        "width": 271,
-        "height": 646
-      }
-    },
     "idle": {
-      "file": "idle-runtime-2b389a2fe3cb.webp",
-      "frames": 8,
-      "fps": 4,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 12,
-        "rowStep": 614,
-        "width": 271,
-        "height": 614
-      }
-    },
-    "read": {
-      "file": "read-runtime-a5bf654a6ddd.webp",
+      "file": "idle-runtime-d3f116c8150b.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -125,44 +14,100 @@
         "columns": 8,
         "columnStep": 271.5,
         "offsetY": 0,
-        "rowStep": 666,
+        "rowStep": 650,
         "width": 271,
-        "height": 666
+        "height": 650
       }
     },
-    "sing": {
-      "file": "sing-runtime-50da7ad5c756.webp",
+    "walk_left": {
+      "file": "walk_left-runtime-e206f396e177.webp",
       "frames": 8,
-      "fps": 4,
+      "fps": 8,
       "once": false,
       "grid": {
         "columns": 8,
         "columnStep": 271.5,
-        "offsetY": 1,
-        "rowStep": 621,
+        "offsetY": 13,
+        "rowStep": 640,
         "width": 271,
-        "height": 621
+        "height": 640
+      }
+    },
+    "walk_right": {
+      "file": "walk_right-runtime-8f6297f62af2.webp",
+      "frames": 8,
+      "fps": 8,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 667,
+        "width": 271,
+        "height": 667
       }
     },
     "sleep": {
-      "file": "sleep-runtime-b93b17ad5722.webp",
+      "file": "sleep-runtime-52fea8cf7480.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
       "grid": {
         "columns": 8,
         "columnStep": 271.5,
-        "offsetY": 59,
-        "rowStep": 534,
+        "offsetY": 152,
+        "rowStep": 387,
         "width": 271,
-        "height": 534
+        "height": 387
       }
     },
-    "spin": {
-      "file": "spin-runtime-38f7f7ebc04a.webp",
+    "wake": {
+      "file": "wake-runtime-a245802bc87b.webp",
       "frames": 8,
       "fps": 6,
-      "once": true,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 9,
+        "rowStep": 661,
+        "width": 271,
+        "height": 661
+      }
+    },
+    "tea": {
+      "file": "tea-runtime-4cda3e8c71ac.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 724,
+        "width": 271,
+        "height": 724
+      }
+    },
+    "eat_taiyaki": {
+      "file": "eat_taiyaki-runtime-c5e4a598d99a.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 724,
+        "width": 271,
+        "height": 724
+      }
+    },
+    "expr_smile": {
+      "file": "expr_smile-runtime-dcddebc444a4.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
       "grid": {
         "columns": 8,
         "columnStep": 271.5,
@@ -172,8 +117,22 @@
         "height": 655
       }
     },
-    "tea": {
-      "file": "tea-runtime-a9249f2bc541.webp",
+    "expr_sad": {
+      "file": "expr_sad-runtime-4c263c98a223.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 686,
+        "width": 271,
+        "height": 686
+      }
+    },
+    "expr_angry": {
+      "file": "expr_angry-runtime-9885c2da445d.webp",
       "frames": 8,
       "fps": 4,
       "once": false,
@@ -186,48 +145,90 @@
         "height": 656
       }
     },
-    "wake": {
-      "file": "wake-runtime-e59ac37a6151.webp",
+    "expr_sleepy": {
+      "file": "expr_sleepy-runtime-a708392fe6a2.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 649,
+        "width": 271,
+        "height": 649
+      }
+    },
+    "read": {
+      "file": "read-runtime-882d1cc18e0c.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 680,
+        "width": 271,
+        "height": 680
+      }
+    },
+    "sing": {
+      "file": "sing-runtime-5258660918dd.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 677,
+        "width": 271,
+        "height": 677
+      }
+    },
+    "eat_rice": {
+      "file": "eat_rice-runtime-4edb500896da.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": false,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 708,
+        "width": 271,
+        "height": 708
+      }
+    },
+    "headpat": {
+      "file": "headpat-runtime-2004c0277b02.webp",
+      "frames": 8,
+      "fps": 4,
+      "once": true,
+      "grid": {
+        "columns": 8,
+        "columnStep": 271.5,
+        "offsetY": 0,
+        "rowStep": 672,
+        "width": 271,
+        "height": 672
+      }
+    },
+    "spin": {
+      "file": "spin-runtime-0494955dbdb3.webp",
       "frames": 8,
       "fps": 6,
-      "once": false,
+      "once": true,
       "grid": {
         "columns": 8,
         "columnStep": 271.5,
-        "offsetY": 25,
-        "rowStep": 609,
+        "offsetY": 0,
+        "rowStep": 672,
         "width": 271,
-        "height": 609
-      }
-    },
-    "walk_left": {
-      "file": "walk_left-runtime-929751af394c.webp",
-      "frames": 8,
-      "fps": 8,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 89,
-        "rowStep": 504,
-        "width": 271,
-        "height": 504
-      }
-    },
-    "walk_right": {
-      "file": "walk_right-runtime-d2e5310143e4.webp",
-      "frames": 8,
-      "fps": 8,
-      "once": false,
-      "grid": {
-        "columns": 8,
-        "columnStep": 271.5,
-        "offsetY": 24,
-        "rowStep": 583,
-        "width": 271,
-        "height": 583
+        "height": 672
       }
     }
   },
-  "preview": "preview-811802b6a1bb.webp"
+  "preview": "preview-a6c97c604710.webp"
 }

@@ -34,9 +34,12 @@ test('installer requires complete packs and refuses duplicate IDs',async()=>{
   await sharp({create:{width:256,height:256,channels:4,background:{r:0,g:0,b:0,alpha:0}}}).png().toFile(path.join(source,'frame.png'));
   const manifest={id:'sample',name:'样例',actions:Object.fromEntries(ACTIONS.map(a=>[a,{file:'frame.png',frames:1,fps:6}]))};
   await fs.writeFile(path.join(source,'outfit.json'),JSON.stringify(manifest));
+  manifest.inspiration='参考服装 COS';
+  await fs.writeFile(path.join(source,'outfit.json'),JSON.stringify(manifest));
   await installOutfitPack(source,publicRoot);
   const catalog=JSON.parse(await fs.readFile(path.join(publicRoot,'assets','outfits-v1.json'),'utf8'));
   assert.equal(catalog.outfits[0].actions.idle.file,'/assets/outfits/sample/frame.png');
+  assert.equal(catalog.outfits[0].inspiration,'参考服装 COS');
   await assert.rejects(installOutfitPack(source,publicRoot),/ID 已存在/);
  }finally{
   const {removeTestDirectory}=await import('./helpers.mjs');removeTestDirectory(dir);

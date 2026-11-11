@@ -1,4 +1,4 @@
-# 蓝莓猫爪卫衣制作记录
+# 怪猎呆猫 COS 服制作记录
 
 使用内置 Image Gen，根据用户提供的服装三视图制作立绘和16项独立动作图集。固定蓝色猫耳兜帽、米白猫脸额头及腹部贴布、猫爪袖口、蓝色短裙和毛绒猫爪靴，保留角色蓝发、鱼鳍和鲸鱼尾巴。保留角色原有署名和非商业限制。
 
@@ -26,3 +26,7 @@ Match reference.png exactly: blue-haired chibi whale girl, blue eyes, fin ears, 
 ## 检查和接入
 
 部分初稿有白底或宽光晕，已用图像生成工具重做透明背景；吃米饭和蜷睡动作重新生成。图集原件不拉伸，通过 outfit.json 的矩形 grid 参数读取，前端按帧高度保持比例。先运行 check-outfit-pack.mjs 检查，再安装到独立小屋试穿，检查换装、行走和睡眠。矩形帧需要支持 height 与 width 不相等的检查器和加载器。生成图集仍可能存在细微的边缘或帧间差异，格式检查不能替代目视验收。
+
+服装来源：用户提供并指认为《怪物猎人》呆猫COS的造型；此前的“蓝莓猫爪”是错误的临时命名。固定ID仍为cat_paw，以兼容既有存档。
+
+第二版外观：依据用户的呆猫COS参考重新生成立绘和全部16项动作，对齐圆眼W嘴的额头及腹部图案、大猫爪袖口、猫耳兜帽和毛绒靴。ID保留不变。沿用上述动作提示，并明确cream oval face patch with rounded black eyes and wide W mouth, oversized cream paw mittens with blue pads。图集经过透明背景、帧边界和脚底对齐检查，运行版使用带内容哈希的WebP与独立小预览。

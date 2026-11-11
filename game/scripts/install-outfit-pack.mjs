@@ -19,6 +19,7 @@ export async function installOutfitPack(source,publicRoot) {
   for(const file of files) await fs.copyFile(path.join(source,file),path.join(target,file));
   const installed={id,name,actions:Object.fromEntries(ACTIONS.map(a=>[a,{...actions[a],file:`/assets/outfits/${id}/${actions[a].file}`}]))};
   if(checked.manifest.photoDescription) installed.photoDescription=checked.manifest.photoDescription;
+  if(checked.manifest.inspiration) installed.inspiration=checked.manifest.inspiration;
   if(checked.manifest.photoReference) installed.photoReference=`/assets/outfits/${id}/${checked.manifest.photoReference}`;
   if(checked.manifest.preview) installed.preview=`/assets/outfits/${id}/${checked.manifest.preview}`;
   await fs.writeFile(path.join(target,'outfit.json'),JSON.stringify(checked.manifest,null,2));

@@ -1,10 +1,10 @@
-# 奶油橙花连帽衫制作记录
+# Claude 娘连帽衫制作记录
 
 使用内置 Image Gen 制作；未使用 CLI 或付费 API 备用路径。参考图为用户提供的角色服装设计，保留角色原有署名与非商业限制。
 
 ## 固定造型提示
 
-Blue-haired chibi whale girl, blue eyes, whale fin ears, blue whale tail and ahoge. Cream zip-up hoodie with orange flower motifs and orange bow, caramel pleated skirt with white ruffle, cream leg warmers, tan shoes, orange flower hair clip, blank neck badge. No hat. True transparent background. No text or lettering.
+Blue-haired chibi whale girl, blue eyes, whale fin ears, blue whale tail and ahoge. Claude-girl COS: cream hood-down zip hoodie, orange ASTERISK hair clip and sleeve emblems, orange bow, wood-edge badge reading exactly Claude, small tan lion face patch, caramel pleated skirt with white ruffle, cream leg warmers and tan shoes. True transparent RGBA background. No text except Claude badge.
 
 ## 图集提示模板
 
@@ -31,3 +31,7 @@ Use reference.png as exact character and costume reference. Eight full-body anim
 
 图集原文件保持不变，使用矩形 grid 定位帧。根据每帧实际人物边界测量 offsetY 和 height，脚底靠近帧高度的244/256处；检查脚底漂移、透明背景、头发鞋子是否被裁掉、左右列是否串帧。width与height可以不同，前端按height归一化保持长宽比。先运行 check-outfit-pack.mjs，再安装到独立试验小屋试穿。headpat初稿残留白底，已通过图像工具重新移除背景后才入包。生成式图集仍可能存在微小边缘与帧间细节变化。
 
+
+服装来源：用户提供的 Claude 娘造型；此前的“奶油橙花”是错误的临时命名。角色穿着的是该服装COS，固定ID仍为cream_hoodie，以兼容既有存档。
+
+第二版外观：依据原参考重新生成立绘和全部16项动作，补正星芒发夹、Claude名牌和袖口标识；ID保留不变。由内置 Image Gen 生成，透明背景异常用同一工具清理，再测量帧边界、检查脚底对齐。运行版使用带内容哈希的WebP，预览单独生成，避免旧缓存与新动作混用。
