@@ -78,7 +78,9 @@ export default {
     if (["/", "/room", "/game"].includes(url.pathname))
       return env.ASSETS.fetch(new Request(new URL("/", url), request));
     const response=await env.ASSETS.fetch(request);
-    if(response.ok && /^\/assets\/(?:outfits\/[a-z0-9_-]+\/)?[a-z0-9_-]+-[a-f0-9]{12}\.webp$/.test(url.pathname)){
+    const versionedImage=/^\/assets\/(?:outfits\/[a-z0-9_-]+\/)?[a-z0-9_-]+-[a-f0-9]{12}\.webp$/.test(url.pathname);
+    const versionedCode=/^\/assets\/[a-zA-Z0-9_-]+-[a-zA-Z0-9_-]{8,}\.(js|css)$/.test(url.pathname);
+    if(response.ok && (versionedImage||versionedCode)){
       const headers=new Headers(response.headers);headers.set('cache-control','public, max-age=31536000, immutable');
       return new Response(response.body,{status:response.status,headers});
     }

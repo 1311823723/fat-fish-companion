@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import outfitCatalog from "../../public/assets/outfits-v1.json";
+import roomRuntime from '../../public/assets/room-runtime.json';
+import roomLayout from '../../public/assets/room-layout-v6.json';
 export type World = any;
 type Action = (name: string) => void;
 export class Room extends Phaser.Scene {
@@ -43,34 +45,39 @@ export class Room extends Phaser.Scene {
   playingReactionId: string | null = null;
   renderedFrames = 0;
   fpsStart = 0;
+  environmentSignature = '';
+  assetLoadFailed = false;
   constructor(action: Action) {
     super("room");
     this.onAction = action;
   }
   preload() {
-    this.load.image("room", "/assets/room-v5.webp");
-    this.load.image("television", "/assets/handheld-console-v1.webp");
-    this.load.image("backpack-storybook", "/assets/backpack-storybook-v1.webp");
-    this.load.image("wardrobe-v1", "/assets/wardrobe-v1.png");
-    this.load.image("door", "/assets/fridge-door-v3.webp");
-    this.load.image("curtain-fabric", "/assets/curtain-v3.webp");
-    this.load.json("room-layout", "/assets/room-layout-v6.json");
-    this.load.json("manifest", "/assets/manifest-v4.json");
+    this.load.on('loaderror',()=>{this.assetLoadFailed=true;});
+    const images=roomRuntime.images;
+    for(const key of ['room','television','backpack-storybook','wardrobe-v1','door','curtain-fabric'] as const)this.load.image(key,images[key]);
     this.load.atlas(
       "food-icons-v2",
-      "/assets/food-icons-v2.webp",
+      images['food-icons-v2'],
       "/assets/food-icons-v2.json",
     );
-    for (const n of ["idle", "walk_right", "walk_left"])
-      this.load.spritesheet(n, "/assets/" + n + "-v1.webp", {
+    this.load.on('progress',(progress:number)=>{
+      const box=document.getElementById('game');if(box)box.style.setProperty('--load-progress',`${Math.round(progress*100)}%`);
+    });
+    for (const n of ['idle'] as const)
+      this.load.spritesheet(n, roomRuntime.actions[n].file, {
         frameWidth: 256,
         frameHeight: 256,
       });
   }
   create() {
-    this.manifest = this.cache.json.get("manifest");
+    if(this.assetLoadFailed){
+      const status=document.querySelector('.loading');
+      if(status){status.textContent='有张图片没加载好 ';const retry=document.createElement('button');retry.type='button';retry.textContent='重新加载';retry.onclick=()=>location.reload();status.append(retry);}
+      return;
+    }
+    this.manifest = structuredClone(roomRuntime.actions);
     for(const outfit of outfitCatalog.outfits as any[]) for(const [name, info] of Object.entries(outfit.actions || {}) as [string,any][]) this.manifest[`${outfit.id}--${name}`]=info;
-    this.layout = this.cache.json.get("room-layout");
+    this.layout = roomLayout;
     this.add.image(0, 0, "room").setOrigin(0).setDisplaySize(600, 800);
     const tv = this.layout.objects.find(
       (o: any) => o.id === "television",
@@ -295,9 +302,6 @@ export class Room extends Phaser.Scene {
     this.events.on("shutdown", () => this.loading.clear());
     this.game.events.emit("room-ready");
     this.drawEnvironment();
-    this.time.delayedCall(1000, () => {
-      for (const name of ["headpat", "spin"]) this.ensureAnim(name);
-    });
   }
   bindTap(zone: Phaser.GameObjects.Zone, action: () => void) {
     let press: number | null = null;
@@ -364,10 +368,16 @@ export class Room extends Phaser.Scene {
     this.world = w;
     this.offset = w.serverTime - Date.now();
     if (this.pet) {
-      this.drawEnvironment();
+      this.refreshEnvironment();
       const outfit=w.wardrobe?.outfit || 'original';
       if(this.lastWarmedOutfit!==outfit){this.lastWarmedOutfit=outfit;this.warmOutfit(outfit);}
     }
+  }
+  refreshEnvironment() {
+    if(!this.world||!this.sky)return;
+    const w=this.world,signature=JSON.stringify([Math.floor((Date.now()+this.offset)/60000),w.furnishings,w.weather.available,w.weather.kind,w.travel.phase,w.travel.note,w.arcade?.activeCount,w.kitchen.items.map((f:any)=>[f.id,f.count])]);
+    if(signature===this.environmentSignature)return;
+    this.environmentSignature=signature;this.drawEnvironment();
   }
   async prepareOutfit(outfit: string) {
     const activity=this.world?.activity?.name;
@@ -387,7 +397,7 @@ export class Room extends Phaser.Scene {
     const run=()=>{
       if(document.hidden || (this.world?.wardrobe?.outfit || 'original')!==outfit)return;
       if(document.querySelector('dialog[open]')){window.setTimeout(run,1500);return;}
-      for(const n of ['idle','walk_left','walk_right']){const key=this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n;this.ensureAnim(key);}
+      for(const n of (this.world?.activity?.name==='walk'?['idle','walk_left','walk_right']:['idle'])){const key=this.manifest[`${outfit}--${n}`]?`${outfit}--${n}`:n;this.ensureAnim(key);}
     };
     window.setTimeout(run,1500);
   }
@@ -833,7 +843,7 @@ export class Room extends Phaser.Scene {
     this.shadow.setPosition(this.x, this.y + 2).setDepth(3);
     if (Math.floor(_time / 60000) !== Number(this.lastLayout)) {
       this.lastLayout = String(Math.floor(_time / 60000));
-      this.drawEnvironment();
+      this.refreshEnvironment();
     }
   }
 }

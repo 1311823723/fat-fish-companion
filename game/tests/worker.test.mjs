@@ -33,3 +33,8 @@ test('only content-versioned outfit images receive immutable caching',async()=>{
  const unchanged=await worker.fetch(new Request('https://game.example/assets/outfits/sample/reference.png'),env);
  assert.equal(unchanged.headers.get('cache-control'),'public,max-age=0');
 });
+test('hashed scripts and CSS cache while unversioned URLs still revalidate',async()=>{
+ const env={ASSETS:{fetch:async()=>new Response('asset',{headers:{'cache-control':'public,max-age=0'}})}};
+ for(const file of ['index-Abcd1234.js','phaser-C831z-fk.js','index-DNnnWhiR.css'])assert.match((await worker.fetch(new Request('https://game.example/assets/'+file),env)).headers.get('cache-control'),/immutable/);
+ for(const file of ['main.js','main.css','outfits-v1.json','room-v5.webp'])assert.equal((await worker.fetch(new Request('https://game.example/assets/'+file),env)).headers.get('cache-control'),'public,max-age=0');
+});

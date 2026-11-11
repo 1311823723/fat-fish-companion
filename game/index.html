@@ -8,6 +8,7 @@
     />
     <meta name="theme-color" content="#f4efe4" />
     <title>大肥鱼的小屋</title>
+    <style>#game{position:relative;aspect-ratio:3/4;overflow:hidden;background:#eaddc9;border-radius:26px}.room-placeholder{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}.loading{position:absolute;z-index:3;left:50%;bottom:24px;transform:translateX(-50%);margin:0;padding:12px 18px;border-radius:16px;background:#fffaf2ed;color:#526d84;font:13px sans-serif;white-space:nowrap}.loading-track{display:block;width:120px;height:3px;margin:9px auto 0;border-radius:4px;background:#dce1df;overflow:hidden}.loading-track::after{content:'';display:block;width:var(--load-progress,0%);height:100%;background:#69879b;transition:width .15s}</style>
   </head>
   <body>
     <main id="app">
@@ -23,7 +24,8 @@
       </form>
       <label id="notifyChoice" class="notify-choice" hidden><input type="checkbox" id="notifyMe" /> 回复后通过 QQ 提醒我（需在私聊白名单）</label>
       <section id="game" aria-label="互动小屋">
-        <p class="loading">打开小屋…</p>
+        <img class="room-placeholder" src="/assets/room-v5.webp" alt="" width="900" height="1200" fetchpriority="high" decoding="async" />
+        <p class="loading" role="status">正在打开小屋<span class="loading-track" aria-hidden="true"></span></p>
         <div class="room-status" aria-label="小屋时间、天气与大肥鱼状态">
           <time id="clock" class="room-status-clock"></time>
           <span id="weather" class="room-status-weather">天气同步中</span>

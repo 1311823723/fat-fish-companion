@@ -20,6 +20,22 @@ let world: World = null,
   reconnect: ReturnType<typeof setTimeout>,
   generation = 0,
   entryPrompted = false;
+const warmedPreviews=new Set<string>();
+let previewWarmScheduled=false;
+function warmWardrobePreviews(){
+  if(previewWarmScheduled||!room?.pet||!world)return;
+  const connection=(navigator as Navigator & {connection?:{saveData?:boolean;effectiveType?:string}}).connection;
+  if(document.hidden||connection?.saveData||['slow-2g','2g'].includes(connection?.effectiveType||''))return;
+  previewWarmScheduled=true;
+  window.setTimeout(()=>{
+    previewWarmScheduled=false;if(document.hidden)return;
+    for(const item of world?.wardrobe?.outfits||[]){
+      const src=item.preview;
+      if(!/^\/assets\/(?:outfits\/[a-z0-9_-]+\/)?[a-z0-9_-]+-[a-f0-9]{12}\.webp$/.test(src||'')||warmedPreviews.has(src))continue;
+      warmedPreviews.add(src);const image=new Image();image.decoding='async';image.fetchPriority='low';image.src=src;image.onerror=()=>warmedPreviews.delete(src);
+    }
+  },2200);
+}
 const panel = $<HTMLDialogElement>("panel"),
   body = $("panelBody"),
   notice = (text: string) => {
@@ -71,6 +87,7 @@ function render(w: World) {
   if (world && w.revision < world.revision) return;
   world = w;
   room.sync(w);
+  warmWardrobePreviews();
   if (w.identity) identity = w.identity;
   for (const key of ["hunger", "energy", "mood"]) {
     const n = key === "mood" ? w.mood.value : w[key];
@@ -179,7 +196,9 @@ const sceneAction = (name: string) => {
     for(const item of world.wardrobe?.outfits || []) {
       const card=element('button','','wardrobe-card');card.type='button';
       const art=element('img','','wardrobe-preview');
-      art.alt='';art.width=132;art.height=150;art.loading='lazy';art.decoding='async';
+      art.alt='';art.width=132;art.height=150;art.loading='eager';art.decoding='async';
+      art.onload=()=>card.classList.add('is-ready');
+      art.onerror=()=>{card.classList.add('preview-unavailable');card.append(element('small','预览暂不可用'));};
       const preview=item.preview || (item.id==='original'?'/assets/reference-v1.png':item.photoReference);
       if(/^\/assets\/(?:outfits\/[a-z0-9_-]+\/)?[a-zA-Z0-9_-]+\.(png|webp)$/.test(preview||'')) art.src=preview;
       const label=element('span',item.name.replace('（试验）',''));
@@ -284,6 +303,8 @@ $("moreActions").onclick = () => {
 
 game.events.once("room-ready", () => {
   document.querySelector(".loading")?.remove();
+  const box=$('game');box.dataset.sceneReadyMs=String(Math.round(performance.now()));
+  const placeholder=document.querySelector('.room-placeholder');placeholder?.classList.add('is-ready');window.setTimeout(()=>placeholder?.remove(),220);
   if (world) room.sync(world);
 });
 document.addEventListener("visibilitychange", () => {
@@ -876,15 +897,19 @@ let chatPending: { text: string; id: string } | null = null;
 let chatBusy = false;
 let replyTimer: ReturnType<typeof setTimeout> | undefined;
 const roomReply = $("roomReply");
+let lastReplyPositionAt=0;
 function positionReply() {
   if (roomReply.hidden) return;
+  const tick=performance.now();
+  if(tick-lastReplyPositionAt<33){requestAnimationFrame(positionReply);return;}lastReplyPositionAt=tick;
   const gameBox = $("game");
   const bounds = room.pet?.visible ? room.pet.getBounds() : null;
   const x = bounds ? (bounds.centerX / 600) * gameBox.clientWidth : gameBox.clientWidth / 2;
   const y = bounds ? (bounds.top / 800) * gameBox.clientHeight - 8 : gameBox.clientHeight * 0.2;
   const half = roomReply.offsetWidth / 2 + 8;
-  roomReply.style.left = `${Math.max(half, Math.min(gameBox.clientWidth - half, x))}px`;
-  roomReply.style.top = `${Math.max(roomReply.offsetHeight + 8, y)}px`;
+  const left=`${Math.round(Math.max(half, Math.min(gameBox.clientWidth - half, x)))}px`,top=`${Math.round(Math.max(roomReply.offsetHeight + 8, y))}px`;
+  if(roomReply.style.left!==left)roomReply.style.left=left;
+  if(roomReply.style.top!==top)roomReply.style.top=top;
   requestAnimationFrame(positionReply);
 }
 function showRoomReply(text: string, duration = 0) {
