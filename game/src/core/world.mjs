@@ -135,7 +135,7 @@ function arrive(w, events, at) {
 export function settle(w, now, events) {
   const local = new Date(now + 28800000), today=local.toISOString().slice(0,10);
   w.wardrobe ??= {outfit:'original',morning:today};
-  if (!w.travel.current && w.activity?.name !== 'sleep' && local.getUTCHours() >= 7 && w.wardrobe.morning !== today) {
+  if (w.wardrobe.auto !== false && !w.travel.current && w.activity?.name !== 'sleep' && local.getUTCHours() >= 7 && w.wardrobe.morning !== today) {
     const outfits=outfitCatalog.outfits.filter(x=>x.id!==w.wardrobe.outfit);
     if(outfits.length) w.wardrobe.outfit=outfits[Math.floor(Math.random()*outfits.length)].id;
     w.wardrobe.morning=today;
@@ -247,7 +247,12 @@ export function settle(w, now, events) {
 }
 export function apply(w, command, actor, now, events) {
   const { type, args = {} } = command;
-  if (type === 'outfit_set') {
+  if(type==='wardrobe_auto'){
+    if(typeof args.enabled!=='boolean')throw Error('换装设置无效');
+    w.wardrobe ??= {outfit:'original',morning:''};
+    w.wardrobe.auto=args.enabled;
+    event(events,'wardrobe_auto_changed',{enabled:args.enabled},now);
+  } else if (type === 'outfit_set') {
     if(w.travel.current) throw Error('肥鱼出门啦，回来后再换衣服');
     if(!outfitCatalog.outfits.some(x=>x.id===args.id)) throw Error('没有这套衣服');
     w.wardrobe ??= {outfit:'original',morning:''};
@@ -631,7 +636,7 @@ export function publicWorld(w, now) {
         : null,
     petTapReadyAt: w.petTapReadyAt || 0,
     furnishings: w.furnishings,
-    wardrobe: {outfit:w.wardrobe?.outfit || 'original',outfits:outfitCatalog.outfits.map(({id,name,preview,photoReference,inspiration})=>({id,name,preview,photoReference,inspiration}))},
+    wardrobe: {outfit:w.wardrobe?.outfit || 'original',auto:w.wardrobe?.auto!==false,outfits:outfitCatalog.outfits.map(({id,name,preview,photoReference,inspiration})=>({id,name,preview,photoReference,inspiration}))},
     weather: w.weather,
     backpack: w.backpack,
     packing: {

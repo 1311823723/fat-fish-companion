@@ -1,6 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Store} from '../src/core/store.mjs';
+test('daily random setting persists and manual selection lasts through the current day',()=>{
+ let now=Date.parse('2026-11-09T12:00:00+08:00');const store=new Store(':memory:',()=>now),actor={id:'visitor'};
+ const command=(type,args,n)=>store.transact({type,args,requestId:'wardrobe-toggle-'+n},actor);
+ try{
+  command('wardrobe_auto',{enabled:false},1);now+=86400000;
+  assert.equal(store.snapshot().wardrobe.auto,false);assert.equal(store.raw().wardrobe.outfit,'original');
+  command('outfit_set',{id:'whale_pajamas'},2);command('wardrobe_auto',{enabled:true},3);
+  now+=3600000;assert.equal(store.snapshot().wardrobe.outfit,'whale_pajamas');
+  now+=86400000;const s=store.snapshot();assert.notEqual(s.wardrobe.outfit,'whale_pajamas');
+  const chosen=s.wardrobe.outfit;now+=1000;assert.equal(store.snapshot().wardrobe.outfit,chosen);
+ }finally{store.close();}
+});
 test('wardrobe saves confirmed selections and refuses invalid or away changes',()=>{
  const now=Date.parse('2026-11-09T12:00:00+08:00');
  const store=new Store(':memory:',()=>now), actor={id:'visitor'};

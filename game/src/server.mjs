@@ -425,6 +425,7 @@ export function makeServer(c = config(), { store, fetcher = fetch } = {}) {
               "backpack_set",
               "pet_interact",
               "outfit_set",
+              "wardrobe_auto",
             ].includes(command.type)
           )
             throw Error("操作无效");
