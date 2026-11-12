@@ -248,7 +248,7 @@ export function installGameCore(room, { root }) {
           homePage: entrance,
           atHome: !w.travel.current,
           activity: p.activity.name,
-          wardrobe: p.wardrobe,
+          wardrobe: {current:p.wardrobe?.current||p.wardrobe?.outfits?.find(item=>item.id===p.wardrobe?.outfit)||null,changedAt:p.wardrobe?.changedAt||null,automatic:p.wardrobe?.automatic??null},
           recentPetReaction:
             w.petReaction && p.serverTime - w.petReaction.startedAt < 5 * 60000
               ? {
@@ -295,6 +295,7 @@ export function installGameCore(room, { root }) {
             })),
           souvenirs: p.souvenirs.slice(-3),
         }) +
+        '。wardrobe.current 是此刻实际穿着，以它为准回答衣服问题，不沿用旧聊天里的穿着。description 只是可见外观，不是固定台词；有相关话题时可以偶尔自然说一句，不必主动报衣服或每轮提起。automatic=true 只是随机选衣，不编造精心挑选的理由，也不猜是谁替你选的；没有换装时间就不说刚换了。' +
         "。状态优先于旧聊天；已回家不要说还在路上。聊天中想去哪里只是意愿，必须调用 qq_cottage 的 travel 并得到成功确认，才能说已出发或正在路上；未调用、失败或状态不可用时只能说想去、还没出发，不要承诺已执行。foodChoices仅是实际吃过的统计，不等于永久喜好；可以自然提及最近吃的，但不能凭空说是谁放的。有值得记住的真实来访、用餐、留言或旅行经历时，可以自愿写日记，别每日强制总结；相册文案依据同一真实事件。出门由自己的意愿决定，没有真实邀请就不要说被人丢去或安排过去。精力低也应正常回应私聊和艾特。哼歌活动不代表已发送语音，QQ语音是否发出只看已确认的发送记录。拍照事件不代表照片已发送，发没发只按已确认的发送记录判断。homePage是你现在正式的小屋入口，分享时用这个地址，优先于记忆中的旧地址。有合适缘由时，可以自然邀请别人来放吃的、看旅行相册、和你玩游戏；沿用现有白名单和分享频率，不固定刷屏宣传。不为访客透露熟人的私人资料，主人日记不向访客开放。未配置入口时不要编造链接。"
       );
     } catch {
@@ -366,6 +367,22 @@ export function installGameCore(room, { root }) {
     refresh,
     context: room.travelContext,
     photoDirectory: settings.photoDirectory,
+    async travelPhotos(query = '') {
+      await refresh();
+      const needle=String(query).trim().toLocaleLowerCase().slice(0,80);
+      return current().public.photos.slice().reverse().filter(({place,capturedAt,caption})=>{
+        const timestamp=new Date(capturedAt);
+        const date=Number.isFinite(timestamp.getTime())?timestamp.toLocaleString('sv-SE',{timeZone:'Asia/Shanghai'}):'';
+        return !needle||[typeof place==='string'?place:place?.label,caption,date].some(value=>String(value||'').toLocaleLowerCase().includes(needle));
+      }).slice(0,30).map(({photoId,place,capturedAt,caption})=>({photoId,place,capturedAt,caption}));
+    },
+    async travelPhoto(photoId) {
+      await refresh();
+      const {world:w,public:p}=current(),photo=photoId?p.photos.find(item=>item.photoId===photoId):p.photos.at(-1);
+      if(!photo)throw Error('旅行相册里没有这张照片');
+      const trip=[...w.travel.pending,...w.travel.history].find(item=>item.id===photo.photoId&&item.photo?.status==='ready')||{id:photo.photoId,photo:{status:'ready',id:photo.photoId},place:{label:String(photo.place||'外面')},food:{label:'没有带饭'}};
+      return {trip,caption:photo.caption};
+    },
     async readPhoto(id) {
       if (!/^[a-f0-9-]{36}$/.test(String(id))) throw Error('图片编号无效');
       const response=await fetch(settings.url+'/internal/photo',{method:'POST',headers:{'content-type':'application/json','x-game-adapter':settings.secret},body:JSON.stringify({id}),signal:AbortSignal.timeout(15000)});
@@ -392,7 +409,7 @@ export function installGameCore(room, { root }) {
         await refresh();
       }
       const {world:w, public:p}=current();
-      return {ok:true, serverTime:p.serverTime, phase:w.travel.current?"away":"home", destination:w.travel.current?.place?.label || null, returnAt:w.travel.current?.returnAt || null, activity:p.activity?.name, hunger:p.hunger, energy:p.energy, furnishings:w.furnishings};
+      return {ok:true, serverTime:p.serverTime, phase:w.travel.current?"away":"home", destination:w.travel.current?.place?.label || null, returnAt:w.travel.current?.returnAt || null, activity:p.activity?.name, wardrobe:p.wardrobe?.current||null, hunger:p.hunger, energy:p.energy, furnishings:w.furnishings};
     },
     async tick({
       generate,
