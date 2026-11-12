@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import {spriteScale} from './sprite-scale.mjs';
 import outfitCatalog from "../../public/assets/outfits-v1.json";
 import roomRuntime from '../../public/assets/room-runtime.json';
 import roomLayout from '../../public/assets/room-layout-v6.json';
@@ -760,7 +761,6 @@ export class Room extends Phaser.Scene {
       ).standPoint;
       tx = bed.x;
       ty = bed.y;
-      scale = 0.65;
     } else if (["eat", "tea", "read"].includes(a.name)) {
       name =
         a.name === "read"
@@ -773,7 +773,6 @@ export class Room extends Phaser.Scene {
       ).standPoint;
       tx = chair.x;
       ty = chair.y;
-      scale = 0.65;
     } else if (a.name === "sing") {
       name = "sing";
     } else if (a.name === "rest") {
@@ -803,7 +802,7 @@ export class Room extends Phaser.Scene {
           id: reaction.id,
           x: this.x,
           y: this.y,
-          scale: this.pet.scaleX,
+          scale,
         };
       name = reaction.kind;
       tx = this.reactionAnchor.x;
@@ -839,7 +838,7 @@ export class Room extends Phaser.Scene {
       } else this.pet.play(key);
       document.getElementById("game")!.dataset.animation = key;
     }
-    this.pet.setPosition(this.x, this.y).setScale(scale*(this.manifest[key].grid?256/this.manifest[key].grid.height:1)).setDepth(4);
+    this.pet.setPosition(this.x, this.y).setScale(spriteScale(this.manifest,key,scale)).setDepth(4);
     this.shadow.setPosition(this.x, this.y + 2).setDepth(3);
     if (Math.floor(_time / 60000) !== Number(this.lastLayout)) {
       this.lastLayout = String(Math.floor(_time / 60000));

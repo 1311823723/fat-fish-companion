@@ -201,8 +201,7 @@ const sceneAction = (name: string) => {
     const auto=element('button');auto.type='button';
     const updateAuto=()=>{auto.textContent=world.wardrobe?.auto!==false?'每天随机换装：开':'每天随机换装：关';auto.setAttribute('aria-pressed',String(world.wardrobe?.auto!==false));};
     updateAuto();auto.onclick=async()=>{if(await command('wardrobe_auto',{enabled:world.wardrobe?.auto===false},auto))updateAuto();};
-    body.append(auto,element('p','早上7点后醒来随机换一套；手动选的衣服当天保留。','subtle'));
-    body.append(element('p',`衣柜里有 ${world.wardrobe?.outfits?.length || 0} 套衣服，选一套再换上。`,'subtle'));
+    body.append(auto);
     const grid=element('div','','wardrobe-grid');
     let selected=world.wardrobe.outfit;
     const cards:HTMLButtonElement[]=[];
