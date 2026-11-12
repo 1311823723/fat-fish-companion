@@ -176,7 +176,14 @@ async function command(type: string, args: any, button?: HTMLButtonElement) {
     notice("");
     return true;
   } catch (e) {
-    notice((e as Error).message + "，可以重试。");
+    const reason=(e as Error).message;
+    if(type==='activity'){
+      const empty=['冰箱里没有合适的食物','没有可用的食物'].includes(reason);
+      const message=empty
+        ? args.name==='tea'?'冰箱里没有喝的啦，给我放点饮料吧。':'冰箱里没饭啦，给我放点吃的吧。'
+        : reason==='她还在外面'?'我还在外面呢，等回来再一起玩！':reason;
+      panel.close();notice(message);showRoomReply(message,12000);
+    }else notice(reason + "，可以重试。");
     return false;
   } finally {
     if (button) {
