@@ -242,30 +242,30 @@ export class Room extends Phaser.Scene {
     this.notePaper = this.add
       .container(this.layout.note.x, this.layout.note.y)
       .setScale(this.layout.note.scale)
-      .setRotation(0.075)
+      .setRotation(-0.035)
       .setDepth(5);
     const paper = this.add.graphics();
-    paper.fillStyle(0x604f36, 0.18).fillRoundedRect(3, 4, 78, 65, 2);
-    paper.fillStyle(0xfff2c9).fillRoundedRect(0, 0, 78, 65, 2);
-    paper.lineStyle(1, 0xe5d5a9).strokeRoundedRect(0, 0, 78, 65, 2);
+    paper.fillStyle(0x604f36, 0.18).fillRoundedRect(3, 4, 90, 76, 3);
+    paper.fillStyle(0xfff2c9).fillRoundedRect(0, 0, 90, 76, 3);
+    paper.lineStyle(1, 0xe5d5a9).strokeRoundedRect(0, 0, 90, 76, 3);
     paper.lineStyle(1, 0xe9dcb9, 0.65);
-    for (let y = 22; y < 61; y += 14) paper.lineBetween(7, y, 70, y);
-    paper.fillStyle(0xe5cf9e).fillTriangle(66, 65, 78, 53, 78, 65);
-    paper.fillStyle(0xe3b39b, 0.65).fillRect(23, -5, 31, 10);
+    for (let y = 27; y < 66; y += 16) paper.lineBetween(7, y, 82, y);
+    paper.fillStyle(0xe5cf9e).fillTriangle(78, 76, 90, 64, 90, 76);
+    paper.fillStyle(0xe3b39b, 0.65).fillRect(29, -5, 32, 10);
     this.note = this.add.text(7, 12, "", {
       fontFamily: "KaiTi, STKaiti, Microsoft YaHei",
-      fontSize: "12px",
+      fontSize: "14px",
       color: "#78624d",
       lineSpacing: 0,
-      wordWrap: { width: 64 },
+      wordWrap: { width: 76 },
     });
-    const signature = this.add.text(47, 56, "小鱼", {
+    const signature = this.add.text(57, 65, "小鱼", {
       fontFamily: "KaiTi, STKaiti, serif",
       fontSize: "8px",
       color: "#a58c6a",
     });
     const hit = this.add
-      .zone(39, 30, 88, 78)
+      .zone(45, 38, 100, 84)
       .setInteractive({ useHandCursor: true });
     this.bindTap(hit, () => this.onAction("note"));
     this.notePaper.add([paper, this.note, signature, hit]);

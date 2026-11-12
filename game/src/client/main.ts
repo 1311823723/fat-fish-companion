@@ -526,7 +526,7 @@ noteButton.id = "note";
 noteButton.hidden = true;
 document.body.append(noteButton);
 noteButton.onclick = () => {
-  open("桌上的便条");
+  open("冰箱上方的便条");
   const paper = element("article", "", "travel-note-paper");
   paper.append(
     element("p", world?.travel.note || "她已经回家啦。", "travel-note-body"),
