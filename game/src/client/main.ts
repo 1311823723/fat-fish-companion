@@ -1,5 +1,6 @@
 import { openDiary } from "./diary";
 import { createArcadeUI } from "./arcade";
+import {createPanelClickGuard} from './panel-gestures.mjs';
 import Phaser from "phaser";
 import { Room, World } from "./room";
 import "./style.css";
@@ -67,6 +68,17 @@ function open(title: string) {
 }
 $("closePanel").onclick = () => panel.close();
 panel.addEventListener("close", () => generation++);
+const panelClickGuard=createPanelClickGuard();
+const panelControl=(target:EventTarget|null)=>target instanceof Element?target.closest('button,a,input,select,textarea,summary,[role="button"]'):null;
+document.addEventListener('pointerdown',event=>{
+  panelClickGuard.begin(panel.open&&event.target instanceof Node&&panel.contains(event.target)?panelControl(event.target):null,generation);
+},true);
+document.addEventListener('pointercancel',()=>panelClickGuard.cancel(),true);
+document.addEventListener('click',event=>{
+  if(panel.open&&event.target instanceof Node&&panel.contains(event.target)){
+    if(!panelClickGuard.accept(panelControl(event.target),generation,event.detail)){event.preventDefault();event.stopImmediatePropagation();}
+  }else if(event.detail>0)panelClickGuard.cancel();
+},true);
 async function api(route: string, args: any = {}) {
   const r = await fetch("/api/room-" + route, {
     method: "POST",
