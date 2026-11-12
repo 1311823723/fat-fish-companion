@@ -9,7 +9,18 @@ export function conversationRhythm(messages=[],now=Date.now()){
   const last=incoming.at(-1);
   const own=recent.filter(m=>m.isSelf&&body(m)).slice(-3);
   const questionCount=own.filter(m=>question(body(m))).length;
-  const common={avoidExtraQuestion:questionCount>=2,recentSelfQuestionCount:questionCount,
+  // Only classify this conversation's own recent replies. Never copy chat text
+  // into instructions, ban vocabulary, or spend another model call rewriting it.
+  const patterns={
+    speechEvaluation:/(?:这|那)(?:句|段)?话.{0,5}(?:稳|重|轻|沉|漂亮|响)|(?:^|[，。！？\s])比(?:刚才|之前).{0,5}(?:稳|重|轻|平)|没接.{0,6}(?:句|话)/,
+    memoryDeclaration:/(?:这(?:句|段)?话.{0,4})?我(?:都)?(?:记住|记下|记着|收下|留着)|这(?:个)?账.{0,4}记/,
+    solemnClosing:/我(?:不催|不拦|守着)|你(?:自己)?掂量|你去.{0,3}我跟|行[，, ]*我认/,
+  };
+  const sample=recent.filter(m=>m.isSelf&&body(m)).slice(-6);
+  const repeatedStyles=Object.entries(patterns).filter(([,pattern])=>sample.filter(m=>pattern.test(body(m))).length>=2).map(([name])=>name);
+  const expressionVariety={repeatedStyles,
+    guidance:repeatedStyles.length?'近期有相似表达重复；这次优先回应事情的具体内容，换一种符合原有性格的自然接法。只是临时提醒，相关词语仍可在合适语境使用，不必刻意找同义词、绕开原意或说明自己正在调整。':'没有明显重复，不必刻意变换口吻。'};
+  const common={expressionVariety,avoidExtraQuestion:questionCount>=2,recentSelfQuestionCount:questionCount,
     rule:'只根据当前会话和这句话决定接法，不推断性格或病情；这是临时参考。明确的问题先回答，不靠装傻、已读乱回或虚构忙碌制造真人感。'};
   if(!last)return {...common,kind:'noFreshMessage',sourceMessageId:null,guidance:'当前没有新鲜来信可据此判断语气。主动联系使用真实缘由候选，没人回复时不要补一句追问。'};
   const text=body(last),id=String(last.messageId||''),length=[...text].length;
