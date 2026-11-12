@@ -1,3 +1,4 @@
+import {routeGame,installGameEvents} from './game-public-adapter.mjs';
 import http from 'node:http';import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {fileURLToPath} from 'node:url';
 import {ROOM_ROOT,roomSettings} from './room-settings.mjs';
 const ROOT=ROOM_ROOT;
@@ -18,6 +19,7 @@ export function createVisitorGateway({root=ROOT,secret,upstream='http://127.0.0.
  const server=http.createServer(async(req,res)=>{
   const send=(value,status=200,extra={})=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8',...headers,...extra});res.end(JSON.stringify(value));};
   try{
+   if(await routeGame(req,res,{root}))return;
    const url=new URL(req.url,'http://localhost');
    if(req.method==='GET'&&['/','/room'].includes(url.pathname)){res.writeHead(200,{'content-type':'text/html; charset=utf-8',...headers});res.end(fs.readFileSync(path.join(root,'public/room-live.html'),'utf8'));return;}
    const files={'/room-live.js':['room-live.js','text/javascript; charset=utf-8'],'/room-assets/sprites.webp':['room-assets/sprites.webp','image/webp'],'/room-assets/animations.json':['room-assets/animations.json','application/json'],'/room-assets/LICENSE.txt':['room-assets/LICENSE.txt','text/plain; charset=utf-8'],'/room-assets/CREDITS.txt':['room-assets/CREDITS.txt','text/plain; charset=utf-8']};
@@ -43,12 +45,12 @@ export function createVisitorGateway({root=ROOT,secret,upstream='http://127.0.0.
    }
    if(action==='diary_list'){if(body.cursor!==undefined&&!/^(?:[a-f0-9]{20})?$/.test(String(body.cursor))){send({ok:false,error:'日记翻页位置无效'},400);return;}clean.cursor=String(body.cursor||'');}
    if(action==='diary_read'){if(!/^[a-f0-9]{20}$/.test(String(body.id||''))){send({ok:false,error:'日记编号无效'},400);return;}clean.id=body.id;}
-   if(action==='pet_action')clean.name=typeof body.name==='string'?body.name:'';
+   if(action==='pet_action')clean.requestId=body.requestId;clean.name=typeof body.name==='string'?body.name:'';
    const result=await call(action,clean,id);
    const extra={};if(cookie&&result.data.ok)extra['Set-Cookie']=cookie;if(action==='leave')extra['Set-Cookie']=`room_visitor=; HttpOnly; ${secureCookies?'Secure; ':''}SameSite=Strict; Path=/; Max-Age=0`;
    send(result.data,result.status,extra);
   }catch{if(!res.headersSent)send({ok:false,error:'小屋暂时连不上，请稍后再试'},502);else res.end();}
- });server.requestTimeout=25000;server.headersTimeout=10000;return server;
+ });server.requestTimeout=110000;server.headersTimeout=10000;installGameEvents(server,{root});return server;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const key=fs.readFileSync(path.join(ROOT,'state/room-public/visitor-signing-key'),'utf8').trim();

@@ -82,3 +82,6 @@ room-release/
 __pycache__/
 *.pyc
 XIAOHEIHE_POST.md
+
+# Living game moved to its own repository; ignore leftover local builds.
+/game/

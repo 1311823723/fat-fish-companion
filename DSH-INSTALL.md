@@ -1,4 +1,11 @@
-新版独立生活游戏请先读 [game/DEPLOYMENT_AGENT.md](game/DEPLOYMENT_AGENT.md)。以下为旧版桥接安装流程；不要同时启动两套生活写入。
+# 给 DSH：聊天桥接与可选生活小屋
+
+本仓库是聊天桥接。新版小屋独立仓库：https://github.com/1311823723/fat-fish-cottage。先读 docs/REPOSITORIES.md；不要查找 game 子目录。需要小屋时在另一个目录克隆新仓库，按其根目录 DEPLOYMENT_AGENT.md 安装、测试、构建和启动。只需要聊天时按本 README 配置 DSH 与 QQ。
+
+两个仓库都需要时，先各自诊断，再从小屋目录运行 npm run bridge:link -- --bridge <聊天目录> 预览；会话空闲并停相关服务后加 --apply 应用。保留配置、登录、记忆与存档；不把新克隆的空存档覆盖原数据。私网/公网按部署者选择，默认本地，不强制 Cloudflare。账号扫码与外部授权需要本人参与，不能从源码取得。
+
+以下是旧版内置小屋的兼容安装说明；新部署使用上面独立仓库流程，不再同时开启旧生活调度器。
+
 
 # 给DSH：安装手机小屋
 

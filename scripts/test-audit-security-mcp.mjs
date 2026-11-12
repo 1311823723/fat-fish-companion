@@ -5,11 +5,13 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { test } from 'node:test';
 import { z } from 'zod';
+import * as qzone from '../src/qzone-lib.js';
+import * as diary from '../src/diary-lib.js';
 
 function loadWebTools(safeFetch) {
   const tools = new Map();
   const source = fs.readFileSync(new URL('../src/mcp-web-search-safe.js', import.meta.url), 'utf8')
-    .replace(/^import .*;\r?\n/gm, '')
+    .replace(/^import[\s\S]*?;\r?\n/gm, '')
     .replace('await server.connect(new StdioServerTransport());', 'server.connect(new StdioServerTransport());');
   class McpServer {
     tool(name, description, schema, callback) { tools.set(name, { schema, callback }); }
@@ -59,7 +61,7 @@ function loadSnowlumaTools(fetchImpl, fixtureConfig = null) {
   const tools = new Map();
   // vm 里没有 ESM 的 import.meta，把模块顶部的 __dirname 推导整段替换成固定值。
   const source = fs.readFileSync(new URL('../src/mcp-snowluma-safe.js', import.meta.url), 'utf8')
-    .replace(/^import .*;\r?\n/gm, '')
+    .replace(/^import[\s\S]*?;\r?\n/gm, '')
     .replace("const __dirname = path.dirname(fileURLToPath(import.meta.url));", "const __dirname = '/fixture/src';")
     .replace('await server.connect(new StdioServerTransport());', 'server.connect(new StdioServerTransport());');
   class McpServer {
@@ -92,6 +94,8 @@ function loadSnowlumaTools(fetchImpl, fixtureConfig = null) {
     fs: fixtureFs,
     SENSITIVE_RE: { test: () => false },
     serializeModelData: (value) => JSON.stringify(value),
+    ...qzone,
+    ...diary,
   });
   return async (name, arguments_ = {}) => {
     const tool = tools.get(name);

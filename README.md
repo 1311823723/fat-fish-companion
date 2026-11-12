@@ -1,12 +1,16 @@
-> **新版生活小游戏（独立目录）**：已加入 Phaser 4.2.1、Node 24 / SQLite 统一世界、饱食与精力、背包与纪念品、冻结拍照事件与 Cloudflare Pages 部署。新增手绘电视小游戏：四子棋、多人独立对局、可回看的对战记录与赛后复盘，见 [玩法与演示](game/docs/ARCADE.md)。先读 [game/README.md](game/README.md)；部署助手读取 [game/DEPLOYMENT_AGENT.md](game/DEPLOYMENT_AGENT.md)。旧版迁移需备份、核对计数并关闭旧调度器。绘图依赖实际服务，失败不会伪装成成功；公网入口由部署者选择。
-# QQ ↔ DeepSeek Harness 桥接
+# 大肥鱼聊天桥接 · QQ ↔ DeepSeek Harness
 
-> **手机小屋版**：这是基于 [qq-bridge](https://github.com/Derpyu520/qq-bridge) 的扩展，包含竖屏小屋、QQ验证和主人日记入口。先看 [安装说明](docs/ROOM-DEPLOY.md)；把仓库地址交给 DSH 时，让它读取 [DSH-INSTALL.md](DSH-INSTALL.md)。
+**项目现已分仓维护。** 本仓库负责 QQ、DSH、角色、身份与聊天记忆；房间、衣柜、食物、旅行、相册和小游戏迁至 [fat-fish-cottage](https://github.com/1311823723/fat-fish-cottage)。新安装小屋请从新仓库根目录开始，主分支已无 game 子目录。
+
+两边连接后仍是同一个肥鱼、同一份生活状态。见 [仓库分工与连接](docs/REPOSITORIES.md)；给部署助手看 [DSH-INSTALL.md](DSH-INSTALL.md)。只需要游戏不用安装聊天桥接，公网也不是必选项。原有运行配置、账号、聊天和存档均未搬动或公开。
+
+
+> **旧版手机小屋兼容说明**：这是基于 [qq-bridge](https://github.com/Derpyu520/qq-bridge) 的扩展，包含竖屏小屋、QQ验证和主人日记入口。先看 [安装说明](docs/ROOM-DEPLOY.md)；把仓库地址交给 DSH 时，让它读取 [DSH-INSTALL.md](DSH-INSTALL.md)。
 > 本仓库不包含任何人的QQ登录、记忆、角色存档、语音模型或模型API密钥。模型与QQ服务需要自己配置。代码沿用项目MIT许可，角色动画另受 [CC BY-NC-SA 4.0](public/room-assets/LICENSE.txt) 限制，请保留署名并注意非商业条件。
 
 
 
-## 手机小屋与DSH辅助安装
+## 旧版小屋兼容与DSH辅助安装
 
 竖屏房间、访客聊天与QQ验证记忆关联：先读 [DSH-INSTALL.md](DSH-INSTALL.md)，详细安装和本机/局域网/公网访问见 [docs/ROOM-DEPLOY.md](docs/ROOM-DEPLOY.md)。默认仅本机；公网由部署人选择。发布前读 [docs/ROOM-RELEASE.md](docs/ROOM-RELEASE.md)。
 

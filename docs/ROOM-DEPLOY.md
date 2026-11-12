@@ -1,3 +1,5 @@
+> 此文保留旧版内置小屋兼容流程。新版生活游戏已迁至 [fat-fish-cottage](https://github.com/1311823723/fat-fish-cottage)；先读 [分仓连接说明](REPOSITORIES.md)，不要同时运行两套生活调度器。
+
 # 手机小屋：安装与访问
 
 本小屋随当前QQ Bridge运行，使用现有QQ身份验证、人账和私有记忆。它不是纯静态网站，不能只放到GitHub Pages后获得聊天功能。GitHub负责分发代码；聊天仍需部署人的后端与模型额度。

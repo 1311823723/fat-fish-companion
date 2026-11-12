@@ -1,3 +1,5 @@
+> The living game is now maintained separately in [fat-fish-cottage](https://github.com/1311823723/fat-fish-cottage). This repository owns QQ/DSH, identity and chat memory. See [repository boundaries](docs/REPOSITORIES.md). There is no game subdirectory on main.
+
 # QQ ↔ DeepSeek Harness Bridge (qq-bridge)
 
 > Connect QQ messages to DeepSeek Harness (DSH) agents: QQ friends/groups become DSH conversations, and agent replies (including questions and tool approvals) are sent back to QQ.

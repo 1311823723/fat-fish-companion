@@ -2,6 +2,9 @@ import {roomSettings,generateRoomReply} from '../src/room-settings.mjs';
 import {WebRoom} from '../src/web-room.mjs';
 import {LivingSpace} from '../src/living-space.js';
 import {personalityContinuity} from '../src/personality-continuity.js';
+import {installGameCore} from '../src/game-core-adapter.mjs';
+import {startGameBridge} from '../src/game-bridge-hooks.mjs';
+import {confirmedGroupRemoval,isSelfGroupDeparture} from '../src/removed-groups.js';
 import {conversationRhythm} from '../src/conversation-rhythm.js';
 import {buildInitiativeContext} from '../src/initiative-policy.js';
 // Execute the real bridge initialization/functions against temporary files and fake peers.
@@ -170,7 +173,7 @@ export async function bridgeHarness({ config = {}, savedState, globals = {} } = 
       };
     },
     cleanupTemp: () => {},
-    buildInitiativeContext, conversationRhythm, personalityContinuity,
+    buildInitiativeContext, conversationRhythm, personalityContinuity, installGameCore, startGameBridge, confirmedGroupRemoval, isSelfGroupDeparture,
     ...globals,
   });
   const modelViewBindings = fs.readFileSync(path.join(root, 'src/bridge.js'), 'utf8').match(/import\s*\{([^}]+)\}\s*from\s*['"]\.\/qq-model-view\.js['"]/)[1].trim();
