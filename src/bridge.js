@@ -1425,7 +1425,7 @@ async function main() {
       isBusy:key=>{const h=new Date(Date.now()+28800000).getUTCHours();return h<8||h>=23||[...socialV2.conversations].some(([k,st])=>(!key||key===k)&&(isConversationBusyV2(k,st)||Date.now()-(st.lastIncomingAt||0)<15*60000));},
       isArcadeBusy:()=>[...socialV2.conversations].some(([k,st])=>isConversationBusyV2(k,st)),
       lastIncomingAt:key=>socialV2.conversations.get(key)?.lastIncomingAt||0,
-      people:()=>peopleLedger?.data||{},generate:messages=>generateRoomReply(messages,{root:ROOT}),
+      people:()=>peopleLedger?.data||{},generate:(messages,options)=>generateRoomReply(messages,{...options,root:ROOT}),
       enqueue:run=>{const next=sendChain.then(run);sendChain=next.catch(()=>{});return next;},captureGuard:captureSendGuard,
       record:(key,text)=>recordSentMessagesV2(key,[text]),log,
       contextForQQ:qq=>{if(!/^\d{5,12}$/.test(qq))return '';const recent=socialV2.conversations.get('private:'+qq)?.recentMessages||[];return serializeModelData({memories:companionMind.memories('private:'+qq,[qq]),recent:recent.slice(-12).map(m=>({role:m.isSelf?'assistant':'user',text:redactKnownTokensOnly(String(m.plain||m.text||'')).slice(0,300)}))});}
