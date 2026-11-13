@@ -48,6 +48,7 @@ export async function routeGame(req, res, { root }) {
     "/game",
     "/favicon.ico",
     "/api/room-state",
+    "/api/room-trip",
     "/api/room-action",
     "/api/room-chat",
     "/api/room-history",
