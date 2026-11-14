@@ -1,3 +1,4 @@
+import {trustedQqMediaHost,proxyFakeIp,resolveQqPublicDns} from './qq-public-dns.js';
 // 只读 HTTP(S) 安全抓取工具：供 qq-bridge / MCP 共用。
 // 设计目标与 mcp-web-search-safe 一致：
 // - 仅 http/https
@@ -109,7 +110,7 @@ export function isPrivateIp(ip) {
   return true;
 }
 
-export async function resolveSafeHost(hostname) {
+export async function resolveSafeHost(hostname, {lookup=dnsLookup,publicDns=resolveQqPublicDns}={}) {
   const h = String(hostname || '').toLowerCase().replace(/^\[|\]$/g, '').replace(/\.$/, '');
   if (!h) throw new Error('主机名为空');
   if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local')) {
@@ -121,11 +122,16 @@ export async function resolveSafeHost(hostname) {
   }
   let addresses;
   try {
-    addresses = await withTimeout(dnsLookup(h, { all: true, verbatim: true }), 5000, `DNS 解析 ${h}`);
+    addresses = await withTimeout(lookup(h, { all: true, verbatim: true }), 5000, `DNS 解析 ${h}`);
   } catch (error) {
     throw new Error(`域名解析失败：${error?.message ?? error}`);
   }
   if (!addresses.length) throw new Error('域名没有解析结果');
+  if(addresses.some(({address})=>isPrivateIp(address)) && trustedQqMediaHost(h) && addresses.every(({address})=>!isPrivateIp(address)||proxyFakeIp(address))){
+    const resolved=await publicDns(h);
+    if(!Array.isArray(resolved)||!resolved.length)throw Error('QQ图片公网DNS没有结果');
+    addresses=resolved.map(address=>({address,family:net.isIP(address)}));
+  }
   for (const { address } of addresses) {
     if (isPrivateIp(address)) {
       throw new Error('域名解析到内网/本机地址，已阻止');

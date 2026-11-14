@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';import {resolveSafeHost,isPrivateIp,validateFetchUrl} from '../src/safe-fetch.js';
+const lookup=async()=>[{address:'198.18.0.6'},{address:'2001:2::6'}];let calls=0;
+assert.equal(await resolveSafeHost('multimedia.nt.qq.com.cn',{lookup,publicDns:async()=>{calls++;return ['1.2.3.4','8.8.8.8'];}}),'1.2.3.4');assert.equal(calls,1);
+for(const addresses of [['127.0.0.1'],['10.0.0.1'],['198.18.0.7'],['8.8.8.8','::1'],['not-an-ip']])await assert.rejects(resolveSafeHost('multimedia.nt.qq.com.cn',{lookup,publicDns:async()=>addresses}),/内网|本机/);
+await assert.rejects(resolveSafeHost('evil.example',{lookup,publicDns:async()=>assert.fail('must not resolve')}),/内网|本机/);
+await assert.rejects(resolveSafeHost('evil.qpic.cn.attacker.example',{lookup,publicDns:async()=>assert.fail('must not resolve')}),/内网|本机/);
+await assert.rejects(resolveSafeHost('multimedia.nt.qq.com.cn',{lookup:async()=>[{address:'127.0.0.1'},{address:'198.18.0.7'}],publicDns:async()=>assert.fail('must not resolve')}),/内网|本机/);
+for(const ip of ['127.0.0.1','10.0.0.1','198.18.0.7','2001:2::7'])assert.equal(isPrivateIp(ip),true);
+await assert.rejects(validateFetchUrl('http://127.0.0.1/'),/内网|本机/);
+console.log('QQ fake-IP DNS checks passed: strict domain boundary, all-address validation, private and malformed answers rejected, SSRF protection retained.');
