@@ -16,7 +16,7 @@ export class LocalTts {
   if(this.busy)throw Error('嗓子正在合成上一句话，请先用文字，不要重复重试');
   this.busy=true;
   try {
-   if(this.config.engine==='qwen3-tts-serena-casual'){
+   if(['qwen3-tts-serena-casual','cosyvoice3-feiyu-cute'].includes(this.config.engine)){
     this.reusable??=new ReusableTts(this.root,this.config);
     const name='tts-'+crypto.randomUUID()+'.wav';
     const r=await this.reusable.synthesize({text:value,name,runtime:this.config.runtimeDir,output:path.join(this.root,'audio','generated')});

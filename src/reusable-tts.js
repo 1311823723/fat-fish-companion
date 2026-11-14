@@ -20,7 +20,8 @@ export class ReusableTts {
     });
   }
   start(){
-    const child=spawn(this.config.pythonPath,[path.join(this.root,'src/qwen-serena-worker.py'),'--serve'],{
+    const worker=this.config.engine==='cosyvoice3-feiyu-cute'?'feiyu-cosyvoice-worker.py':'qwen-serena-worker.py';
+    const child=spawn(this.config.pythonPath,[path.join(this.root,'src',worker),'--serve'],{
       cwd:this.root,windowsHide:true,env:{...process.env,PYTHONUTF8:'1',PYTHONIOENCODING:'utf-8'},stdio:['pipe','pipe','pipe'],
     });
     this.child=child;let output='',detail='';

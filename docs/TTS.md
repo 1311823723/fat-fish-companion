@@ -1,5 +1,18 @@
 # 本地短语音（2026-10-19）
 
+## 可选：大肥鱼可爱版 CosyVoice3
+
+`socialV2.tts.engine` 支持 `cosyvoice3-feiyu-cute`。使用独立 Python 环境与单独下载的模型，通过现有 `qq_speak` 合成和发送，QQ 白名单、额度、权限和回读校验继续生效。
+
+- 模型来源：[FeiyuVoice-CosyVoice3](https://huggingface.co/Esmerubphire/FeiyuVoice-CosyVoice3)，可爱版 F6 权重搭配 N01 合成参考，语速 1.0，不额外升降调。
+- 参考接入：[作者插件](https://github.com/Esmerubphire/astrbot_plugin_feiyu_voice)。模型、参考、上游源码及各自许可需独立取得，不随本仓库分发；保留模型包的 NOTICE、COPYRIGHT 与上游署名。
+- `pythonPath` 指向独立环境；`runtimeDir` 下放置 `cosyvoice-source/`（上游 074ca6dc9e80a2f424f1f74b48bdd7d3fea531cc 及固定 Matcha 子模块）、`models/tts/package/`（已校验的公开模型发布包，含 manifest、models、references）。应按发布方锁定的文件清单下载并验证哈希。
+- worker 启动检查 F6 与 N01 的哈希。4 GB CUDA 配置使用 LLM 半精度、flow/HiFT 全精度，两个阶段轮流占显存；仅支持非流式短语音。首次调用需要加载模型，连续调用复用，闲置五分钟释放进程。不是实时通话。
+- 本机验证环境：Python 3.12 / Torch 2.6 cu118 / Transformers 4.51.3 / tokenizers 0.21.4 / ruamel.yaml 0.18.6。与作者推荐的 Linux 环境不同；其他设备需重新验证兼容性。
+- 切换默认只需修改 `tts.engine/pythonPath/runtimeDir/voiceName` 并在空闲时重启桥接；工具名和权限不变，不需刷新 DSH 会话。回滚恢复此前的 tts 配置即可。
+
+以下为最早 Kokoro 方案的历史说明，并非当前部署默认引擎。
+
 ## 方案与实际效果
 
 - sherpa-onnx-node 1.13.8 + 官方 Kokoro int8 multi-lang v1_1，预置中文女声 zf_001（speakerId=3）。CPU两线程，24000Hz，不训练、不克隆声音。
