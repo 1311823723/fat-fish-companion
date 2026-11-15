@@ -8,6 +8,7 @@ const tests = [
   'test-audit-bridge.mjs', 'test-audit-protocol.mjs', 'test-audit-protocol-helpers.mjs',
   'test-audit-security.mjs', 'test-audit-security-mcp.mjs',
   'test-qq-fake-dns.mjs',
+  'test-diary-inline.mjs',
   'test-audit-setup.mjs', 'test-audit-setup-guards.mjs',
   // DSH 会话队列（inbox 投影）解析：0.2.0 把队列从 control baseline 的
   // `value.queues[<id>]` 挪进了 `value.projections[<id>].values.inbox`。

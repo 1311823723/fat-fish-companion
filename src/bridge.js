@@ -1387,7 +1387,7 @@ async function main() {
     diaryList:(cursor='')=>{
       const ownerKey='private:'+cfg.ownerQQ;
       livingSpace.syncDiary(loadDiary(diaryPathV2()),ownerKey);
-      return livingSpace.listDiaryArchive(ownerKey,cursor);
+      return livingSpace.listDiaryArchive(ownerKey,cursor,20,{includeText:true});
     },
     diaryRead:(id)=>{
       const ownerKey='private:'+cfg.ownerQQ;
