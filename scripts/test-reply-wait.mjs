@@ -133,6 +133,29 @@ test('ordinary and omitted purpose keep waiting for future messages', () => fixt
   }
 }));
 
+test('ordinary sleep wait returns a message arriving between snapshot and wait instead of waiting the full budget', () => fixture(async ({ h, key, st, request, append }) => {
+  append('already in snapshot');await h.sendWakePromptV2(key, 'question');
+  append('arrived while the life moment was thinking');
+  const result=await request('wait',{timeoutMs:1200,quietMs:100});
+  assert.equal(result.data.arrived,true);assert.equal(result.data.quiet,true);
+  assert.ok(result.data.waitedMs<700,`pending message waited ${result.data.waitedMs}ms`);
+  assert.deepEqual(result.data.newMessages.map(m=>m.seq),[2]);
+  assert.equal(result.data.readThroughSeq,2);assert.equal(st.unread.length,2);
+  const again=await request('wait',{timeoutMs:300,quietMs:100});
+  assert.equal(again.data.arrived,false);assert.deepEqual(again.data.newMessages,[]);
+}));
+
+test('ordinary wait obeys historical buffer switches while still delivering future arrivals', () => fixture(async ({ h, st, request, append }) => {
+  h.cfg.socialV2.tools.getUnread=false;h.cfg.socialV2.tools.getRecent=false;
+  append('hidden historical message');
+  const timer=setTimeout(()=>append('new message during wait'),150);
+  try{const result=await request('wait',{timeoutMs:1200,quietMs:100});
+    assert.deepEqual(result.data.newMessages.map(m=>m.seq),[2]);
+    assert.equal(result.data.readThroughSeq,0,'cannot acknowledge a hidden earlier message');
+    assert.equal(st.unread.length,2);
+  }finally{clearTimeout(timer);}
+}));
+
 test('reply mode rejects a session permission change during its remaining quiet window', () => fixture(async ({ h, st, request, append }) => {
   append('still fresh');
   const timer = setTimeout(() => h.setMode('chat'), 100);

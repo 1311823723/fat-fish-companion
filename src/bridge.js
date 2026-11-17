@@ -6596,10 +6596,11 @@ async function main() {
             st.pendingWakeTimer = null;
           }
           cancelReplyCheckV2(key); // AI 正在主动等待，取消回复检查定时器避免重复唤醒
-          // A reply wait must also include messages received while the model
-          // was reading/thinking after its snapshot, before this HTTP request.
+          // Both wait purposes must include messages received after the model's
+          // snapshot. Otherwise a life-moment can hide a fresh private message
+          // behind an entire five-minute sleep observation.
           const requestSeq = st.lastUnreadSeq || 0;
-          const baseline = replyWait && (v2ToolEnabled('getUnread') || v2ToolEnabled('getRecent')) ? readThroughSeqV2(st) : requestSeq;
+          const baseline = (v2ToolEnabled('getUnread') || v2ToolEnabled('getRecent')) ? readThroughSeqV2(st) : requestSeq;
           const start = Date.now();
           let arrived = false;
           let lastNewAt = 0;
@@ -6687,10 +6688,11 @@ async function main() {
           // getUnread, the recent buffer by getRecent. A disabled switch must not leak
           // through either newMessages or the watermark, so the buffer is dropped
           // before arrival is judged -- not filtered afterwards.
-          const history = replyWait
-            ? [...(v2ToolEnabled('getUnread') ? st.unread : []),
-              ...(v2ToolEnabled('getRecent') ? st.recentMessages : [])]
-            : (Array.isArray(st.recentMessages) ? st.recentMessages : []);
+          const history = [...(v2ToolEnabled('getUnread') ? st.unread : []),
+            ...(v2ToolEnabled('getRecent') ? st.recentMessages : []),
+            // With history tools disabled, ordinary wait may still receive
+            // future arrivals, but cannot reveal the pre-request buffer.
+            ...(!replyWait ? st.recentMessages.filter(m => m.seq > requestSeq) : [])];
           const pending = [...new Map(history
             .filter((m) => m && !m.isSelf && (m.seq || 0) > baseline)
             .map((m) => [m.seq, m])).values()].sort((a, b) => a.seq - b.seq);
